@@ -1,3 +1,4 @@
+require('dotenv').config()
 
 export default {
   mode: 'universal',
@@ -15,6 +16,10 @@ export default {
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
   },
+  server: {
+    port: process.env.BASE_PORT,
+    host: process.env.BASE_URL
+  },
   /*
   ** Customize the progress-bar color
   */
@@ -23,6 +28,7 @@ export default {
   ** Global CSS
   */
   css: [
+    'milligram'
   ],
   /*
   ** Plugins to load before mounting the App
@@ -40,7 +46,6 @@ export default {
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
-    // Doc: https://github.com/nuxt-community/dotenv-module
     '@nuxtjs/dotenv',
   ],
   /*

@@ -1,10 +1,13 @@
 <template lang="pug">
-  .container
-    div
-      h1.title Help Me If You Can!
-      .links
-        nuxt-link.button(to='/login') Login
-        nuxt-link.button(to='/register') Register
+	.container
+		div
+			h1.title Login
+			form
+				label(for='email') Email
+				input(type='text')
+				label(for='password') Passwort
+				input(type='password')
+				input.button-primary(type='submit' value='Login')
 </template>
 
 <script>
@@ -14,16 +17,19 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .container {
   margin: 0 auto;
   min-height: 100vh;
+	max-width: 600px;
   display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
+	div{
+		width: 100%;
+	}
 }
-
 .title {
   font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
     'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -33,14 +39,10 @@ export default {
   color: #35495e;
   letter-spacing: 1px;
 }
-
-.subtitle {
-  font-weight: 300;
-  font-size: 42px;
-  color: #526488;
-  padding-bottom: 15px;
+form{
+	width: 100%;
 }
-.button{
-  margin: 0 16px;
+input{
+	text-align: center;
 }
 </style>
