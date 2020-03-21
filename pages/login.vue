@@ -1,48 +1,73 @@
 <template lang="pug">
-	.container
-		div
-			h1.title Login
-			form
-				label(for='email') Email
-				input(type='text')
-				label(for='password') Passwort
-				input(type='password')
-				input.button-primary(type='submit' value='Login')
+  .login
+    .form-wrapper
+      h1.title Login
+      form
+        input#email(type='text' placeholder="Email")
+        input#password(type='password' placeholder="Passwort")
+        input.button(type='submit' value='Login')
+    .wrap-map
+      #map
+    script(src=`https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_API_KEY}&callback=initMap` async='' defer='')
+    script.
+      var map
+        function initMap() {
+          map = new google.maps.Map(document.getElementById('map'), {
+            center: { lat: 53.565965, lng: 9.948829 },
+            zoom: 13,
+            disableDefaultUI: true
+          })
+
+          var cityCircle = new google.maps.Circle({
+            strokeColor: '#FFA500',
+            strokeOpacity: 1,
+            strokeWeight: 4,
+            map: map,
+            center: { lat: 53.565965, lng: 10.00 },
+            radius: Math.sqrt(1) * 100
+          });
+          var cityCircle2 = new google.maps.Circle({
+            strokeColor: '#00FF00',
+            strokeOpacity: 1,
+            strokeWeight: 2,
+            map: map,
+            center: { lat: 53.565965, lng: 9.948829 },
+            radius: Math.sqrt(1) * 100
+          });
+      }
 </template>
-
 <script>
-import Logo from '~/components/Logo.vue'
-
-export default {
-}
+export default {}
 </script>
 
 <style lang="scss">
-.container {
-  margin: 0 auto;
-  min-height: 100vh;
-	max-width: 600px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-	div{
-		width: 100%;
-	}
-}
-.title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-  display: block;
-  font-weight: 300;
-  font-size: 100px;
-  color: #35495e;
-  letter-spacing: 1px;
-}
-form{
-	width: 100%;
-}
-input{
-	text-align: center;
+.login {
+  form {
+  }
+  input,
+  label {
+    display: block;
+    width: 100%;
+    margin: 0 auto;
+    margin-bottom: 16px;
+  }
+  input {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid #919191;
+  }
+  label {
+  }
+  .button {
+    width: 200px;
+  }
+  #map {
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+  }
 }
 </style>
