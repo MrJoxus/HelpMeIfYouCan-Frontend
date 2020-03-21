@@ -52,7 +52,6 @@
 
 <script>
 export default {
-  components: ['navbar']
 }
 </script>
 

@@ -4,6 +4,7 @@
       h5 Help Me If You Can!
     .navbar-items
       nuxt-link.navbar-item(to='/') Über uns
+      nuxt-link.navbar-item(to='/impressum') Impressum
       nuxt-link.navbar-item(to='/login') Login
       nuxt-link.navbar-item(to='/register') Registrieren
 </template>
