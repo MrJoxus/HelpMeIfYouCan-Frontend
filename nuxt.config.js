@@ -30,7 +30,6 @@ export default {
   */
   css: [
     './assets/scss/global.scss'
-    // 'milligram'
   ],
   /*
   ** Plugins to load before mounting the App
