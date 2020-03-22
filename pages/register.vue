@@ -3,19 +3,19 @@
     .form-wrapper
       h1.title Registrieren
       form
-        input#name(type='text' name="name" placeholder="Vorname")
-        input#surname.pseudo-class(type='text' name="surname" placeholder="Nachname")
+        input#name(v-model="form.name" type='text' name="name" placeholder="Vorname")
+        input#surname(v-model="form.surname" type='text' name="surname" placeholder="Nachname")
         hr
         br
-        input#address(type='text' name="address" placeholder="Adresse")
-        input#postalcode(type='text' name="postalcode" placeholder="Postleitzahl")
-        input#area(type='text' name="area" placeholder="Ort")
+        input#address(v-model="form.address" type='text' name="address" placeholder="Adresse")
+        input#postalcode(v-model="form.postalcode" type='text' name="postalcode" placeholder="Postleitzahl")
+        input#area(v-model="form.area" type='text' name="area" placeholder="Ort")
         hr
         br
-        input#email(type='email' name="email" placeholder="Email")
-        input#password(type='password' name="password" placeholder="Passwort")
-        input#password-confirmation(type='password' name="passwordConfirmation" placeholder="Passwort wiederholen")
-        input.button(type='submit' value='Registrieren')
+        input#email(v-model="form.email" type='email' name="email" placeholder="Email")
+        input#password(v-model="form.password" type='password' name="password" placeholder="Passwort")
+        input#password-confirmation(v-model="form.passwordConfirmation" type='password' name="passwordConfirmation" placeholder="Passwort wiederholen")
+        .button(@click="submitForm(form)") Registrieren
       div.link--small
         span Du hast bereits einen Account?
           nuxt-link.primary-color(to='/login')  Login
@@ -24,7 +24,26 @@
 
 <script>
 export default {
-  layout: 'default'
+  layout: 'default',
+  data: function() {
+    return {
+      form: {
+        name: '',
+        surname: '',
+        address: '',
+        postalcode: '',
+        area: '',
+        email: '',
+        password: '',
+        passwordConfirmation: ''
+      }
+    }
+  },
+  methods: {
+    submitForm: function(form) {
+      console.log(form)
+    }
+  }
 }
 </script>
 

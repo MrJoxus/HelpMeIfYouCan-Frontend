@@ -3,9 +3,9 @@
     .form-wrapper
       h1.title Login
       form
-        input#email(type='text' name="email" placeholder="Email")
-        input#password(type='password' name="password" placeholder="Passwort")
-        input.button(type='submit' value='Login')
+        input#email(v-model="form.email" type='text' name="email" placeholder="Email")
+        input#password(v-model="form.password" type='password' name="password" placeholder="Passwort")
+        .button(@click="submitForm(form)") Login
       div.link--small
         span Brauchst du einen Account?
           nuxt-link.primary-color(to='/register')  Registrieren
@@ -13,7 +13,20 @@
 </template>
 <script>
 export default {
-  layout: 'default'
+  layout: 'default',
+  data: function() {
+    return {
+      form: {
+        email: '',
+        password: '',
+      }
+    }
+  },
+  methods: {
+    submitForm: function(form) {
+      console.log(form)
+    }
+  }
 }
 </script>
 
