@@ -5,11 +5,11 @@
         h1.title Help Me If You Can!
         p.subtitle Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig.
       .cards
-        .card
+        nuxt-link.card(to='/register')
           h3.card-header Ich möchte helfen
           .card-image
             img(src="../assets/img/002-hilfe-1.png")
-        .card
+        nuxt-link.card(to='/register')
           h3.card-header Ich benötige Hilfe
           .card-image
             img(src="../assets/img/001-hilfe.png")
@@ -17,41 +17,11 @@
         | ham venison flank kevin. Pastrami doner kevin flank, meatball pig pork brisket picanha. Picanha buffalo turkey meatloaf, tenderloin boudin shoulder hamburger brisket.
       .links
         nuxt-link.button(to='/register') Registriere dich!
-    .wrap-map
-      #map
-    script(src=`https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_API_KEY}&callback=initMap` async='' defer='')
-    script.
-      var map
-        function initMap() {
-          map = new google.maps.Map(document.getElementById('map'), {
-            center: { lat: 53.565965, lng: 9.948829 },
-            zoom: 13,
-            disableDefaultUI: true
-
-          })
-
-          var cityCircle = new google.maps.Circle({
-            strokeColor: '#FFA500',
-            strokeOpacity: 1,
-            strokeWeight: 4,
-            map: map,
-            center: { lat: 53.565965, lng: 10.00 },
-            radius: Math.sqrt(1) * 100
-          });
-          var cityCircle2 = new google.maps.Circle({
-            strokeColor: '#00FF00',
-            strokeOpacity: 1,
-            strokeWeight: 2,
-            map: map,
-            center: { lat: 53.565965, lng: 9.948829 },
-            radius: Math.sqrt(1) * 100
-          });
-      }
-
 </template>
 
 <script>
 export default {
+  layout: 'default'
 }
 </script>
 
@@ -74,7 +44,7 @@ export default {
   }
   .headline {
     .title {
-      text-shadow: 1px 0 8px rgba(0, 0, 0, 0.2);
+      text-shadow: 1px 0 6px rgba(0, 0, 0, 0.2);
     }
   }
   .links {
@@ -90,6 +60,7 @@ export default {
     position: relative;
     width: 50%;
     margin: 16px;
+    color: black;
   }
   #map {
     z-index: 1;

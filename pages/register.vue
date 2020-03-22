@@ -3,62 +3,39 @@
     .form-wrapper
       h1.title Registrieren
       form
-        input#name(type='text' placeholder="Vorname")
-        input#surname(type='text' placeholder="Nachname")
-        input#address(type='text' placeholder="Adresse")
-        input#postalcode(type='text' placeholder="Postleitzahl")
-        input#area(type='text' placeholder="Ort")
-        input#email(type='email' placeholder="Email")
-        input#password(type='password' placeholder="Passwort")
-        input#password-confirmation(type='password' placeholder="Passwort wiederholen")
+        input#name(type='text' name="name" placeholder="Vorname")
+        input#surname.pseudo-class(type='text' name="surname" placeholder="Nachname")
+        hr
+        br
+        input#address(type='text' name="address" placeholder="Adresse")
+        input#postalcode(type='text' name="postalcode" placeholder="Postleitzahl")
+        input#area(type='text' name="area" placeholder="Ort")
+        hr
+        br
+        input#email(type='email' name="email" placeholder="Email")
+        input#password(type='password' name="password" placeholder="Passwort")
+        input#password-confirmation(type='password' name="passwordConfirmation" placeholder="Passwort wiederholen")
         input.button(type='submit' value='Registrieren')
-    .wrap-map
-      #map
-    script(src=`https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_API_KEY}&callback=initMap` async='' defer='')
-    script.
-      var map
-        function initMap() {
-          map = new google.maps.Map(document.getElementById('map'), {
-            center: { lat: 53.565965, lng: 9.948829 },
-            zoom: 13,
-            disableDefaultUI: true,
-          })
-
-          var cityCircle = new google.maps.Circle({
-            strokeColor: '#FFA500',
-            strokeOpacity: 1,
-            strokeWeight: 4,
-            map: map,
-            center: { lat: 53.565965, lng: 10.00 },
-            radius: Math.sqrt(1) * 100
-          });
-          var cityCircle2 = new google.maps.Circle({
-            strokeColor: '#00FF00',
-            strokeOpacity: 1,
-            strokeWeight: 2,
-            map: map,
-            center: { lat: 53.565965, lng: 9.948829 },
-            radius: Math.sqrt(1) * 100
-          });
-      }
+      div.link--small
+        span Du hast bereits einen Account?
+          nuxt-link.primary-color(to='/login')  Login
+      nuxt-link.link--small.primary-color(to='/reset-password') Passwort vergessen?
 </template>
 
 <script>
-export default {}
+export default {
+  layout: 'default'
+}
 </script>
 
 <style lang="scss">
 .register {
-  #map {
-    z-index: 1;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-  }
   .button {
     width: 200px;
+  }
+  hr {
+    border-top: solid 1px #919191;
+    // border-top: 1px solid red;
   }
 }
 </style>

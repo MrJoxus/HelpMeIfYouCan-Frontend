@@ -3,12 +3,13 @@
 </template>
 
 <script>
-export default {}
+export default {
+  layout: 'default'
+}
 </script>
 
 <style lang="scss">
 .impressum {
-  margin-top: 56px;
   background: red;
 }
 </style>
