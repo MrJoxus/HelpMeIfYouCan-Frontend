@@ -1,12 +1,12 @@
 <template lang="pug">
   .navbar
-    nuxt-link.navbar-title(to='/')
+    nuxt-link.navbar-title.pseudo-class(to='/')
       h5 Help Me If You Can!
     .navbar-items
-      nuxt-link.navbar-item(to='/') Über uns
-      nuxt-link.navbar-item(to='/impressum') Impressum
-      nuxt-link.navbar-item(to='/login') Login
-      nuxt-link.navbar-item(to='/register') Registrieren
+      nuxt-link.navbar-item.pseudo-class(to='/about-us') Über uns
+      nuxt-link.navbar-item.pseudo-class(to='/impressum') Impressum
+      nuxt-link.navbar-item.pseudo-class(to='/login') Login
+      nuxt-link.navbar-item.pseudo-class(to='/register') Registrieren
 </template>
 
 <script>
@@ -24,11 +24,23 @@ $navbar-height: 56px;
   width: 100vw;
   background: #f7f7f7;
   box-shadow: 0 5px 20px 0 rgba(0, 0, 0, 0.3);
+  a {
+    &:link,
+    &:visited,
+    &:hover,
+    &:active {
+      color: black;
+    }
+  }
   .navbar-title {
     display: inline-block;
     margin-left: $navbar-height;
     line-height: $navbar-height;
+    transition: color 0.4s ease;
     cursor: pointer;
+    &:hover {
+      color: rgb(34, 123, 192);
+    }
   }
   .navbar-items {
     float: right;
