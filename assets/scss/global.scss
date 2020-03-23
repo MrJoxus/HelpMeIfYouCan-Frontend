@@ -43,6 +43,9 @@ p {
 .primary-color {
   color: $primary-color;
 }
+.error{
+  color: red;
+}
 // Card
 
 .card {
@@ -166,3 +169,4 @@ a {
 .page-enter, .page-leave-to {
   opacity: 0;
 }
+

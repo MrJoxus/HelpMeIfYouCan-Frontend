@@ -3,6 +3,7 @@
     nuxt-link.navbar-title.pseudo-class(to='/')
       h5 Help Me If You Can!
     .navbar-items
+      nuxt-link.navbar-item.pseudo-class(to='/search-address') Geocoder
       nuxt-link.navbar-item.pseudo-class(to='/about-us') Über uns
       nuxt-link.navbar-item.pseudo-class(to='/impressum') Impressum
       template(v-if="$auth.loggedIn")
