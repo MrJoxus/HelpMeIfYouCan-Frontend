@@ -3,54 +3,68 @@
     navbar
     .placeholder
     nuxt
-    .wrap-map
-      #map
-    script(src=`https://maps.googleapis.com/maps/api/js?key=${process.env.GOOGLE_API_KEY}&callback=initMap` async='' defer='')
-    script.
-      var map
-        function initMap() {
-          map = new google.maps.Map(document.getElementById('map'), {
-            center: { lat: 53.565965, lng: 9.948829 },
-            zoom: 13,
-            disableDefaultUI: true,
-            styles: [
-              {
-                featureType: 'poi.business',
-                elementType: 'labels',
-                stylers: [
-                  {
-                    visibility: 'off'
-                  }
-                ]
-              }
-            ]
-          })
-          var cityCircle = new google.maps.Circle({
-            strokeColor: '#FFA500',
-            strokeOpacity: 1,
-            strokeWeight: 4,
-            map: map,
-            center: { lat: 53.565965, lng: 10.00 },
-            radius: Math.sqrt(1) * 100
-          });
-          var cityCircle2 = new google.maps.Circle({
-            strokeColor: '#00FF00',
-            strokeOpacity: 1,
-            strokeWeight: 2,
-            map: map,
-            center: { lat: 53.565965, lng: 9.948829 },
-            radius: Math.sqrt(1) * 100
-          });
-        }
+    GMap(
+      ref='gMap'
+      :center='{lat: locations[0].lat, lng: locations[0].lng}'
+      :options='{fullscreenControl: false, disableDefaultUI: true, styles: googleMaps.styles}'
+      :zoom='13'
+      )
+      GMapMarker(
+        v-for="location in locations"
+        :key="location.id"
+        :position="{lat: location.lat, lng: location.lng}"
+        :options="{icon: require('~/assets/img/002-flagge.png')}"
+
+      )
+        GMapInfoWindow
+          code.
+            lat: {{ location.lat }},
+            lng: {{ location.lng }},
+            asdf: {{ location.id }}
+
+
 </template>
 <script>
 import navbar from '~/components/navbar.vue'
 
 export default {
-  components: { navbar }
+  components: { navbar },
+  data: function() {
+    return {
+      address: {
+        street: '',
+        postalcode: '',
+        area: '',
+        location: { lat: 53.6179168, lng: 10.0886449 }
+      },
+      currentLocation: { lat: 53.565965, lng: 9.948829 },
+
+      locations: [
+        { id: 0, lat: 53.565965, lng: 9.948829 },
+        { id: 1, lat: 53.6179168, lng: 10.0886449 }
+      ],
+      pins: {
+        selected: '/assets/img/001-hilfe.png',
+        notSelected: '/assets/img/001-hilfe.png'
+      },
+      googleMaps: {
+        styles: [
+          {
+            featureType: 'poi.business',
+            elementType: 'labels',
+            stylers: [
+              {
+                visibility: 'off'
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
 }
 </script>
-<style>
+<style lang="scss">
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -101,16 +115,15 @@ html {
 .placeholder {
   height: 56px;
 }
-.wrap-map {
+.GMap {
   z-index: -1;
   position: absolute;
   top: 0;
   left: 0;
   height: 100vh;
   width: 100vw;
-}
-#map {
-  width: 100%;
-  height: 100%;
+  .GMap__Wrapper {
+    height: 100%;
+  }
 }
 </style>

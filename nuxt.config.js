@@ -1,26 +1,26 @@
-require("dotenv").config()
+require('dotenv').config()
 
 export default {
-  mode: "universal",
+  mode: 'universal',
   /*
    ** Headers of the page
    */
   head: {
-    title: process.env.npm_package_name || "",
+    title: process.env.npm_package_name || '',
     meta: [
-      { charset: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { charset: 'utf-8' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1' },
       {
-        hid: "description",
-        name: "description",
-        content: process.env.npm_package_description || ""
+        hid: 'description',
+        name: 'description',
+        content: process.env.npm_package_description || ''
       }
     ],
     link: [
-      { rel: "icon", type: "image/x-icon", href: "/favicon.ico" },
+      { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css?family=Roboto&display=swap"
+        rel: 'stylesheet',
+        href: 'https://fonts.googleapis.com/css?family=Roboto&display=swap'
       }
     ]
   },
@@ -36,12 +36,12 @@ export default {
       local: {
         endpoints: {
           login: {
-            url: "/api/auth/login",
-            method: "post",
-            propertyName: "token"
+            url: '/api/auth/login',
+            method: 'post',
+            propertyName: 'token'
           },
-          logout: { url: "/api/auth/logout", method: "post" },
-          user: { url: "/api/auth/user", method: "get", propertyName: "user" }
+          logout: { url: '/api/auth/logout', method: 'post' },
+          user: { url: '/api/auth/user', method: 'get', propertyName: 'user' }
         }
         // tokenRequired: true,
         // tokenType: 'bearer'
@@ -52,11 +52,11 @@ export default {
   /*
    ** Customize the progress-bar color
    */
-  loading: { color: "#fff" },
+  loading: { color: '#fff' },
   /*
    ** Global CSS
    */
-  css: ["./assets/scss/global.scss"],
+  css: ['./assets/scss/global.scss'],
   /*
    ** Plugins to load before mounting the App
    */
@@ -70,9 +70,12 @@ export default {
    */
   modules: [
     // Doc: https://axios.nuxtjs.org/usage
-    "@nuxtjs/axios",
-    "@nuxtjs/dotenv",
-    "@nuxtjs/auth"
+    '@nuxtjs/axios',
+    '@nuxtjs/dotenv',
+    '@nuxtjs/auth',
+    ['nuxt-gmaps', {
+      key: process.env.GOOGLE_API_KEY
+    }]
   ],
   /*
    ** Axios module configuration
