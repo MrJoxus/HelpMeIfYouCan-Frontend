@@ -2,20 +2,20 @@
   .register
     .form-wrapper
       h1.title Registrieren
-      form
-        input#name(v-model="form.name" type='text' name="name" placeholder="Vorname")
-        input#surname(v-model="form.surname" type='text' name="surname" placeholder="Nachname")
+      form(@submit="submitForm")
+        input#name(v-model="register.name" type='text' name="name" placeholder="Vorname")
+        input#surname(v-model="register.surname" type='text' name="surname" placeholder="Nachname")
         hr
         br
-        input#address(v-model="form.address" type='text' name="address" placeholder="Adresse")
-        input#postalcode(v-model="form.postalcode" type='text' name="postalcode" placeholder="Postleitzahl")
-        input#area(v-model="form.area" type='text' name="area" placeholder="Ort")
+        input#address(v-model="register.address" type='text' name="address" placeholder="Adresse")
+        input#postalcode(v-model="register.postalcode" type='text' name="postalcode" placeholder="Postleitzahl")
+        input#area(v-model="register.area" type='text' name="area" placeholder="Ort")
         hr
         br
-        input#email(v-model="form.email" type='email' name="email" placeholder="Email")
-        input#password(v-model="form.password" type='password' name="password" placeholder="Passwort")
-        input#password-confirmation(v-model="form.passwordConfirmation" type='password' name="passwordConfirmation" placeholder="Passwort wiederholen")
-        .button(@click="submitForm(form)") Registrieren
+        input#email(v-model="register.email" type='email' name="email" placeholder="Email")
+        input#password(v-model="register.password" type='password' name="password" placeholder="Passwort")
+        input#password-confirmation(v-model="register.passwordConfirmation" type='password' name="passwordConfirmation" placeholder="Passwort wiederholen")
+        button.button(type="submit") Registrieren
       div.link--small
         span Du hast bereits einen Account?
           nuxt-link.primary-color(to='/login')  Login
@@ -24,10 +24,10 @@
 
 <script>
 export default {
-  layout: 'default',
+  layout: "with-map",
   data: function() {
     return {
-      form: {
+      register: {
         name: '',
         surname: '',
         address: '',
@@ -40,8 +40,10 @@ export default {
     }
   },
   methods: {
-    submitForm: function(form) {
-      console.log(form)
+    submitForm: function(e) {
+      this.$auth.loginWith('local', {})
+      e.preventDefault()
+      console.log(this.register)
     }
   }
 }

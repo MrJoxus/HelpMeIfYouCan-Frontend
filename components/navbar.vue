@@ -5,12 +5,21 @@
     .navbar-items
       nuxt-link.navbar-item.pseudo-class(to='/about-us') Über uns
       nuxt-link.navbar-item.pseudo-class(to='/impressum') Impressum
-      nuxt-link.navbar-item.pseudo-class(to='/login') Login
-      nuxt-link.navbar-item.pseudo-class(to='/register') Registrieren
+      template(v-if="$auth.loggedIn")
+        nuxt-link.navbar-item.pseudo-class(to='/logout') Logout
+
+      template(v-else)
+        nuxt-link.navbar-item.pseudo-class(to='/login') Login
+        nuxt-link.navbar-item.pseudo-class(to='/register') Registrieren
+
 </template>
 
 <script>
-export default {}
+export default {
+  mounted(){
+    console.log(this.$auth)
+  }
+}
 </script>
 
 <style lang="scss">
