@@ -2,9 +2,7 @@ require('dotenv').config()
 
 export default {
   mode: 'universal',
-  /*
-   ** Headers of the page
-   */
+
   head: {
     title: process.env.npm_package_name || '',
     meta: [
@@ -24,24 +22,27 @@ export default {
       }
     ]
   },
+
   server: {
     port: process.env.BASE_PORT,
     host: process.env.BASE_URL
   },
+
   router: {
     // middleware: ['auth']
   },
+
   auth: {
     strategies: {
       local: {
         endpoints: {
           login: {
-            url: '/api/auth/login',
+            url: '/auth/signin',
             method: 'post',
             propertyName: 'token'
           },
-          logout: { url: '/api/auth/logout', method: 'post' },
-          user: { url: '/api/auth/user', method: 'get', propertyName: 'user' }
+          logout: { url: '/auth/logout', method: 'post' },
+          user: { url: '/user/me', method: 'get', propertyName: 'email' }
         }
         // tokenRequired: true,
         // tokenType: 'bearer'
@@ -49,46 +50,34 @@ export default {
       }
     }
   },
-  /*
-   ** Customize the progress-bar color
-   */
+
   loading: { color: '#fff' },
-  /*
-   ** Global CSS
-   */
+
   css: ['./assets/scss/global.scss'],
-  /*
-   ** Plugins to load before mounting the App
-   */
-  plugins: [],
-  /*
-   ** Nuxt.js dev-modules
-   */
+
+  // plugins: ['~/plugins/axios.js'],
+
   buildModules: [],
-  /*
-   ** Nuxt.js modules
-   */
+
   modules: [
-    // Doc: https://axios.nuxtjs.org/usage
     '@nuxtjs/axios',
     '@nuxtjs/dotenv',
     '@nuxtjs/auth',
-    ['nuxt-gmaps', {
-      key: process.env.GOOGLE_API_KEY
-    }]
+    [
+      'nuxt-gmaps',
+      {
+        key: process.env.GOOGLE_API_KEY
+      }
+    ]
   ],
-  /*
-   ** Axios module configuration
-   ** See https://axios.nuxtjs.org/options
-   */
-  axios: {},
-  /*
-   ** Build configuration
-   */
+
+  axios: {
+    baseURL: `http://localhost:${process.env.BACKEND_PORT}`
+  },
+
+  proxy: {},
+
   build: {
-    /*
-     ** You can extend webpack config here
-     */
     extend(config, ctx) {}
   }
 }

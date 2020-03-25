@@ -4,17 +4,19 @@
       h1.title Registrieren
       form(@submit="submitForm")
         input#name(v-model="register.name" type='text' name="name" placeholder="Vorname")
-        input#surname(v-model="register.surname" type='text' name="surname" placeholder="Nachname")
+        input#lastName(v-model="register.lastName" type='text' name="lastName" placeholder="Nachname")
+        input#phoneNr(v-model="register.phoneNr" type='text' name="lastName" placeholder="Telefonnummer")
         hr
         br
-        input#address(v-model="register.address" type='text' name="address" placeholder="Adresse")
-        input#postalcode(v-model="register.postalcode" type='text' name="postalcode" placeholder="Postleitzahl")
-        input#area(v-model="register.area" type='text' name="area" placeholder="Ort")
-        hr
-        br
+        //- input#address(v-model="register.address" type='text' name="address" placeholder="Adresse")
+        //- input#postalcode(v-model="register.postalcode" type='text' name="postalcode" placeholder="Postleitzahl")
+        //- input#area(v-model="register.area" type='text' name="area" placeholder="Ort")
+        //- hr
+        //- br
         input#email(v-model="register.email" type='email' name="email" placeholder="Email")
         input#password(v-model="register.password" type='password' name="password" placeholder="Passwort")
         input#password-confirmation(v-model="register.passwordConfirmation" type='password' name="passwordConfirmation" placeholder="Passwort wiederholen")
+        p.error(v-if='error') Passwörter stimmen nicht überein.
         button.button(type="submit") Registrieren
       div.link--small
         span Du hast bereits einen Account?
@@ -24,26 +26,51 @@
 
 <script>
 export default {
-  layout: "with-map",
+  layout: 'with-map',
   data: function() {
     return {
+      error: false,
       register: {
-        name: '',
-        surname: '',
+        name: 'Joachim',
+        lastName: 'Kiedrowski',
         address: '',
+        phoneNr: 123456789,
         postalcode: '',
         area: '',
-        email: '',
-        password: '',
-        passwordConfirmation: ''
+        email: 'qwertz@mail.com',
+        password: 'asdf',
+        passwordConfirmation: 'asdf'
       }
     }
   },
   methods: {
     submitForm: function(e) {
-      this.$auth.loginWith('local', {})
       e.preventDefault()
-      console.log(this.register)
+      this.validatePassword()
+
+      if (!this.error) {
+        let self = this
+        this.$axios
+          .post('/auth/signup', {
+            email: self.register.email,
+            password: self.register.password,
+            phoneNr: self.register.phoneNr,
+            name: self.register.name,
+            lastName: self.register.lastName
+          })
+          .then(response => {
+            self.$router.push('login')
+          })
+          .catch(error => {
+            console.log('error', error)
+          })
+      }
+    },
+    validatePassword: function() {
+      this.error =
+        this.register.password != this.register.passwordConfirmation
+          ? true
+          : false
     }
   }
 }

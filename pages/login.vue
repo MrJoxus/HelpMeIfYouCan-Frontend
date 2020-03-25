@@ -2,7 +2,7 @@
   .login
     .form-wrapper
       h1.title Login
-      form(@submit="submitForm")
+      form(@submit="userLogin")
         input#email(v-model="login.email" type="text" name="email" placeholder="Email")
         input#password(v-model="login.password" type="password" name="password" placeholder="Passwort")
         button.button(type="submit") Login
@@ -13,22 +13,31 @@
 </template>
 <script>
 export default {
-  layout: "with-map",
+  layout: 'with-map',
   data: function() {
     return {
       login: {
-        email: "",
-        password: ""
+        email: 'qwerstz@mail.com',
+        password: 'asdf'
       }
     }
   },
   methods: {
-    submitForm: function(e) {
-      this.$auth.loginWith("local", {
+    userLogin: function(e) {
+      e.preventDefault()
+      this.$auth.loginWith('local', {
         data: this.login
       })
-      e.preventDefault()
-    }
+    },
+    // async userLogin() {
+    //   e.preventDefault()
+    //   try {
+    //     let response = await this.$auth.loginWith('local', { data: this.login })
+    //     console.log("response", response)
+    //   } catch (err) {
+    //     console.log(err)
+    //   }
+    // }
   }
 }
 </script>

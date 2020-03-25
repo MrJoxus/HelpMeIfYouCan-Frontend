@@ -1,17 +1,17 @@
 <template lang="pug">
   .navbar
-    nuxt-link.navbar-title.pseudo-class(to='/')
+    nuxt-link.navbar-title(to='/')
       h5 Help Me If You Can!
     .navbar-items
-      nuxt-link.navbar-item.pseudo-class(to='/search-address') Geocoder
-      nuxt-link.navbar-item.pseudo-class(to='/about-us') Über uns
-      nuxt-link.navbar-item.pseudo-class(to='/impressum') Impressum
+      nuxt-link.navbar-item(to='/search-address') Geocoder
+      nuxt-link.navbar-item(to='/about-us') Über uns
+      nuxt-link.navbar-item(to='/impressum') Impressum
       template(v-if="$auth.loggedIn")
-        nuxt-link.navbar-item.pseudo-class(to='/logout') Logout
-
+        span.navbar-item  {{ $auth.user }}
+        nuxt-link.navbar-item(to='/logout') Logout
       template(v-else)
-        nuxt-link.navbar-item.pseudo-class(to='/login') Login
-        nuxt-link.navbar-item.pseudo-class(to='/register') Registrieren
+        nuxt-link.navbar-item(to='/login') Login
+        nuxt-link.navbar-item(to='/register') Registrieren
 
 </template>
 
