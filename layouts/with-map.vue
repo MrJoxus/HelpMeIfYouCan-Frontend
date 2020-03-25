@@ -3,24 +3,24 @@
     navbar
     .placeholder
     nuxt
-    GMap(
-      ref='gMap'
-      :center='{lat: locations[0].lat, lng: locations[0].lng}'
-      :options='{fullscreenControl: false, disableDefaultUI: true, styles: googleMaps.styles}'
-      :zoom='13'
-      )
-      GMapMarker(
-        v-for="location in locations"
-        :key="location.id"
-        :position="{lat: location.lat, lng: location.lng}"
-        :options="{icon: require('~/assets/img/002-flagge.png')}"
+    //- GMap(
+    //-   ref='gMap'
+    //-   :center='{lat: locations[0].lat, lng: locations[0].lng}'
+    //-   :options='{fullscreenControl: false, disableDefaultUI: true, styles: googleMaps.styles}'
+    //-   :zoom='13'
+    //-   )
+    //-   GMapMarker(
+    //-     v-for="location in locations"
+    //-     :key="location.id"
+    //-     :position="{lat: location.lat, lng: location.lng}"
+    //-     :options="{icon: require('~/assets/img/002-flagge.png')}"
 
-      )
-        GMapInfoWindow
-          code.
-            lat: {{ location.lat }},
-            lng: {{ location.lng }},
-            asdf: {{ location.id }}
+    //-   )
+    //-     GMapInfoWindow
+    //-       code.
+    //-         lat: {{ location.lat }},
+    //-         lng: {{ location.lng }},
+    //-         asdf: {{ location.id }}
 
 
 </template>
@@ -50,7 +50,7 @@ export default {
       googleMaps: {
         styles: [
           {
-            featureType: 'poi.business',
+            featureType: 'poi',
             elementType: 'labels',
             stylers: [
               {
