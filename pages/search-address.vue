@@ -30,6 +30,7 @@
 <script>
 export default {
   layout: 'without-map',
+  middleware: 'auth',
   data: function() {
     return {
       error: false,
@@ -76,14 +77,14 @@ export default {
           `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`
         )
         .then(response => {
-
+          console.log(response)
           if (response.data.results.length != 0) {
             self.error = false
             self.address.verified = true
 
             self.address.location = response.data.results[0].geometry.location
             self.googleMaps.center = response.data.results[0].geometry.location
-            self.googleMaps.zoom = 15
+            self.googleMaps.zoom = 16
 
             // this.$refs.gMap.map.panTo(response.data.results[0].geometry.location)
             // this.$refs.gMap.map.setZoom(17)

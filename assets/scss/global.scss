@@ -43,7 +43,7 @@ p {
 .primary-color {
   color: $primary-color;
 }
-.error{
+.error {
   color: red;
 }
 // Card
@@ -87,9 +87,10 @@ p {
   background-color: #f7f7f7;
   color: $primary-color;
   border: solid 1px #f7f7f7;
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2);
   &:hover {
-    color: #f7f7f7;
-    border: solid 1px #f7f7f7;
+    color: $primary-color;
+    border: solid 1px $primary-color;
     background-color: #f7f7f7;
   }
 }
@@ -148,10 +149,9 @@ a {
   }
 }
 
-
 // Font Sizes
 
-.link--small{
+.link--small {
   font-size: 14px;
 }
 
@@ -163,10 +163,24 @@ a {
 
 // Page Transitions
 
-.page-enter-active, .page-leave-active {
-  transition: opacity ease .4s;
+.page-enter-active,
+.page-leave-active {
+  transition: opacity ease 0.4s;
 }
-.page-enter, .page-leave-to {
+.page-enter,
+.page-leave-to {
   opacity: 0;
 }
 
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter,
+.fade-leave-to {
+  opacity: 0;
+}
+
+.transition{
+  transition: all 0.2s ease;
+}

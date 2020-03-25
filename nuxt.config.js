@@ -42,7 +42,7 @@ export default {
             propertyName: 'token'
           },
           logout: { url: '/auth/logout', method: 'post' },
-          user: { url: '/user/me', method: 'get', propertyName: 'email' }
+          user: { url: '/user/me', method: 'get', propertyName: 'name' }
         }
         // tokenRequired: true,
         // tokenType: 'bearer'
