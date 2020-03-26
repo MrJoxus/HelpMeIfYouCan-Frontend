@@ -8,7 +8,12 @@
 import navbar from '~/components/navbar.vue'
 
 export default {
-  components: { navbar }
+  components: { navbar },
+  mounted() {
+    if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
+      this.$store.dispatch('user/getUser')
+    }
+  }
 }
 </script>
 <style>
