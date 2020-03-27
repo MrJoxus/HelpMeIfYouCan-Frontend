@@ -21,19 +21,19 @@ export const mutations = {
 }
 
 export const actions = {
-  getUser({ commit }) {
-    // this.$axios
-    //   .get('user/me', {
-    //     headers: {
-    //       Authorization: localStorage.getItem('auth._token.local')
-    //     }
-    //   })
-    //   .then(response => {
-    //     console.log(response.data)
-    //     commit('updateUser', response.data )
-    //   })
-    //   .catch(error => {
-    //     console.log('error', error)
-    //   })
+  requestUser({ commit }) {
+    this.$axios
+      .get('api/user/me', {
+        headers: {
+          Authorization: localStorage.getItem('auth._token.local')
+        }
+      })
+      .then(response => {
+        console.log(response.data)
+        commit('updateUser', response.data)
+      })
+      .catch(error => {
+        console.log('error', error)
+      })
   }
 }

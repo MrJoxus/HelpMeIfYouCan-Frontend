@@ -32,9 +32,10 @@ export default {
     '/api/auth/login': '~/api/auth/login.js',
     '/api/auth/register': '~/api/auth/register.js',
 
-    '/api/user/me/show': '~/api/user/me/show.js',
-    '/api/user/me/delete': '~/api/user/me/delete.js',
-    '/api/user/me/update': '~/api/user/me/update.js',
+    '/api/user/me/': '~/api/user/me/index.js',
+    // '/api/user/me/show': '~/api/user/me/show.js',
+    // '/api/user/me/delete': '~/api/user/me/delete.js',
+    // '/api/user/me/update': '~/api/user/me/update.js',
 
     '/api/user/admin/create': '~/api/user/admin/create.js',
     '/api/user/admin/delete': '~/api/user/admin/delete.js',
@@ -51,12 +52,12 @@ export default {
       local: {
         endpoints: {
           login: {
-            url: '/auth/signin',
+            url: 'api/auth/login',
             method: 'post',
             propertyName: 'token'
           },
           logout: { url: '/auth/logout', method: 'post' },
-          user: { url: '/user/me', method: 'get', propertyName: 'name' }
+          user: { url: 'api/user/me', method: 'get', propertyName: 'name' }
         }
         // tokenRequired: true,
         // tokenType: 'bearer'
