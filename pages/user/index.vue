@@ -11,7 +11,7 @@
 <script>
 export default {
   layout: 'with-map',
-  middleware: 'auth',
+  // middleware: 'auth',
   methods: {},
   computed: {
     user() {

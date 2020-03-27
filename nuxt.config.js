@@ -86,7 +86,7 @@ export default {
   ],
 
   axios: {
-    baseURL: `http://localhost:${process.env.BACKEND_PORT}`
+    // baseURL: `http://localhost:${process.env.BACKEND_PORT}`
   },
 
   proxy: {},

@@ -48,23 +48,23 @@ export default {
       e.preventDefault()
       this.validatePassword()
 
-      if (!this.error) {
-        let self = this
-        this.$axios
-          .post('/auth/signup', {
-            email: self.register.email,
-            password: self.register.password,
-            phoneNr: self.register.phoneNr,
-            name: self.register.name,
-            lastName: self.register.lastName
-          })
-          .then(response => {
-            self.$router.push('login')
-          })
-          .catch(error => {
-            console.log('error', error)
-          })
-      }
+      // if (!this.error) {
+      //   let self = this
+      //   this.$axios
+      //     .post('/auth/signup', {
+      //       email: self.register.email,
+      //       password: self.register.password,
+      //       phoneNr: self.register.phoneNr,
+      //       name: self.register.name,
+      //       lastName: self.register.lastName
+      //     })
+      //     .then(response => {
+      //       self.$router.push('login')
+      //     })
+      //     .catch(error => {
+      //       console.log('error', error)
+      //     })
+      // }
     },
     validatePassword: function() {
       this.error =

@@ -24,10 +24,10 @@ export default {
   },
   methods: {
     userLogin: function(e) {
-      e.preventDefault()
-      this.$auth.loginWith('local', {
-        data: this.login
-      })
+      // e.preventDefault()
+      // this.$auth.loginWith('local', {
+      //   data: this.login
+      // })
     },
     // async userLogin() {
     //   e.preventDefault()
