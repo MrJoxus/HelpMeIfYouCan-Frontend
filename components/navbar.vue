@@ -15,9 +15,8 @@
         transition(name='fade')
           div.dropdown-menu(v-show='userInfo' ref='dropdownMenu')
             div.dropdown-item.profil-info
-              p Name Nachname
-              p Email
-              p Telefonnummer
+              p {{user.name}} {{user.lastName}}
+              p {{user.email}}
             hr
             nuxt-link.dropdown-item.profile.transition(@click.native='toggleDropdown()' to='/user') Zum Profil
             hr
@@ -32,9 +31,9 @@ export default {
       userInfo: false
     }
   },
+
   methods: {
     toggleDropdown: function() {
-      console.log("asdf")
       this.userInfo = !this.userInfo
     },
     documentClick(e) {
@@ -46,9 +45,19 @@ export default {
       }
     }
   },
-  created() {
-    document.addEventListener('click', this.documentClick)
+
+  computed: {
+    user() {
+      return this.$store.state.user
+    }
   },
+
+  mounted() {
+    if (this.$store.state.auth.loggedIn) {
+      document.addEventListener('click', this.documentClick)
+    }
+  },
+
   destroyed() {
     document.removeEventListener('click', this.documentClick)
   }
@@ -84,6 +93,9 @@ $navbar-height: 56px;
     &:hover {
       color: rgb(34, 123, 192);
     }
+    h5 {
+      padding-bottom: 0;
+    }
   }
   .navbar-items {
     float: right;
@@ -106,7 +118,7 @@ $navbar-height: 56px;
   }
   .dropdown-menu {
     position: absolute;
-    bottom: -200px;
+    bottom: -178px;
     right: 16px;
     min-width: 280px;
     padding-top: 16px;
