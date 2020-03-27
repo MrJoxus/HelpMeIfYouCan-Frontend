@@ -28,6 +28,20 @@ export default {
     host: process.env.BASE_URL
   },
 
+  serverMiddleware: {
+    '/api/auth/login': '~/api/auth/login.js',
+    '/api/auth/register': '~/api/auth/register.js',
+
+    '/api/user/me/show': '~/api/user/me/show.js',
+    '/api/user/me/delete': '~/api/user/me/delete.js',
+    '/api/user/me/update': '~/api/user/me/update.js',
+
+    '/api/user/admin/create': '~/api/user/admin/create.js',
+    '/api/user/admin/delete': '~/api/user/admin/delete.js',
+    '/api/user/admin/get': '~/api/user/admin/get.js',
+    '/api/user/admin/update': '~/api/user/admin/update.js'
+  },
+
   router: {
     // middleware: ['auth']
   },
