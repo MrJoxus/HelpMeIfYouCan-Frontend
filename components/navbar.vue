@@ -13,7 +13,7 @@
         nuxt-link.navbar-item(to='/register') Registrieren
       template(v-if='$auth.loggedIn' )
         transition(name='fade')
-          div.dropdown-menu(v-show='userInfo' ref='dropdownMenu')
+          div.dropdown-menu(v-show='dropdown' ref='dropdownMenu')
             div.dropdown-item.profil-info
               p {{user.name}} {{user.lastName}}
               p {{user.email}}
@@ -28,27 +28,27 @@
 export default {
   data: function() {
     return {
-      userInfo: false
+      dropdown: false
     }
   },
 
   methods: {
     toggleDropdown: function() {
-      this.userInfo = !this.userInfo
+      this.dropdown = !this.dropdown
     },
     documentClick(e) {
       let parent = this.$refs.parentDropdownMenu
       let el = this.$refs.dropdownMenu
       let target = e.target
       if (el !== target && parent !== target && !el.contains(target)) {
-        this.userInfo = false
+        this.dropdown = false
       }
     }
   },
 
   computed: {
     user() {
-      return this.$store.state.user
+      return this.$store.state.user.data
     }
   },
 
