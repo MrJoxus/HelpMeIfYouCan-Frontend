@@ -2,13 +2,13 @@
   .navbar
     .navbar-title
       nuxt-link(to='/')
-        h5 Help Me If You Can!
-      div.navbar-items-trigger.show-on-mobile(@click="togglenavbbarItems()")
+        h5(@click="closeNavbbarItems()") Help Me If You Can!
+      div.navbar-items-trigger.show-on-mobile(@click="toggleNavbbarItems()")
         .hamburger
           div.hamburger-item
           div.hamburger-item
           div.hamburger-item
-    .navbar-items(v-show='navbarItems')
+    .navbar-items(@click="toggleNavbbarItems()" v-show='navbarItems')
       nuxt-link.navbar-item(to='/about-us') Über uns
       nuxt-link.navbar-item(to='/impressum') Impressum
       template(v-if='$auth.loggedIn')
@@ -49,8 +49,16 @@ export default {
     toggleDropdown: function() {
       this.dropdown = !this.dropdown
     },
-    togglenavbbarItems: function() {
-      this.navbarItems = !this.navbarItems
+    toggleNavbbarItems: function() {
+      if (this.window.isMobile) {
+        this.navbarItems = !this.navbarItems
+      }
+    },
+    closeNavbbarItems: function() {
+      console.log("test")
+      if (this.window.isMobile) {
+        this.navbarItems = false
+      }
     },
     documentClick(e) {
       let parent = this.$refs.parentDropdownMenu
