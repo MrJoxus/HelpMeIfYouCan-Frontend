@@ -94,6 +94,23 @@ p {
     background-color: #f7f7f7;
   }
 }
+.button--alert {
+  color: red;
+  background: #f7f7f7;
+  border: solid red 1px;
+  &:hover {
+    background: red;
+    color: #f7f7f7;
+    border: solid red 1px;
+  }
+}
+.no-button {
+  border: unset;
+  background: unset;
+  &:focus {
+    outline: unset;
+  }
+}
 
 // Form, Input, Label, a
 
@@ -181,6 +198,36 @@ a {
   opacity: 0;
 }
 
-.transition{
+.transition {
   transition: all 0.2s ease;
+}
+
+@media (max-width: 640px) {
+  .show-on-mobile {
+    display: unset !important;
+  }
+  .hide-on-mobile {
+    display: none !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1280px) {
+  .show-on-tablet {
+    display: unset !important;
+  }
+  .hide-on-tablet {
+    display: none !important;
+  }
+  .navbar {
+    background: red;
+  }
+}
+
+@media (max-width: 1281px) {
+  .show-on-desktop {
+    display: unset !important;
+  }
+  .hide-on-desktop {
+    display: none !important;
+  }
 }
