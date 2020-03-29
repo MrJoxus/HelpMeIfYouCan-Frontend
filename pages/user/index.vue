@@ -3,39 +3,61 @@
     .main-content
       div.headline
         h1.title Dein Profil
-        .button.update-user(v-if="!editUser" @click="toggleUserEdit()") Profil bearbeiten
+        button.button.update-user(v-if="!editUserActive" @click="toggleUserEdit()") Profil bearbeiten
       div.user-items
         p.user-item.title Name
-        p.user-item.content(v-if="!editUser") {{ user.name }}
-        input.user-item.input(v-else v-model="userForm.name" type='text' name="lastName" :placeholder="user.name")
+        p.user-item.content(v-if="!editUserActive") {{ user.name }}
+        input.user-item.input(v-else v-model="userForm.name" type='text' name="name" :placeholder="formPlaceholer.name")
       hr
       div.user-items
         p.user-item.title Nachname
-        p.user-item.content(v-if="!editUser") {{ user.lastName }}
-        input.user-item.input(v-else v-model="userForm.lastName" type='text' name="lastName" :placeholder="user.lastName")
+        p.user-item.content(v-if="!editUserActive") {{ user.lastName }}
+        input.user-item.input(v-else v-model="userForm.lastName" type='text' name="lastName" :placeholder="formPlaceholer.lastName")
       hr
       div.user-items
         p.user-item.title Email
-        p.user-item.content(v-if="!editUser") {{ user.email }}
-        input.user-item.input(v-else v-model="userForm.email" type='text' name="lastName" :placeholder="user.email")
+        p.user-item.content(v-if="!editUserActive") {{ user.email }}
+        input.user-item.input(v-else v-model="userForm.email" type='text' name="email" :placeholder="formPlaceholer.email")
       hr
       div.user-items
         p.user-item.title Adresse
-        p.user-item.content(v-if="!editUser") {{ user.addresse }}
-        input.user-item.input(v-else v-model="userForm.addresse" type='text' name="lastName" :placeholder="user.addresse")
+        p.user-item.content(v-if="!editUserActive") {{ user.addresse }}
+        div.user-item(v-else)
+          input.input(
+            v-model="userForm.address"
+            @keyup="toggleAddresSearch()"
+            type='text'
+            name="address"
+            :placeholder="formPlaceholer.address"
+            )
+          input.input(
+            v-model="userForm.postalCode"
+            @keyup="toggleAddresSearch()"
+            type='text'
+            name="postalCode"
+            :placeholder="formPlaceholer.postalCode"
+            )
+          input.input(
+            v-model="userForm.area"
+            @keyup="toggleAddresSearch()"
+            type='text'
+            name="area"
+            :placeholder="formPlaceholer.area")
+          button.no-button.search-address(v-if="searchAddressActive" @click="searchAddress()") Adresse suchen
+
       hr
       div.user-items
         p.user-item.title Telefon Nummer
-        p.user-item.content(v-if="!editUser") {{ user.phoneNr }}
-        input.user-item.input(v-else v-model="userForm.phoneNr" type='text' name="lastName" :placeholder="user.phoneNr")
+        p.user-item.content(v-if="!editUserActive") {{ user.phoneNr }}
+        input.user-item.input(v-else v-model="userForm.phoneNr" type='text' name="phoneNr" :placeholder="formPlaceholer.phoneNr")
 
-      template(v-if="editUser")
+      template(v-if="editUserActive")
         .options
           span.left
-            .button.delete Profil löschen
+            button.button--alert.button.delete Profil löschen
           .right
-            span.cancel(@click="toggleUserEdit()") abbrechen
-            .button.update Profil aktualisieren
+            button.no-button.cancel(@click="toggleUserEdit()") abbrechen
+            button.button.update Profil aktualisieren
 
 </template>
 
@@ -45,15 +67,27 @@ export default {
   middleware: 'auth',
   data: function() {
     return {
-      editUser: false,
+      editUserActive: false,
+      searchAddressActive: false,
       userForm: {
         name: '',
         lastName: '',
         address: '',
         phoneNr: '',
-        postalcode: '',
+        postalCode: '',
         area: '',
         email: '',
+        password: '',
+        passwordConfirmation: ''
+      },
+      formPlaceholer: {
+        name: 'Name',
+        lastName: 'Nachname',
+        address: 'Straße',
+        phoneNr: 'Telefon Nummer',
+        postalCode: 'Postleitzahl',
+        area: 'Ort',
+        email: 'Email',
         password: '',
         passwordConfirmation: ''
       }
@@ -61,10 +95,37 @@ export default {
   },
   methods: {
     toggleUserEdit: function() {
-      this.editUser = !this.editUser
+      this.editUserActive = !this.editUserActive
+      this.editUserActive && this.setUserForm()
+      if (!this.editUserActive) {
+        this.searchAddressActive = false
+      }
+    },
+    toggleAddresSearch: function() {
+      if (
+        this.userForm.address &&
+        this.userForm.postalCode &&
+        this.userForm.area
+      ) {
+        this.searchAddressActive = true
+      } else {
+        this.searchAddressActive = false
+      }
     },
     updateUser: function() {
       this.$store.dispatch('user/updateUser')
+    },
+    setUserForm: function() {
+      this.userForm.name = this.user.name
+      this.userForm.lastName = this.user.lastName
+      this.userForm.address = this.user.address
+      this.userForm.postalCode = this.user.postalCode
+      this.userForm.area = this.user.area
+      this.userForm.phoneNr = this.user.phoneNr
+      this.userForm.email = this.user.email
+    },
+    searchAddress: function() {
+      console.log('searchAddress')
     }
   },
   computed: {
@@ -90,9 +151,6 @@ export default {
     box-shadow: 0 20px 20px 0 rgba(0, 0, 0, 0.3);
     h1 {
       text-align: left;
-    }
-    hr{
-      background: #000;
     }
     .headline {
       position: relative;
@@ -123,10 +181,17 @@ export default {
         margin-bottom: 8px;
         margin-top: 8px;
       }
+      .search-address {
+        float: right;
+        cursor: pointer;
+      }
     }
   }
   .options {
     margin-top: 24px;
+    button {
+      margin-bottom: 0;
+    }
     .left {
       .button {
         margin-left: 0;
