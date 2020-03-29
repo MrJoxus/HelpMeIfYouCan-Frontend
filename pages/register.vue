@@ -38,8 +38,8 @@ export default {
         postalcode: '',
         area: '',
         email: 'qwertz@mail.com',
-        password: 'asdf',
-        passwordConfirmation: 'asdf'
+        password: 'asdfasdf1',
+        passwordConfirmation: 'asdfasdf1'
       }
     }
   },
@@ -51,10 +51,9 @@ export default {
       if (!this.error) {
         let self = this
         this.$axios
-          .post('/auth/signup', {
+          .post('/api/auth/register', {
             email: self.register.email,
             password: self.register.password,
-            phoneNr: self.register.phoneNr,
             name: self.register.name,
             lastName: self.register.lastName
           })

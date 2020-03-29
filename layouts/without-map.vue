@@ -11,7 +11,7 @@ export default {
   components: { navbar },
   mounted() {
     if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
-      this.$store.dispatch('user/getUser')
+      this.$store.dispatch('user/requestUser')
     }
   }
 }

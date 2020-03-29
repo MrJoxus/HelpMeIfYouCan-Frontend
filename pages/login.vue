@@ -17,8 +17,8 @@ export default {
   data: function() {
     return {
       login: {
-        email: 'qwerstz@mail.com',
-        password: 'asdf'
+        email: 'qwertz@mail.com',
+        password: 'asdfasdf1'
       }
     }
   },
@@ -28,16 +28,7 @@ export default {
       this.$auth.loginWith('local', {
         data: this.login
       })
-    },
-    // async userLogin() {
-    //   e.preventDefault()
-    //   try {
-    //     let response = await this.$auth.loginWith('local', { data: this.login })
-    //     console.log("response", response)
-    //   } catch (err) {
-    //     console.log(err)
-    //   }
-    // }
+    }
   }
 }
 </script>
