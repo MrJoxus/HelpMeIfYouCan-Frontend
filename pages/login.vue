@@ -36,4 +36,16 @@ export default {
 <style lang="scss">
 .login {
 }
+@media (max-width: 640px) {
+  .login {
+    .form-wrapper {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 100%;
+      transform: unset;
+      padding-top: 56px;
+    }
+  }
+}
 </style>

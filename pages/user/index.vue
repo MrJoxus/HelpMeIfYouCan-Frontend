@@ -221,4 +221,66 @@ export default {
     margin-bottom: 4px;
   }
 }
+@media (max-width: 640px) {
+  .user {
+    .main-content {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 100%;
+      transform: unset;
+      padding-top: 56px;
+      .user-items {
+        display: block;
+      }
+      .user-item {
+        width: 100%;
+        &.title {
+          font-size: 14px;
+          margin-bottom: 8px;
+        }
+        &.content {
+          margin-top: 8px;
+        }
+        &.input {
+          margin-bottom: 16px;
+        }
+      }
+      .update-user {
+        position: relative;
+      }
+      .options {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        .left {
+          margin-top: 32px;
+          width: 100%;
+          order: 1;
+          button{
+            float: right;
+            margin-right: 0;
+          }
+        }
+        .right {
+          float: unset;
+          order: 0;
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1280px) {
+  .user {
+    .main-content {
+          top: calc(50% + 28px);
+
+      left: 50%;
+    }
+  }
+}
+
+@media (max-width: 1281px) {
+}
 </style>

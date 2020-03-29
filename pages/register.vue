@@ -82,7 +82,18 @@ export default {
   }
   hr {
     border-top: solid 1px #919191;
-    // border-top: 1px solid red;
+  }
+}
+@media (max-width: 640px) {
+  .register {
+    .form-wrapper {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 100%;
+      transform: unset;
+      padding-top: 56px;
+    }
   }
 }
 </style>
