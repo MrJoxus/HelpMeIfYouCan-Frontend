@@ -21,7 +21,7 @@
 
 <script>
 export default {
-  layout: "with-map"
+  layout: 'with-map'
 }
 </script>
 
@@ -30,7 +30,7 @@ export default {
   .main-content {
     position: absolute;
     top: 50%;
-    left: 25%;
+    left: 30%;
     transform: translate(-50%, -50%);
     z-index: 100;
     width: 640px;
@@ -55,10 +55,11 @@ export default {
   .cards {
     display: flex;
     margin-bottom: 32px;
+    flex-wrap: wrap;
   }
   .card {
     position: relative;
-    width: 50%;
+    width: calc(50% - 32px);
     margin: 16px;
     color: black;
   }
@@ -69,6 +70,31 @@ export default {
     left: 0;
     width: 100vw;
     height: 100vh;
+  }
+}
+@media (min-width: 641px) and (max-width: 1280px) {
+  .index {
+    .main-content {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+    }
+  }
+}
+@media (max-width: 640px) {
+  .index {
+    .main-content {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 100%;
+      transform: unset;
+      padding-top: 56px;
+    }
+    .card {
+      width: 100%;
+      flex: 1 0 200px;
+    }
   }
 }
 </style>
