@@ -77,13 +77,7 @@ export default {
   modules: [
     '@nuxtjs/axios',
     '@nuxtjs/dotenv',
-    '@nuxtjs/auth',
-    [
-      'nuxt-gmaps',
-      {
-        key: process.env.GOOGLE_API_KEY
-      }
-    ]
+    '@nuxtjs/auth'
   ],
 
   axios: {
