@@ -1,75 +1,81 @@
-<template lang="pug">
+<template lang='pug'>
   div
     navbar
     .placeholder
+    br
+    p(@click="removeMarker()") btn
     nuxt
-    //- GMap(
-    //-   ref='gMap'
-    //-   :center='{lat: locations[0].lat, lng: locations[0].lng}'
-    //-   :options='{fullscreenControl: false, disableDefaultUI: true, styles: googleMaps.styles}'
-    //-   :zoom='13'
-    //-   )
-    //-   GMapMarker(
-    //-     v-for="location in locations"
-    //-     :key="location.id"
-    //-     :position="{lat: location.lat, lng: location.lng}"
-    //-     :options="{icon: require('~/assets/img/002-flagge.png')}"
-
-    //-   )
-    //-     GMapInfoWindow
-    //-       code.
-    //-         lat: {{ location.lat }},
-    //-         lng: {{ location.lng }},
-    //-         asdf: {{ location.id }}
-
+    div#map(ref="map")
 
 </template>
 <script>
+var GoogleMapsApiLoader = require('google-maps-api-loader')
 import navbar from '~/components/navbar.vue'
 
 export default {
   components: { navbar },
   data: function() {
     return {
-      address: {
-        street: '',
-        postalcode: '',
-        area: '',
-        location: { lat: 53.6179168, lng: 10.0886449 }
-      },
-      currentLocation: { lat: 53.565965, lng: 9.948829 },
-
-      locations: [
-        { id: 0, lat: 53.565965, lng: 9.948829 },
-        { id: 1, lat: 53.6179168, lng: 10.0886449 }
-      ],
-      pins: {
-        selected: '/assets/img/001-hilfe.png',
-        notSelected: '/assets/img/001-hilfe.png'
-      },
-      googleMaps: {
-        styles: [
-          {
-            featureType: 'poi',
-            elementType: 'labels',
-            stylers: [
-              {
-                visibility: 'off'
-              }
-            ]
-          }
-        ]
-      }
+      loader: undefined,
+      loaded: false,
+      google: undefined,
+      map: undefined,
+      markers: []
     }
   },
-  mounted() {
-    if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
-      this.$store.dispatch('user/requestUser')
+  computed: {
+    googleMaps() {
+      return this.$store.state.gmaps
     }
+  },
+  methods: {
+    initMap() {
+      this.map = new google.maps.Map(this.$refs.map, {
+        center: this.googleMaps.center,
+        zoom: 13,
+        options: this.googleMaps.options
+      })
+    },
+    initMarker() {
+      this.markers.push(
+        new this.google.maps.Marker({
+          position: { lat: 53.565965, lng: 9.948829 },
+          map: this.map
+        })
+      )
+    },
+    removeMarker() {
+      this.markers[0].setMap(null)
+    }
+  },
+  async mounted() {
+    if (this.loaded === false) {
+      this.loaded = true
+      try {
+        const google = GoogleMapsApiLoader({
+          // libraries: ['maps'],
+          apiKey: process.env.GOOGLE_API_KEY
+        })
+        this.loader = google
+      } catch (e) {}
+    }
+
+    this.google = await this.loader
+    this.initMap()
+    this.initMarker()
+
+    // BEHALTEN
+    // if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
+    //   this.$store.dispatch('user/requestUser')
+    // }
+  },
+
+  beforeDestroy() {
+    this.loaded = false
   }
 }
 </script>
-<style lang="scss">
+<style lang='scss'>
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -120,15 +126,12 @@ html {
 .placeholder {
   height: 56px;
 }
-.GMap {
+#map {
   z-index: -1;
   position: absolute;
   top: 0;
   left: 0;
   height: 100vh;
   width: 100vw;
-  .GMap__Wrapper {
-    height: 100%;
-  }
 }
 </style>
