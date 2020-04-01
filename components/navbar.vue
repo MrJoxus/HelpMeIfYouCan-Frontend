@@ -9,6 +9,7 @@
           div.hamburger-item
           div.hamburger-item
     .navbar-items(@click="toggleNavbbarItems()" v-show='navbarItems')
+      nuxt-link.navbar-item(to='/search-address') Geocoder
       nuxt-link.navbar-item(to='/about-us') Über uns
       nuxt-link.navbar-item(to='/impressum') Impressum
       template(v-if='$auth.loggedIn')

@@ -66,12 +66,14 @@ export default {
   methods: {
     submitForm: function(e) {
       e.preventDefault()
-      this.address.verified = false
 
+      delete this.$axios.defaults.headers.common['Authorization']
+      this.address.verified = false
+      let self = this
       let addressQuery = encodeURIComponent(
         `${this.address.street}, ${this.address.postalcode}, ${this.address.area}`
       )
-      self = this
+
       this.$axios
         .get(
           `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`

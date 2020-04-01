@@ -7,5 +7,8 @@ export default {
   },
   registration: {
     emailAlreadyTaken: 'Diese Email ist bereits vergeben.'
+  },
+  login: {
+    failedAttempt: "Login nicht ergolfreich. Bitte prüfen Sie ihre Email und Passwort."
   }
 }
