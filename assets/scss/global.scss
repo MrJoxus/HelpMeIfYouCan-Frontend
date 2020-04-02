@@ -31,6 +31,7 @@ h6 {
   padding-bottom: 24px;
 }
 p {
+  font-family: 'Roboto', sans-serif;
   padding-bottom: 16px;
 }
 .container {
@@ -201,6 +202,37 @@ a {
 .transition {
   transition: all 0.2s ease;
 }
+
+// gMaps
+.info-window{
+  margin: 16px;
+  max-width: 400px;
+}
+.info-window-item{
+  margin-bottom: 16px;
+  p{
+    font-size: 14px;
+    font-weight: 400;
+  }
+  hr{
+    margin-top: 16px;
+  }
+  textarea{
+    height: 200px;
+    width: 100%;
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: 1px solid #919191;
+    transition: all 0.2s ease;
+  }
+}
+.gm-style .gm-style-iw-c{
+  border-radius: unset;
+}
+.gm-ui-hover-effect{
+  margin: 16px !important;
+}
+// Media
 
 @media (max-width: 640px) {
   .show-on-mobile {

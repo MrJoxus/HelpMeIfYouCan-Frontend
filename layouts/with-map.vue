@@ -6,6 +6,9 @@
     p(@click="removeMarker()") btn
     nuxt
     div#map(ref="map")
+    //- .info-window
+    //-   .info-window-item
+    //-     p hallo
 
 </template>
 <script>
@@ -36,18 +39,37 @@ export default {
         options: this.googleMaps.options
       })
     },
+
     initMarker() {
-      this.markers.push(
-        new this.google.maps.Marker({
-          position: { lat: 53.565965, lng: 9.948829 },
-          map: this.map
-        })
-      )
+      let marker = new this.google.maps.Marker({
+        position: { lat: 53.565965, lng: 9.948829 },
+        map: this.map
+      })
+
+      let infoWindow = this.initInfoWindow("<p>hallo</p>")
+      marker.infoWindow = infoWindow
+      this.markers.push(marker)
+      let markerIndex = this.markers.length - 1
+
+      this.markers[markerIndex].addListener('click', ()=> {
+        this.markers[markerIndex].infoWindow.open(
+          this.map,
+          this.markers[markerIndex]
+        )
+      })
     },
+
     removeMarker() {
       this.markers[0].setMap(null)
+    },
+
+    initInfoWindow(content) {
+      return new google.maps.InfoWindow({
+        content: `<div class="info-window"><div class="info-window-item"><p>hallo</p></div></div>`
+      })
     }
   },
+
   async mounted() {
     if (this.loaded === false) {
       this.loaded = true
