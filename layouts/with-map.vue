@@ -2,108 +2,20 @@
   div
     navbar
     .placeholder
-    br
-    p(@click="removeMarker(0)") btn
     nuxt
-    div#map(ref="map")
+    gmaps
 
 </template>
 <script>
-var GoogleMapsApiLoader = require('google-maps-api-loader')
 import navbar from '~/components/navbar.vue'
+import gmaps from '~/components/gmaps.vue'
 
 export default {
-  components: { navbar },
-  data: function() {
-    return {
-      loader: undefined,
-      loaded: false,
-      google: undefined,
-      map: undefined,
-      markers: [],
-      lastMarker: undefined
-    }
-  },
-  computed: {
-    googleMaps() {
-      return this.$store.state.gmaps
-    }
-  },
-  methods: {
-    initMap() {
-      this.map = new google.maps.Map(this.$refs.map, {
-        center: this.googleMaps.center,
-        zoom: 13,
-        options: this.googleMaps.options
-      })
-    },
-
-    initMarker() {
-      console.log('halal')
-
-      this.googleMaps.locations.forEach(location => {
-        this.addMarker(location)
-      })
-    },
-    addMarker(location) {
-      let marker = new this.google.maps.Marker({
-        position: location,
-        map: this.map
-      })
-
-      let infoWindow = this.initInfoWindow('<p>hallo</p>')
-      marker.infoWindow = infoWindow
-      this.markers.push(marker)
-      let markerIndex = this.markers.length - 1
-
-      this.markers[markerIndex].addListener('click', () => {
-        if (this.lastMarker) this.lastMarker.infoWindow.close()
-        this.lastMarker = this.markers[markerIndex]
-        let test = this.map.addListener('click', () => {
-          google.maps.event.removeListener(test)
-          this.markers[markerIndex].infoWindow.close()
-        })
-        this.markers[markerIndex].infoWindow.open(
-          this.map,
-          this.markers[markerIndex]
-        )
-      })
-    },
-
-    removeMarker(index) {
-      this.markers[index].setMap(null)
-    },
-
-    initInfoWindow(content) {
-      return new google.maps.InfoWindow({
-        content: `<div class="info-window"><div class="info-window-item"><p>hallo</p></div></div>`
-      })
-    }
-  },
-
-  async mounted() {
-    if (this.loaded === false) {
-      this.loaded = true
-      try {
-        const google = GoogleMapsApiLoader({
-          // libraries: ['maps'],
-          apiKey: process.env.GOOGLE_API_KEY
-        })
-        this.loader = google
-      } catch (e) {}
-    }
-
-    this.google = await this.loader
-    this.initMap()
-    this.initMarker()
-
+  components: { navbar, gmaps },
+  mounted() {
     if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
       this.$store.dispatch('user/requestUser')
     }
-  },
-
-  beforeDestroy() {
-    this.loaded = false
   }
 }
 </script>
@@ -157,13 +69,5 @@ html {
 }
 .placeholder {
   height: 56px;
-}
-#map {
-  z-index: -1;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
 }
 </style>
