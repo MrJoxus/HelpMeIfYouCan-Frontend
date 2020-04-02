@@ -2,7 +2,7 @@ export const state = () => ({
   center: { lat: 53.565965, lng: 9.948829 },
   locations: [
     { id: 0, lat: 53.565965, lng: 9.948829 },
-    { id: 1, lat: 53.6179168, lng: 10.0886449 },
+    { id: 1, lat: 53.6179168, lng: 10.088444 },
     { id: 2, lat: 53.6179168, lng: 10.088745 }
   ],
   pins: {

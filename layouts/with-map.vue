@@ -3,12 +3,9 @@
     navbar
     .placeholder
     br
-    p(@click="removeMarker()") btn
+    p(@click="removeMarker(0)") btn
     nuxt
     div#map(ref="map")
-    //- .info-window
-    //-   .info-window-item
-    //-     p hallo
 
 </template>
 <script>
@@ -23,7 +20,8 @@ export default {
       loaded: false,
       google: undefined,
       map: undefined,
-      markers: []
+      markers: [],
+      lastMarker: undefined
     }
   },
   computed: {
@@ -41,17 +39,30 @@ export default {
     },
 
     initMarker() {
+      console.log('halal')
+
+      this.googleMaps.locations.forEach(location => {
+        this.addMarker(location)
+      })
+    },
+    addMarker(location) {
       let marker = new this.google.maps.Marker({
-        position: { lat: 53.565965, lng: 9.948829 },
+        position: location,
         map: this.map
       })
 
-      let infoWindow = this.initInfoWindow("<p>hallo</p>")
+      let infoWindow = this.initInfoWindow('<p>hallo</p>')
       marker.infoWindow = infoWindow
       this.markers.push(marker)
       let markerIndex = this.markers.length - 1
 
-      this.markers[markerIndex].addListener('click', ()=> {
+      this.markers[markerIndex].addListener('click', () => {
+        if (this.lastMarker) this.lastMarker.infoWindow.close()
+        this.lastMarker = this.markers[markerIndex]
+        let test = this.map.addListener('click', () => {
+          google.maps.event.removeListener(test)
+          this.markers[markerIndex].infoWindow.close()
+        })
         this.markers[markerIndex].infoWindow.open(
           this.map,
           this.markers[markerIndex]
@@ -59,8 +70,8 @@ export default {
       })
     },
 
-    removeMarker() {
-      this.markers[0].setMap(null)
+    removeMarker(index) {
+      this.markers[index].setMap(null)
     },
 
     initInfoWindow(content) {
@@ -86,10 +97,9 @@ export default {
     this.initMap()
     this.initMarker()
 
-    // BEHALTEN
-    // if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
-    //   this.$store.dispatch('user/requestUser')
-    // }
+    if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
+      this.$store.dispatch('user/requestUser')
+    }
   },
 
   beforeDestroy() {
