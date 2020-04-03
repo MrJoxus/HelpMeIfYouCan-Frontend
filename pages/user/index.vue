@@ -125,7 +125,11 @@ export default {
       this.userForm.email = this.user.email
     },
     searchAddress: function() {
-      console.log('searchAddress')
+      this.$store.dispatch('locations/GET_GEOLOCATION', {
+        street: this.userForm.address,
+        postlCode: this.userForm.postalCode,
+        area: this.userForm.area
+      })
     }
   },
   computed: {
@@ -140,9 +144,8 @@ export default {
 .user {
   .main-content {
     position: absolute;
-    top: 50%;
-    left: 25%;
-    transform: translate(-50%, -50%);
+    top: calc(56px + 56px);
+    left: 56px;
     z-index: 100;
     width: 640px;
     margin: 0 auto;
@@ -217,6 +220,8 @@ export default {
     padding-left: 24px;
   }
   hr {
+    border-top: solid 0.5px #919191;
+    border-bottom: solid 0.5px #919191;
     margin-top: 4px;
     margin-bottom: 4px;
   }
@@ -257,7 +262,7 @@ export default {
           margin-top: 32px;
           width: 100%;
           order: 1;
-          button{
+          button {
             float: right;
             margin-right: 0;
           }
@@ -274,7 +279,7 @@ export default {
 @media (min-width: 641px) and (max-width: 1280px) {
   .user {
     .main-content {
-          top: calc(50% + 28px);
+      top: calc(50% + 28px);
 
       left: 50%;
     }
