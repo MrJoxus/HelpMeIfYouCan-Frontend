@@ -64,7 +64,25 @@ export default {
   },
   computed: {
     store() {
-      return this.$store.state.gmaps
+      return this.$store.state.locations
+    },
+    // locations() {
+    //   return this.$store.state.locations.counter
+    // },
+    center() {
+      return {
+        lat: this.$store.state.locations.center.lat,
+        lng: this.$store.state.locations.center.lng
+      }
+    }
+  },
+  watch: {
+    center: function() {
+      console.log("trigger watch center")
+      if (this.gObjects.map) {
+        this.gObjects.map.panTo(this.center)
+        this.gObjects.map.setZoom(16)
+      }
     }
   },
   methods: {
@@ -80,6 +98,7 @@ export default {
     },
 
     test() {
+      this.gObjects.map.panTo({ lat: 53.565965, lng: 9.948829 })
       console.log('test')
     },
 
@@ -193,6 +212,7 @@ export default {
     padding: 0;
   }
   .options {
+    margin-top: 8px;
     height: 49px;
     .button-wrapper {
       .send,
