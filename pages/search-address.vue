@@ -8,61 +8,25 @@
         input#area(v-model='address.area' type='text' name='area' placeholder='Ort')
         p.error(v-if='error') Adresse konnte nicht gefunden werden.
         button.button(type='submit') suchen
-    //- GMap(
-    //-   :key='keyCounter'
-    //-   ref='gMap'
-    //-   :center='{lat: googleMaps.center.lat, lng: googleMaps.center.lng}'
-    //-   :options='{fullscreenControl: false, disableDefaultUI: true, styles: googleMaps.styles}'
-    //-   :zoom='googleMaps.zoom '
-    //-   )
-    //-   template(v-if='address.verified')
-    //-     GMapMarker(
-    //-       :position="{lat: address.location.lat, lng: address.location.lng}"
-    //-       :options="{icon: require('~/assets/img/002-flagge.png')}"
 
-    //-     )
-    //-       GMapInfoWindow
-    //-         code.
-    //-           lat: {{ address.location.lat }},
-    //-           lng: {{ address.location.lng }}
 </template>
 
 <script>
 export default {
-  layout: 'without-map',
+  layout: 'with-map',
   middleware: 'auth',
-  // data: function() {
-  //   return {
-  //     error: false,
-  //     keyCounter: 0,
-  //     address: {
-  //       street: '',
-  //       postalcode: '',
-  //       area: '',
-  //       location: { lat: 0, lng: 0 },
-  //       verified: false
-  //     },
-  //     pins: {
-  //       selected: '/assets/img/001-hilfe.png',
-  //       notSelected: '/assets/img/001-hilfe.png'
-  //     },
-  //     googleMaps: {
-  //       center: { lat: 53.565965, lng: 9.948829 },
-  //       zoom: 13,
-  //       styles: [
-  //         {
-  //           featureType: 'poi.business',
-  //           elementType: 'labels',
-  //           stylers: [
-  //             {
-  //               visibility: 'off'
-  //             }
-  //           ]
-  //         }
-  //       ]
-  //     }
-  //   }
-  // },
+  data: function() {
+    return {
+      error: false,
+      address: {
+        street: '',
+        postalcode: '',
+        area: '',
+        location: { lat: 0, lng: 0 },
+        verified: false
+      }
+    }
+  },
   methods: {
     submitForm: function(e) {
       e.preventDefault()
@@ -73,32 +37,11 @@ export default {
       let addressQuery = encodeURIComponent(
         `${this.address.street}, ${this.address.postalcode}, ${this.address.area}`
       )
-
-      this.$axios
-        .get(
-          `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`
-        )
-        .then(response => {
-          console.log(response)
-          if (response.data.results.length != 0) {
-            self.error = false
-            self.address.verified = true
-
-            self.address.location = response.data.results[0].geometry.location
-            self.googleMaps.center = response.data.results[0].geometry.location
-            self.googleMaps.zoom = 16
-
-            // this.$refs.gMap.map.panTo(response.data.results[0].geometry.location)
-            // this.$refs.gMap.map.setZoom(17)
-          } else {
-            self.error = true
-            self.address.location = {}
-          }
-          self.keyCounter++
-        })
-        .catch(error => {
-          console.log(error)
-        })
+      this.$store.dispatch('locations/GET_GEOLOCATION', {
+        street: this.address.street,
+        postlCode: this.address.postalcode,
+        area: this.address.area
+      })
     }
   }
 }
@@ -108,9 +51,9 @@ export default {
 .search-address {
   .form-wrapper {
     position: absolute;
-    top: 50%;
-    left: 25%;
-    transform: translate(-50%, -50%);
+    top: calc(56px + 56px);
+    left: 56px;
+    transform: translate(0, 0);
   }
   .GMap {
     z-index: -1;

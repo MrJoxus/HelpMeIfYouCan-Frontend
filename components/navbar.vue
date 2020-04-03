@@ -56,7 +56,6 @@ export default {
       }
     },
     closeNavbbarItems: function() {
-      console.log("test")
       if (this.window.isMobile) {
         this.navbarItems = false
       }
