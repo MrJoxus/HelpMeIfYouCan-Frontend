@@ -26,8 +26,8 @@ export default {
       markers: [],
       lastMarker: undefined,
       infoWindow: {
-        content: '',
-        textareaActive: false
+        // content: '',
+        // textareaActive: false
       }
     }
   },
@@ -59,22 +59,19 @@ export default {
         map: this.map
       })
 
-      let infoWindow = this.initInfoWindow()
-      marker.infoWindow = infoWindow
+      // let infoWindow = this.initInfoWindow()
+      // marker.infoWindow = infoWindow
       this.markers.push(marker)
       let markerIndex = this.markers.length - 1
 
       this.markers[markerIndex].addListener('click', () => {
-        if (this.lastMarker) this.lastMarker.infoWindow.close()
-        this.lastMarker = this.markers[markerIndex]
-        let test = this.map.addListener('click', () => {
-          google.maps.event.removeListener(test)
-          this.markers[markerIndex].infoWindow.close()
+        this.infoWindow.close()
+        // this.infoWindow.setContent('tat')
+        this.infoWindow.open(this.map, this.markers[markerIndex])
+        let listener = this.map.addListener('click', () => {
+          google.maps.event.removeListener(listener)
+          this.infoWindow.close()
         })
-        this.markers[markerIndex].infoWindow.open(
-          this.map,
-          this.markers[markerIndex]
-        )
       })
     },
 
@@ -83,7 +80,7 @@ export default {
     },
 
     initInfoWindow(content) {
-      return new google.maps.InfoWindow({
+      this.infoWindow = new google.maps.InfoWindow({
         content: this.$refs.infoWindow
       })
     }
@@ -104,6 +101,7 @@ export default {
     this.google = await this.loader
     this.initMap()
     this.initMarker()
+    this.initInfoWindow()
   },
 
   beforeDestroy() {
