@@ -3,14 +3,19 @@
     div.info-window-wrapper
       div.info-window(ref="infoWindow")
         .info-window-item
-          h4 Gesuch/Angebot
-          p Bacon ipsum dolor amet chislic cow turducken, spare ribs landjaeger chuck sausage jerky hamburger. 
-            | Hamburger kielbasa burgdoggen corned beef swine tri-tip shoulder pork chop pork belly pork. 
-            | Pork belly pancetta corned beef sausage.
-          textarea(:class="{collapsed: !infoWindow.textareaActive}")
+          h4 {{ infoWindowContent.type }}
+          p {{ infoWindowContent.description }}
+          textarea(
+            v-model="model.textarea"
+            :class="{collapsed: !status.infoWindow.textarea}"
+            )
           .options
-            button.no-button abbrechen
-            button.button(@click="infoWindow.textareaActive = !infoWindow.textareaActive")  Kontaktier mich!
+            span.button-wrapper(v-if="!status.infoWindow.textarea")
+              button.button.uncollapse(@click="uncollapseTextArea()") Kontaktier mich!
+            span.button-wrapper(v-else)
+              button.no-button.collapse(@click="collapseTextArea()") abbrechen
+              button.button.send(@click="test()") Abschicken
+
 </template>
 
 <script>
@@ -19,93 +24,128 @@ let GoogleMapsApiLoader = require('google-maps-api-loader')
 export default {
   data: function() {
     return {
-      loader: undefined,
-      loaded: false,
+      loaded: undefined,
       google: undefined,
-      map: undefined,
-      markers: [],
-      lastMarker: undefined,
-      infoWindow: {
-        // content: '',
-        // textareaActive: false
+      gObjects: {
+        map: undefined,
+        markers: [],
+        currentMarker: undefined,
+        infoWindow: undefined
+      },
+      mapParameters: {
+        center: { lat: 53.565965, lng: 9.948829 },
+        zoom: 13,
+        options: {
+          fullscreenControl: false,
+          disableDefaultUI: true,
+          styles: [
+            {
+              featureType: 'poi',
+              elementType: 'labels',
+              stylers: [{ visibility: 'off' }]
+            }
+          ]
+        }
+      },
+      model: {
+        textarea: undefined
+      },
+      infoWindowContent: {
+        type: undefined,
+        name: 'Hans',
+        description: undefined
+      },
+      status: {
+        infoWindow: {
+          textarea: false
+        }
       }
     }
   },
   computed: {
-    googleMaps() {
+    store() {
       return this.$store.state.gmaps
     }
   },
   methods: {
+    uncollapseTextArea() {
+      this.status.infoWindow.textarea = true
+      setTimeout(() => {
+        this.gObjects.infoWindow.open(this.gObjects.map, this.currentMarker)
+      }, 100)
+    },
+
+    collapseTextArea() {
+      this.status.infoWindow.textarea = false
+    },
+
     test() {
       console.log('test')
     },
+
     initMap() {
-      this.map = new google.maps.Map(this.$refs.map, {
-        center: this.googleMaps.center,
-        zoom: 13,
-        options: this.googleMaps.options
-      })
+      this.gObjects.map = new google.maps.Map(
+        this.$refs.map,
+        this.mapParameters
+      )
     },
 
     initMarker() {
-      this.googleMaps.locations.forEach(location => {
+      this.store.locations.forEach(location => {
         this.addMarker(location)
       })
     },
+
     addMarker(location) {
+      let markerIndex = this.gObjects.markers.length
       let marker = new this.google.maps.Marker({
         position: location,
-        map: this.map
+        map: this.gObjects.map
       })
 
-      // let infoWindow = this.initInfoWindow()
-      // marker.infoWindow = infoWindow
-      this.markers.push(marker)
-      let markerIndex = this.markers.length - 1
+      marker.addListener('click', () => {
+        this.currentMarker = marker
+        this.gObjects.infoWindow.close()
+        this.status.infoWindow.textarea = false
+        this.model.textarea = undefined
+        let content = this.store.infoWindow.dummyContent[markerIndex]
+        this.infoWindowContent.type = content.type
+        this.infoWindowContent.description = content.description
 
-      this.markers[markerIndex].addListener('click', () => {
-        this.infoWindow.close()
-        // this.infoWindow.setContent('tat')
-        this.infoWindow.open(this.map, this.markers[markerIndex])
-        let listener = this.map.addListener('click', () => {
+        this.gObjects.infoWindow.open(this.gObjects.map, marker)
+        let listener = this.gObjects.map.addListener('click', () => {
           google.maps.event.removeListener(listener)
-          this.infoWindow.close()
+          this.gObjects.infoWindow.close()
+          this.status.infoWindow.textarea = false
         })
       })
+      this.gObjects.markers.push(marker)
     },
 
     removeMarker(index) {
-      this.markers[index].setMap(null)
+      this.gObjects.markers[index].setMap(null)
     },
 
     initInfoWindow(content) {
-      this.infoWindow = new google.maps.InfoWindow({
+      this.gObjects.infoWindow = new google.maps.InfoWindow({
         content: this.$refs.infoWindow
       })
     }
   },
 
   async mounted() {
-    if (this.loaded === false) {
-      this.loaded = true
-      try {
-        const google = GoogleMapsApiLoader({
-          // libraries: ['maps'],
-          apiKey: process.env.GOOGLE_API_KEY
-        })
-        this.loader = google
-      } catch (e) {}
-    }
+    try {
+      const google = GoogleMapsApiLoader({
+        // libraries: ['maps'],
+        apiKey: process.env.GOOGLE_API_KEY
+      })
+      this.loaded = google
+    } catch (e) {}
 
-    this.google = await this.loader
+    this.google = await this.loaded
     this.initMap()
     this.initMarker()
     this.initInfoWindow()
-  },
-
-  beforeDestroy() {
-    this.loaded = false
   }
 }
 </script>
@@ -115,7 +155,7 @@ export default {
   position: absolute;
   top: 56px;
   left: 0;
-  height: calc(100vh -56px);
+  height: calc(100vh - 56px);
   width: 100vw;
 }
 .info-window-wrapper {
@@ -144,12 +184,23 @@ export default {
     padding: 8px 16px;
     border-radius: 4px;
     border: 1px solid #919191;
+    resize: none;
     transition: all 0.2s ease;
   }
   .collapsed {
     height: 0px;
     opacity: 0;
     padding: 0;
+  }
+  .options {
+    height: 49px;
+    .button-wrapper {
+      .send,
+      .uncollapse {
+        margin-right: 0;
+      }
+      float: right;
+    }
   }
 }
 .gm-style .gm-style-iw-c {

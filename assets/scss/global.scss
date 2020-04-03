@@ -106,6 +106,7 @@ p {
   }
 }
 .no-button {
+  cursor: pointer;
   border: unset;
   background: unset;
   &:focus {

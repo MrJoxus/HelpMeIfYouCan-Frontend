@@ -1,34 +1,23 @@
 export const state = () => ({
-  center: { lat: 53.565965, lng: 9.948829 },
   locations: [
     { id: 0, lat: 53.565965, lng: 9.948829 },
     { id: 1, lat: 53.6179168, lng: 10.088444 },
     { id: 2, lat: 53.6179168, lng: 10.088745 }
   ],
-  pins: {
-    selected: '/assets/img/001-hilfe.png',
-    notSelected: '/assets/img/001-hilfe.png'
-  },
-  options: {
-    fullscreenControl: false,
-    disableDefaultUI: true,
-    styles: [
-      {
-        featureType: 'poi',
-        elementType: 'labels',
-        stylers: [{ visibility: 'off' }]
-      }
-    ]
-  },
   infoWindow: {
     dummyContent: [
       {
-        type: 'Gesuch',
+        type: 'Gesuch1',
+        description:
+          'Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig.'
+      },
+      {
+        type: 'Angebot1',
         description:
           'Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig.'
       },
       {
-        type: 'Angebot',
+        type: 'Angebot2',
         description:
           'Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig.'
       }
