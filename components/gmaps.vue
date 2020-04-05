@@ -30,6 +30,7 @@ export default {
         map: undefined,
         markers: [],
         currentMarker: undefined,
+        searchMarker: undefined,
         infoWindow: undefined
       },
       mapParameters: {
@@ -66,25 +67,62 @@ export default {
     store() {
       return this.$store.state.locations
     },
-    // locations() {
-    //   return this.$store.state.locations.counter
-    // },
     center() {
-      return {
-        lat: this.$store.state.locations.center.lat,
-        lng: this.$store.state.locations.center.lng
-      }
+      return this.$store.state.locations.center
+    },
+    showMarkers() {
+      return this.$store.state.locations.status.show.markers
+    },
+    mapLoaded() {
+      return this.$store.state.locations.status.loaded.map
+    },
+    locations() {
+      return this.$store.state.locations.locations
+    },
+    searchOwnLocation() {
+      return this.$store.state.locations.ownLocation
     }
   },
+
   watch: {
     center: function() {
-      console.log("trigger watch center")
       if (this.gObjects.map) {
         this.gObjects.map.panTo(this.center)
         this.gObjects.map.setZoom(16)
       }
+    },
+    showMarkers: function() {
+      this.showMarkers ? this.showAllMarkers() : this.hideAllMarkers()
+    },
+    mapLoaded() {
+      this.initMarker()
+      this.initInfoWindow()
+    },
+    locations() {
+      let currentLength = this.gObjects.markers.length
+      let newLength = this.locations.length
+      let diff = newLength - currentLength
+      for (let i = 0; i < diff; i++) {
+        let index = i + currentLength
+        this.addMarker(this.locations[index])
+      }
+    },
+    searchOwnLocation() {
+      console.log('trigger searchOwnLocation', this.searchOwnLocation)
+      if (this.gObjects.searchMarker != undefined) {
+        console.log('if')
+        this.gObjects.searchMarker.setPosition(this.searchOwnLocation)
+      } else {
+        console.log('else')
+        this.gObjects.searchMarker = new this.google.maps.Marker({
+          position: this.searchOwnLocation,
+          map: this.gObjects.map
+        })
+        // this.addMarker(this.searchOwnLocation)
+      }
     }
   },
+
   methods: {
     uncollapseTextArea() {
       this.status.infoWindow.textarea = true
@@ -107,11 +145,19 @@ export default {
         this.$refs.map,
         this.mapParameters
       )
+      this.$store.commit('locations/UPDATE_STATUS', { loaded: { map: true } })
     },
 
     initMarker() {
-      this.store.locations.forEach(location => {
+      // console.log("initMarker", this.store)
+      this.locations.forEach(location => {
         this.addMarker(location)
+      })
+    },
+
+    initInfoWindow(content) {
+      this.gObjects.infoWindow = new google.maps.InfoWindow({
+        content: this.$refs.infoWindow
       })
     },
 
@@ -141,13 +187,18 @@ export default {
       this.gObjects.markers.push(marker)
     },
 
-    removeMarker(index) {
+    hideMarker(index) {
       this.gObjects.markers[index].setMap(null)
     },
 
-    initInfoWindow(content) {
-      this.gObjects.infoWindow = new google.maps.InfoWindow({
-        content: this.$refs.infoWindow
+    hideAllMarkers() {
+      this.gObjects.markers.forEach(marker => {
+        marker.setMap(null)
+      })
+    },
+    showAllMarkers() {
+      this.gObjects.markers.forEach(marker => {
+        marker.setMap(this.gObjects.map)
       })
     }
   },
@@ -155,7 +206,6 @@ export default {
   async mounted() {
     try {
       const google = GoogleMapsApiLoader({
-        // libraries: ['maps'],
         apiKey: process.env.GOOGLE_API_KEY
       })
       this.loaded = google
@@ -163,8 +213,6 @@ export default {
 
     this.google = await this.loaded
     this.initMap()
-    this.initMarker()
-    this.initInfoWindow()
   }
 }
 </script>

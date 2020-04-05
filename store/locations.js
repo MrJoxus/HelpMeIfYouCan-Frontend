@@ -1,10 +1,20 @@
 export const state = () => ({
   center: { lat: 53.565965, lng: 9.948829 },
   locations: [
-    { id: 0, lat: 53.565965, lng: 9.948829 },
-    { id: 1, lat: 53.6179168, lng: 10.088444 },
-    { id: 2, lat: 53.6179168, lng: 10.088745 }
+    { id: 0, type: 'Gesuch', lat: 53.565965, lng: 9.948829 },
+    { id: 1, type: 'Gesuch', lat: 53.6179168, lng: 10.088444 },
+    { id: 2, type: 'Angebot', lat: 53.6179168, lng: 10.088745 }
   ],
+  ownLocation: { lat: 53.565965, lng: 9.948829 },
+  status: {
+    loaded: {
+      map: false
+    },
+    show: {
+      markers: true
+    }
+  },
+
   infoWindow: {
     dummyContent: [
       {
@@ -30,6 +40,19 @@ export const mutations = {
   UPDATE_CENTER(state, payload) {
     console.log('UPDATE_CENTER')
     state.center = payload
+  },
+  TOGGLE_MARKERS(state) {
+    state.status.show.markers = !state.status.show.markers
+  },
+  UPDATE_STATUS(state, payload) {
+    let key = Object.keys(payload)[0]
+    state.status[key] = payload[key]
+  },
+  ADD_LOCATION(state, payload) {
+    state.locations.push(payload)
+  },
+  UPDATE_OWN_LOCATION(state, payload) {
+    state.ownLocation = payload
   }
 }
 
@@ -40,15 +63,16 @@ export const actions = {
     let addressQuery = encodeURIComponent(
       `${payload.street}, ${payload.postalCode}, ${payload.area}`
     )
+    let url = `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`
     delete this.$axios.defaults.headers.common['Authorization']
 
     this.$axios
-      .get(
-        `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`
-      )
+      .get(url)
       .then(response => {
         if (response.data.results.length != 0) {
-          commit('UPDATE_CENTER', response.data.results[0].geometry.location)
+          let location = response.data.results[0].geometry.location
+          commit('UPDATE_CENTER', location)
+          commit('UPDATE_OWN_LOCATION', location)
         } else {
         }
       })
