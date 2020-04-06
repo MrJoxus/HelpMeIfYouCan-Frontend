@@ -1,20 +1,21 @@
 <template lang="pug">
-  div#map(ref="map")
-    div.info-window-wrapper
-      div.info-window(ref="infoWindow")
-        .info-window-item
-          h4 {{ infoWindowContent.type }}
-          p {{ infoWindowContent.description }}
-          textarea(
-            v-model="model.textarea"
-            :class="{collapsed: !status.infoWindow.textarea}"
-            )
-          .options
-            span.button-wrapper(v-if="!status.infoWindow.textarea")
-              button.button.uncollapse(@click="uncollapseTextArea()") Kontaktier mich!
-            span.button-wrapper(v-else)
-              button.no-button.collapse(@click="collapseTextArea()") abbrechen
-              button.button.send(@click="test()") Abschicken
+  .map-wrapper
+    div#map(ref="map")
+      div.info-window-wrapper
+        div.info-window(ref="infoWindow")
+          .info-window-item
+            h4 {{ infoWindowContent.type }}
+            p {{ infoWindowContent.description }}
+            textarea(
+              v-model="model.textarea"
+              :class="{collapsed: !status.infoWindow.textarea}"
+              )
+            .options
+              span.button-wrapper(v-if="!status.infoWindow.textarea")
+                button.button.uncollapse(@click="uncollapseTextArea()") Kontaktier mich!
+              span.button-wrapper(v-else)
+                button.no-button.collapse(@click="collapseTextArea()") abbrechen
+                button.button.send(@click="test()") Abschicken
 
 </template>
 
@@ -31,12 +32,14 @@ export default {
         markers: [],
         currentMarker: undefined,
         searchMarker: undefined,
+        markerCluster: undefined,
         infoWindow: undefined
       },
       mapParameters: {
         center: { lat: 53.565965, lng: 9.948829 },
         zoom: 13,
         options: {
+          minZoom: 8,
           fullscreenControl: false,
           disableDefaultUI: true,
           styles: [
@@ -96,6 +99,7 @@ export default {
     },
     mapLoaded() {
       this.initMarker()
+      this.initMarkerCluster()
       this.initInfoWindow()
     },
     locations() {
@@ -147,7 +151,16 @@ export default {
       )
       this.$store.commit('locations/UPDATE_STATUS', { loaded: { map: true } })
     },
-
+    initMarkerCluster() {
+      this.markerCluster = new MarkerClusterer(
+        this.gObjects.map,
+        this.gObjects.markers,
+        {
+          imagePath:
+            'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+        }
+      )
+    },
     initMarker() {
       // console.log("initMarker", this.store)
       this.locations.forEach(location => {
@@ -217,13 +230,17 @@ export default {
 }
 </script>
 <style lang="scss">
-#map {
+.map-wrapper {
   z-index: -1;
   position: absolute;
   top: 56px;
   left: 0;
   height: calc(100vh - 56px);
   width: 100vw;
+}
+#map {
+  height: 100%;
+  width: 100%;
 }
 .info-window-wrapper {
   display: none;
