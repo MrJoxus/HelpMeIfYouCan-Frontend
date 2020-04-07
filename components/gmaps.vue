@@ -1,21 +1,44 @@
-<template lang="pug">
+<template lang='pug'>
   .map-wrapper
-    div#map(ref="map")
+    .map-search(:class='{ "hide-map-search": !status.searchbar}')
+      img.toggle-map-search(
+        ref='mapSearch'
+        @click='status.searchbar = !status.searchbar'
+        src='../assets/img/back.png'
+        )
+      input(
+        @focus="focusHandler()"
+        type='text'
+        ref='addressInput'
+        placeholder='Straße, Plz, Ort'
+        v-model='model.searchAddress'
+      )
+      img.search(
+        @click="searchAddress()"
+        src='../assets/img/search.png'
+        )
+      img.get-location(
+        @click="getDeviceLocation()"
+        src='../assets/img/crosshair.png'
+        )
+    div#map(
+      ref='map'
+      )
       div.info-window-wrapper
-        div.info-window(ref="infoWindow")
+        div.info-window(ref='infoWindow')
           .info-window-item
             h4 {{ infoWindowContent.type }}
             p {{ infoWindowContent.description }}
             textarea(
-              v-model="model.textarea"
-              :class="{collapsed: !status.infoWindow.textarea}"
+              v-model='model.textarea'
+              :class='{collapsed: !status.infoWindow.textarea}'
               )
             .options
-              span.button-wrapper(v-if="!status.infoWindow.textarea")
-                button.button.uncollapse(@click="uncollapseTextArea()") Kontaktier mich!
+              span.button-wrapper(v-if='!status.infoWindow.textarea')
+                button.button.uncollapse(@click='uncollapseTextArea()') Kontaktier mich!
               span.button-wrapper(v-else)
-                button.no-button.collapse(@click="collapseTextArea()") abbrechen
-                button.button.send(@click="test()") Abschicken
+                button.no-button.collapse(@click='collapseTextArea()') abbrechen
+                button.button.send(@click='test()') Abschicken
 
 </template>
 
@@ -42,6 +65,7 @@ export default {
           minZoom: 8,
           fullscreenControl: false,
           disableDefaultUI: true,
+          gestureHandling: 'greedy',
           styles: [
             {
               featureType: 'poi',
@@ -52,7 +76,8 @@ export default {
         }
       },
       model: {
-        textarea: undefined
+        textarea: undefined,
+        searchAddress: undefined
       },
       infoWindowContent: {
         type: undefined,
@@ -62,7 +87,10 @@ export default {
       status: {
         infoWindow: {
           textarea: false
-        }
+        },
+        searchbar: true,
+        geoLocation: false,
+        inputFocus: false
       }
     }
   },
@@ -112,12 +140,9 @@ export default {
       }
     },
     searchOwnLocation() {
-      console.log('trigger searchOwnLocation', this.searchOwnLocation)
       if (this.gObjects.searchMarker != undefined) {
-        console.log('if')
         this.gObjects.searchMarker.setPosition(this.searchOwnLocation)
       } else {
-        console.log('else')
         this.gObjects.searchMarker = new this.google.maps.Marker({
           position: this.searchOwnLocation,
           map: this.gObjects.map
@@ -128,19 +153,47 @@ export default {
   },
 
   methods: {
+    focusHandler() {
+      document.addEventListener('click', this.documentClick)
+      this.status.inputFocus = true
+    },
+    documentClick(e) {
+      let el = this.$refs.addressInput
+      let target = e.target
+      if (el !== target) {
+        el.blur()
+        this.status.inputFocus = false
+        document.removeEventListener('click', this.documentClick)
+      }
+    },
+    getDeviceLocation() {
+      let success = position => {
+        this.$store.commit('locations/UPDATE_CENTER', {
+          lng: position.coords.longitude,
+          lat: position.coords.latitude
+        })
+      }
+      let error = error => {
+        console.log('error', error)
+      }
+      navigator.geolocation.getCurrentPosition(success, error)
+    },
     uncollapseTextArea() {
       this.status.infoWindow.textarea = true
       setTimeout(() => {
         this.gObjects.infoWindow.open(this.gObjects.map, this.currentMarker)
       }, 100)
     },
-
+    searchAddress: function() {
+      this.$store.dispatch('locations/GET_GEOLOCATION', {
+        string: this.model.searchAddress
+      })
+    },
     collapseTextArea() {
       this.status.infoWindow.textarea = false
     },
 
     test() {
-      this.gObjects.map.panTo({ lat: 53.565965, lng: 9.948829 })
       console.log('test')
     },
 
@@ -150,6 +203,10 @@ export default {
         this.mapParameters
       )
       this.$store.commit('locations/UPDATE_STATUS', { loaded: { map: true } })
+
+      this.gObjects.map.addListener('drag', () => {
+        if (this.status.inputFocus) this.$refs.addressInput.blur()
+      })
     },
     initMarkerCluster() {
       this.markerCluster = new MarkerClusterer(
@@ -226,6 +283,9 @@ export default {
 
     this.google = await this.loaded
     this.initMap()
+    if ('geolocation' in navigator) {
+      this.status.geoLocation = true
+    }
   }
 }
 </script>
@@ -237,6 +297,60 @@ export default {
   left: 0;
   height: calc(100vh - 56px);
   width: 100vw;
+}
+.map-search {
+  position: absolute;
+  z-index: 200;
+  bottom: 40px;
+  right: 5%;
+  width: 85%;
+  transition: all 0.2s ease;
+  input {
+    padding-right: 40px;
+    opacity: 1;
+    transition: all 0.2s ease;
+    margin-bottom: 0;
+  }
+  .toggle-map-search {
+    z-index: 100;
+    position: absolute;
+    top: 8px;
+    left: -24px;
+    width: 18px;
+    height: 18px;
+    transform: rotate(180deg);
+    transition: all 0.2s ease;
+  }
+
+  img.search {
+    position: absolute;
+    top: 6px;
+    right: 12px;
+    width: 20px;
+    height: 20px;
+    opacity: 1;
+    transition: all 0.2s ease;
+  }
+  .get-location {
+    position: absolute;
+    top: -32px;
+    right: 13px;
+    width: 20px;
+    height: 20px;
+  }
+}
+.hide-map-search {
+  width: 0px;
+  input {
+    padding-right: 0;
+  }
+  input,
+  img.search {
+    opacity: 0;
+  }
+  .toggle-map-search {
+    transform: rotate(0);
+  }
 }
 #map {
   height: 100%;
@@ -293,5 +407,19 @@ export default {
 }
 .gm-ui-hover-effect {
   margin: 16px !important;
+}
+
+@media (min-width: 641px) and (max-width: 1280px) {
+}
+@media (max-width: 640px) {
+  .map-wrapper {
+    top: unset;
+    height: calc(100vh - 80px);
+  }
+  #map {
+    position: relative;
+    top: unset;
+    left: unset;
+  }
 }
 </style>

@@ -59,10 +59,15 @@ export const mutations = {
 export const actions = {
   GET_GEOLOCATION({ commit }, payload) {
     console.log('GET_GEOLOCATION', payload)
-
-    let addressQuery = encodeURIComponent(
-      `${payload.street}, ${payload.postalCode}, ${payload.area}`
-    )
+    let addressQuery
+    if (Object.keys(payload) == 'string') {
+      addressQuery = payload.string
+    } else {
+      addressQuery = encodeURIComponent(
+        `${payload.street}, ${payload.postalCode}, ${payload.area}`
+      )
+    }
+    console.log("query", addressQuery)
     let url = `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`
     delete this.$axios.defaults.headers.common['Authorization']
 
@@ -72,8 +77,9 @@ export const actions = {
         if (response.data.results.length != 0) {
           let location = response.data.results[0].geometry.location
           commit('UPDATE_CENTER', location)
-          commit('UPDATE_OWN_LOCATION', location)
+          // commit('UPDATE_OWN_LOCATION', location)
         } else {
+          console.log(response.data)
         }
       })
       .catch(error => {
