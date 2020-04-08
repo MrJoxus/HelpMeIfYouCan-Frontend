@@ -20,6 +20,14 @@ export default {
         rel: 'stylesheet',
         href: 'https://fonts.googleapis.com/css?family=Roboto&display=swap'
       }
+    ],
+    script: [
+      {
+        src:
+          'https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js',
+        async: true,
+        defer: true
+      }
     ]
   },
 
@@ -44,7 +52,7 @@ export default {
   },
 
   router: {
-    // middleware: ['auth']
+    middleware: ['authenticated']
   },
 
   auth: {
@@ -74,11 +82,7 @@ export default {
 
   buildModules: [],
 
-  modules: [
-    '@nuxtjs/axios',
-    '@nuxtjs/dotenv',
-    '@nuxtjs/auth'
-  ],
+  modules: ['@nuxtjs/axios', '@nuxtjs/dotenv', '@nuxtjs/auth'],
 
   axios: {
     baseURL: `http://${process.env.BASE_URL}:${process.env.BASE_PORT}`

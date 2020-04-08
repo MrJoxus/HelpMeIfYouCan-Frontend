@@ -27,6 +27,7 @@ export default {
 
 <style lang="scss">
 .index {
+  position: static;
   .main-content {
     position: absolute;
     top: 50%;
@@ -63,14 +64,6 @@ export default {
     margin: 16px;
     color: black;
   }
-  #map {
-    z-index: 1;
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-  }
 }
 @media (min-width: 641px) and (max-width: 1280px) {
   .index {
@@ -84,9 +77,7 @@ export default {
 @media (max-width: 640px) {
   .index {
     .main-content {
-      position: relative;
-      top: 0;
-      left: 0;
+      position: static;
       width: 100%;
       transform: unset;
       padding-top: 56px;

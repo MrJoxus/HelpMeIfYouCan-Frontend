@@ -4,7 +4,6 @@
     .placeholder
     nuxt
     gmaps
-    script(src="https://unpkg.com/@google/markerclustererplus@4.0.1/dist/markerclustererplus.min.js")
 
 
 </template>
