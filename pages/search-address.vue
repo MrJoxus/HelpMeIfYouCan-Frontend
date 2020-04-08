@@ -37,7 +37,7 @@ export default {
       let addressQuery = encodeURIComponent(
         `${this.address.street}, ${this.address.postalcode}, ${this.address.area}`
       )
-      this.$store.dispatch('locations/GET_GEOLOCATION', {
+      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
         street: this.address.street,
         postlCode: this.address.postalcode,
         area: this.address.area

@@ -1,5 +1,5 @@
 <template lang="pug">
-  .impressum(@click='$store.commit("locations/TOGGLE_MARKERS")') need to add https://www.flaticon.com/de/autoren/freepik
+  .impressum(@click='$store.commit("gmaps/TOGGLE_MARKERS")') need to add https://www.flaticon.com/de/autoren/freepik
     p Icons made by
       a(href="https://www.flaticon.com/authors/freepik" title="Freepik")  Freepik
 

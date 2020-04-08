@@ -125,7 +125,7 @@ export default {
       this.userForm.email = this.user.email
     },
     searchAddress: function() {
-      this.$store.dispatch('locations/GET_GEOLOCATION', {
+      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
         street: this.userForm.address,
         postlCode: this.userForm.postalCode,
         area: this.userForm.area
@@ -279,9 +279,8 @@ export default {
 @media (min-width: 641px) and (max-width: 1280px) {
   .user {
     .main-content {
-      top: calc(50% + 28px);
-
       left: 50%;
+      transform: translateX(-50%);
     }
   }
 }

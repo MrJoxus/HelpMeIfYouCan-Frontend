@@ -210,6 +210,7 @@ $navbar-height: 56px;
     flex-direction: column;
     justify-content: center;
     margin-top: 19px;
+    cursor: pointer;
   }
   .hamburger-item {
     height: 2px;

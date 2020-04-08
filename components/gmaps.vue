@@ -1,9 +1,9 @@
 <template lang='pug'>
   .map-wrapper
-    .map-search(:class='{ "hide-map-search": !status.searchbar}')
+    .map-search(v-show='status.searchbar.active' :class='{ "hide-map-search": !status.searchbar.expand}')
       img.toggle-map-search(
         ref='mapSearch'
-        @click='status.searchbar = !status.searchbar'
+        @click='status.searchbar.expand = !status.searchbar.expand'
         src='../assets/img/back.png'
         )
       input(
@@ -88,7 +88,10 @@ export default {
         infoWindow: {
           textarea: false
         },
-        searchbar: true,
+        searchbar: {
+          active: false,
+          expand: true
+        },
         geoLocation: false,
         inputFocus: false
       }
@@ -96,22 +99,22 @@ export default {
   },
   computed: {
     store() {
-      return this.$store.state.locations
+      return this.$store.state.gmaps
     },
     center() {
-      return this.$store.state.locations.center
+      return this.$store.state.gmaps.center
     },
     showMarkers() {
-      return this.$store.state.locations.status.show.markers
+      return this.$store.state.gmaps.status.show.markers
     },
     mapLoaded() {
-      return this.$store.state.locations.status.loaded.map
+      return this.$store.state.gmaps.status.loaded.map
     },
     locations() {
-      return this.$store.state.locations.locations
+      return this.$store.state.gmaps.locations
     },
     searchOwnLocation() {
-      return this.$store.state.locations.ownLocation
+      return this.$store.state.gmaps.ownLocation
     }
   },
 
@@ -168,7 +171,7 @@ export default {
     },
     getDeviceLocation() {
       let success = position => {
-        this.$store.commit('locations/UPDATE_CENTER', {
+        this.$store.commit('gmaps/UPDATE_CENTER', {
           lng: position.coords.longitude,
           lat: position.coords.latitude
         })
@@ -185,7 +188,7 @@ export default {
       }, 100)
     },
     searchAddress: function() {
-      this.$store.dispatch('locations/GET_GEOLOCATION', {
+      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
         string: this.model.searchAddress
       })
     },
@@ -202,7 +205,7 @@ export default {
         this.$refs.map,
         this.mapParameters
       )
-      this.$store.commit('locations/UPDATE_STATUS', { loaded: { map: true } })
+      this.$store.commit('gmaps/UPDATE_STATUS', { loaded: { map: true } })
 
       this.gObjects.map.addListener('drag', () => {
         if (this.status.inputFocus) this.$refs.addressInput.blur()
@@ -302,8 +305,8 @@ export default {
   position: absolute;
   z-index: 200;
   bottom: 40px;
-  right: 5%;
-  width: 85%;
+  right: 15%;
+  width: 70%;
   transition: all 0.2s ease;
   input {
     padding-right: 40px;
@@ -333,8 +336,8 @@ export default {
   }
   .get-location {
     position: absolute;
-    top: -32px;
-    right: 13px;
+    top: 7px;
+    right: -32px;
     width: 20px;
     height: 20px;
   }
