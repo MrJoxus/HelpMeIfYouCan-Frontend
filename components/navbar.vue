@@ -1,33 +1,51 @@
 <template lang='pug'>
-  .navbar
+  .navbar(ref='navbar')
     .navbar-title
       nuxt-link(to='/')
-        h5(@click="closeNavbbarItems()") Help Me If You Can!
-      div.navbar-items-trigger.show-on-mobile(@click="toggleNavbbarItems()")
-        .hamburger
-          div.hamburger-item
-          div.hamburger-item
-          div.hamburger-item
-    .navbar-items(@click="toggleNavbbarItems()" v-show='navbarItems')
-      nuxt-link.navbar-item(to='/search-address') Geocoder
+        h5 Help Me If You Can!
+    .navbar-items
       nuxt-link.navbar-item(to='/about-us') Über uns
       nuxt-link.navbar-item(to='/impressum') Impressum
       template(v-if='$auth.loggedIn')
-        span.navbar-item.dropdown-trigger.hide-on-mobile(@click='toggleDropdown()' ref='parentDropdownMenu')  {{ $auth.user }}
+        span.navbar-item.dropdown-trigger(
+          @click='toggleProfileDropdown()'
+          ref='parentDropdownMenu'
+          ) {{ $auth.user }}
       template(v-else)
         nuxt-link.navbar-item(to='/login') Login
         nuxt-link.navbar-item(to='/register') Registrieren
       template(v-if='$auth.loggedIn' )
         transition(name='fade')
-          div.dropdown-menu.show-on-mobile(v-show='dropdown' ref='dropdownMenu')
-            div.dropdown-item.profil-info.hide-on-mobile
+          div.dropdown-menu(v-show='dropdown' ref='dropdownMenu')
+            div.dropdown-item.profil-info
               p {{user.name}} {{user.lastName}}
               p {{user.email}}
             hr
-            nuxt-link.dropdown-item.profile.transition(@click.native='toggleDropdown()' to='/user') Zum Profil
+            nuxt-link.dropdown-item.profile.transition(
+              @click.native='toggleProfileDropdown()'
+              to='/user'
+              ) Zum Profil
             hr
-            p.dropdown-item.logout.transition(@click='toggleDropdown()') Abmelden
+            p.dropdown-item.logout.transition(@click='toggleProfileDropdown()') Abmelden
 
+    div.navbar-items-trigger(@click="toggleNavbbarItems()")
+      .hamburger
+        div.hamburger-item
+        div.hamburger-item
+        div.hamburger-item
+    transition(name='fade')
+      .navbar-items-mobile(
+        @click='navbarItemsMobile = !navbarItemsMobile'
+        v-show='navbarItemsMobile'
+        )
+        nuxt-link.navbar-item(to='/about-us') Über uns
+        nuxt-link.navbar-item(to='/impressum') Impressum
+        template(v-if='!$auth.loggedIn')
+          nuxt-link.navbar-item(to='/login') Login
+          nuxt-link.navbar-item(to='/register') Registrieren
+        template(v-if='$auth.loggedIn' )
+          nuxt-link.navbar-item(to='/user') Zum Profil
+          p.navbar-item Abmelden
 </template>
 
 <script>
@@ -35,6 +53,7 @@ export default {
   data: function() {
     return {
       dropdown: false,
+      navbarItemsMobile: false,
       navbarItems: true,
       window: {
         isMobile: false,
@@ -47,75 +66,49 @@ export default {
   },
 
   methods: {
-    toggleDropdown: function() {
+    toggleProfileDropdown: function() {
       this.dropdown = !this.dropdown
     },
     toggleNavbbarItems: function() {
-      if (this.window.isMobile) {
-        this.navbarItems = !this.navbarItems
+      this.navbarItemsMobile = !this.navbarItemsMobile
+      if (this.navbarItemsMobile == true) {
+        setTimeout(() => {
+          document.addEventListener('click', this.closeMobileDropdown)
+        }, 1)
       }
     },
-    closeNavbbarItems: function() {
-      if (this.window.isMobile) {
-        this.navbarItems = false
-      }
+    closeMobileDropdown: function(e) {
+      document.removeEventListener('click', this.closeMobileDropdown)
+      this.navbarItemsMobile = false
     },
-    documentClick(e) {
-      let parent = this.$refs.parentDropdownMenu
+    closeProfileDropdown(e) {
       let el = this.$refs.dropdownMenu
       let target = e.target
+      let parent = this.$refs.parentDropdownMenu
       if (el !== target && parent !== target && !el.contains(target)) {
         this.dropdown = false
       }
-    },
-    test: function() {
-      console.log('test')
-    },
-    handleResize() {
-      this.window.width = window.innerWidth
-      this.window.height = window.innerHeight
-      if (window.innerWidth <= 640) {
-        this.window.isMobile = true
-        this.window.isTablet = false
-        this.window.isDesktop = false
-      } else if (window.innerWidth >= 640 && window.innerWidth <= 1280) {
-        this.window.isMobile = false
-        this.window.isTablet = true
-        this.window.isDesktop = false
-      }
-      if (window.innerWidth >= 1281) {
-        this.window.isMobile = false
-        this.window.isTablet = false
-        this.window.isDesktop = true
-      }
     }
   },
-
   computed: {
     user() {
       return this.$store.state.user.data
     }
   },
   mounted() {
-    window.addEventListener('resize', this.handleResize)
-    if (window.innerWidth <= 640) {
-      this.navbarItems = false
-    }
-    this.handleResize()
     if (this.$store.state.auth.loggedIn) {
-      document.addEventListener('click', this.documentClick)
+      document.addEventListener('click', this.closeProfileDropdown)
     }
   },
-
   destroyed() {
-    document.removeEventListener('click', this.documentClick)
-    window.removeEventListener('resize', this.handleResize)
+    document.removeEventListener('click', this.closeProfileDropdown)
   }
 }
 </script>
 
 <style lang='scss'>
 $navbar-height: 56px;
+
 .navbar {
   user-select: none;
   z-index: 1000;
@@ -148,26 +141,6 @@ $navbar-height: 56px;
   h5 {
     display: inline-block;
     padding-bottom: 0;
-  }
-}
-.navbar-items-trigger {
-  display: none;
-  position: relative;
-  height: 56px;
-  width: 20px;
-  float: right;
-  margin-right: 32px;
-  .hamburger {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-top: 19px;
-  }
-  .hamburger-item {
-    height: 2px;
-    width: 20px;
-    margin: 2px 0;
-    background: #000;
   }
 }
 .navbar-items {
@@ -224,43 +197,52 @@ $navbar-height: 56px;
     margin-bottom: 4px;
   }
 }
-@media (max-width: 640px) {
-  .navbar {
-    height: unset;
-    .navbar-title {
-      margin-left: 32px;
-      display: block;
-    }
 
-    .navbar-items {
-      margin: 0;
-      width: 100%;
-      background: #f7f7f7;
-      box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.3);
+.navbar-items-trigger {
+  display: none;
+  position: relative;
+  height: 56px;
+  width: 20px;
+  float: right;
+  margin-right: 32px;
+  .hamburger {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin-top: 19px;
+  }
+  .hamburger-item {
+    height: 2px;
+    width: 20px;
+    margin: 2px 0;
+    background: #000;
+  }
+}
+.navbar-items-mobile {
+  margin-top: -1px;
+  background: #f7f7f7;
+  box-shadow: 0 10px 10px 0 rgba(0, 0, 0, 0.3);
 
-      .navbar-item {
-        display: block;
-        margin-left: 0;
-        padding-left: 32px;
-      }
-    }
-    .dropdown-menu {
-      position: unset;
-      .dropdown-item {
-        margin-top: 0;
-        margin-bottom: 0;
-        padding-top: 0;
-        padding-bottom: 0;
-        padding-left: 32px;
-        line-height: 56px;
-        font-size: 16px;
-      }
-    }
+  .navbar-item {
+    display: block;
   }
 }
 
-@media (min-width: 641px) and (max-width: 1280px) {
-  .navbar {
+@media (max-width: 640px) {
+  .navbar-items-trigger {
+    display: block;
+  }
+  .navbar-items {
+    display: none;
+  }
+  .navbar-title {
+    margin-left: 32px;
+  }
+}
+
+@media (min-width: 641px) {
+  .navbar-items-mobile {
+    display: none;
   }
 }
 </style>
