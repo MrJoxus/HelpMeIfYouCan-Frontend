@@ -1,63 +1,84 @@
 <template lang="pug">
   .user
     .main-content
-      div.headline
-        h1.title Dein Profil
-        button.button.update-user(v-if="!editUserActive" @click="toggleUserEdit()") Profil bearbeiten
-      div.user-items
-        p.user-item.title Name
-        p.user-item.content(v-if="!editUserActive") {{ user.name }}
-        input.user-item.input(v-else v-model="userForm.name" type='text' name="name" :placeholder="formPlaceholer.name")
-      hr
-      div.user-items
-        p.user-item.title Nachname
-        p.user-item.content(v-if="!editUserActive") {{ user.lastName }}
-        input.user-item.input(v-else v-model="userForm.lastName" type='text' name="lastName" :placeholder="formPlaceholer.lastName")
-      hr
-      div.user-items
-        p.user-item.title Email
-        p.user-item.content(v-if="!editUserActive") {{ user.email }}
-        input.user-item.input(v-else v-model="userForm.email" type='text' name="email" :placeholder="formPlaceholer.email")
-      hr
-      div.user-items
-        p.user-item.title Adresse
-        p.user-item.content(v-if="!editUserActive") {{ user.addresse }}
-        div.user-item(v-else)
-          input.input(
-            v-model="userForm.address"
-            @keyup="toggleAddresSearch()"
-            type='text'
-            name="address"
-            :placeholder="formPlaceholer.address"
-            )
-          input.input(
-            v-model="userForm.postalCode"
-            @keyup="toggleAddresSearch()"
-            type='text'
-            name="postalCode"
-            :placeholder="formPlaceholer.postalCode"
-            )
-          input.input(
-            v-model="userForm.area"
-            @keyup="toggleAddresSearch()"
-            type='text'
-            name="area"
-            :placeholder="formPlaceholer.area")
-          button.no-button.search-address(v-if="searchAddressActive" @click="searchAddress()") Adresse suchen
+      form(@submit="sumbitUserForm")
+        div.headline
+          h1.title Dein Profil
+          p(v-if="error.status") ERROR: {{ error.status}}
+          button.button.update-user(v-if="!userEdit" @click="$store.commit('user/TOGGLE_USER_EDIT')") Profil bearbeiten
+        div.user-items
+          p.user-item.title Name
+          p.user-item.content(v-if="!userEdit") {{ userData.name }}
+          input.user-item.input(v-else v-model="userForm.name" type='text' name="name" :placeholder="formPlaceholer.name")
+        hr
+        div.user-items
+          p.user-item.title Nachname
+          p.user-item.content(v-if="!userEdit") {{ userData.lastName }}
+          input.user-item.input(v-else v-model="userForm.lastName" type='text' name="lastName" :placeholder="formPlaceholer.lastName")
+        hr
+        div.user-items
+          p.user-item.title Email
+          p.user-item.content {{ userData.email }}
+          //- input.user-item.input(v-else v-model="userForm.email" type='text' name="email" :placeholder="formPlaceholer.email")
+        hr
+        div.user-items
+          p.user-item.title Adresse
+          p.user-item.content(v-if="!userEdit") {{ userData.addresse }}
+          div.user-item(v-else)
+            input.input(
+              v-model="userForm.address"
+              @keyup="toggleAddresSearch()"
+              type='text'
+              name="address"
+              :placeholder="formPlaceholer.address"
+              )
+            input.input(
+              v-model="userForm.postalCode"
+              @keyup="toggleAddresSearch()"
+              type='text'
+              name="postalCode"
+              :placeholder="formPlaceholer.postalCode"
+              )
+            input.input(
+              v-model="userForm.area"
+              @keyup="toggleAddresSearch()"
+              type='text'
+              name="area"
+              :placeholder="formPlaceholer.area")
+            button.no-button.search-address(v-if="searchAddress.button" @click="sumbitAddressForm()") Adresse suchen
 
-      hr
-      div.user-items
-        p.user-item.title Telefon Nummer
-        p.user-item.content(v-if="!editUserActive") {{ user.phoneNr }}
-        input.user-item.input(v-else v-model="userForm.phoneNr" type='text' name="phoneNr" :placeholder="formPlaceholer.phoneNr")
-
-      template(v-if="editUserActive")
-        .options
-          span.left
-            button.button--alert.button.delete Profil löschen
-          .right
-            button.no-button.cancel(@click="toggleUserEdit()") abbrechen
-            button.button.update Profil aktualisieren
+        hr
+        div.user-items
+          p.user-item.title Telefon Nummer
+          p.user-item.content(v-if="!userEdit") {{ userData.phoneNr }}
+          input.user-item.input(v-else v-model="userForm.phoneNr" type='text' name="phoneNr" :placeholder="formPlaceholer.phoneNr")
+        template(v-if="userEdit")
+          hr
+          div.user-items
+            p.user-item.title Neues Passwort
+            input.user-item.input(
+              v-model="userForm.password"
+              type='password'
+              name="password"
+              :placeholder="formPlaceholer.password"
+              )
+        template(v-if="userEdit")
+          hr
+          div.user-items
+            p.user-item.title Passwort bestätigen
+            input.user-item.input(
+              v-model="userForm.currentPassword"
+              type='password'
+              name="passwordConfirmation"
+              :placeholder="formPlaceholer.currentPassword"
+              )
+        template(v-if="userEdit")
+          .options
+            span.left
+              button.button--alert.button.delete Profil löschen
+            .right
+              button.no-button.cancel(@click="$store.commit('user/TOGGLE_USER_EDIT')") abbrechen
+              button.button.update(@click="sumbitUserForm") Profil aktualisieren
 
 </template>
 
@@ -67,8 +88,6 @@ export default {
   middleware: 'auth',
   data: function() {
     return {
-      editUserActive: false,
-      searchAddressActive: false,
       userForm: {
         name: '',
         lastName: '',
@@ -78,7 +97,7 @@ export default {
         area: '',
         email: '',
         password: '',
-        passwordConfirmation: ''
+        currentPassword: ''
       },
       formPlaceholer: {
         name: 'Name',
@@ -88,43 +107,54 @@ export default {
         postalCode: 'Postleitzahl',
         area: 'Ort',
         email: 'Email',
-        password: '',
-        passwordConfirmation: ''
+        password: 'neues Passwort',
+        currentPassword: 'Passwort bestätigen'
       }
     }
   },
   methods: {
-    toggleUserEdit: function() {
-      this.editUserActive = !this.editUserActive
-      this.editUserActive && this.setUserForm()
-      if (!this.editUserActive) {
-        this.searchAddressActive = false
-      }
-    },
     toggleAddresSearch: function() {
       if (
         this.userForm.address &&
         this.userForm.postalCode &&
         this.userForm.area
       ) {
-        this.searchAddressActive = true
+        this.$store.commit('user/UPDATE_ADDRES_SEARCH', { button: true })
       } else {
-        this.searchAddressActive = false
+        this.$store.commit('user/UPDATE_ADDRES_SEARCH', { button: false })
       }
     },
-    updateUser: function() {
-      this.$store.dispatch('user/updateUser')
+    sumbitUserForm: function(e) {
+      e.preventDefault()
+      let payload = {}
+      for (let item in this.userForm) {
+        if (
+          this.userForm[item] != this.userData[item] &&
+          this.userForm[item] != undefined &&
+          this.userForm[item] != null
+        ) {
+          payload[item] = this.userForm[item]
+        }
+      }
+      if (
+        this.userForm.password == '' ||
+        this.userForm.password == undefined ||
+        this.userForm.password == null
+      ) {
+        delete payload.password
+      }
+      this.$store.dispatch('user/UPDATE_USER', payload)
     },
     setUserForm: function() {
-      this.userForm.name = this.user.name
-      this.userForm.lastName = this.user.lastName
-      this.userForm.address = this.user.address
-      this.userForm.postalCode = this.user.postalCode
-      this.userForm.area = this.user.area
-      this.userForm.phoneNr = this.user.phoneNr
-      this.userForm.email = this.user.email
+      this.userForm.name = this.userData.name
+      this.userForm.lastName = this.userData.lastName
+      this.userForm.address = this.userData.address
+      this.userForm.postalCode = this.userData.postalCode
+      this.userForm.area = this.userData.area
+      this.userForm.phoneNr = this.userData.phoneNr
+      this.userForm.email = this.userData.email
     },
-    searchAddress: function() {
+    sumbitAddressForm: function() {
       this.$store.dispatch('gmaps/GET_GEOLOCATION', {
         street: this.userForm.address,
         postlCode: this.userForm.postalCode,
@@ -133,8 +163,22 @@ export default {
     }
   },
   computed: {
-    user() {
+    userData() {
       return this.$store.state.user.data
+    },
+    userEdit() {
+      return this.$store.state.user.edit
+    },
+    searchAddress() {
+      return this.$store.state.user.addresSearch
+    },
+    error() {
+      return this.$store.state.user.error
+    }
+  },
+  watch: {
+    userEdit() {
+      if (this.userEdit) this.setUserForm()
     }
   }
 }
