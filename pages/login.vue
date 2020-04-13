@@ -17,8 +17,8 @@ export default {
   data: function() {
     return {
       login: {
-        email: 'qwertz@mail.com',
-        password: 'asdfasdf1'
+        email: 'user@mail.de',
+        password: 'password1'
       }
     }
   },

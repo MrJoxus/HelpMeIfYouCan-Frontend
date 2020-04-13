@@ -37,9 +37,9 @@ export default {
         phoneNr: 123456789,
         postalcode: '',
         area: '',
-        email: 'qwertz@mail.com',
-        password: 'asdfasdf1',
-        passwordConfirmation: 'asdfasdf1'
+        email: 'user@mail.de',
+        password: 'password1',
+        passwordConfirmation: 'password1'
       }
     }
   },

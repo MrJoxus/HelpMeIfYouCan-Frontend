@@ -5,18 +5,18 @@
         h1.title Help Me If You Can!
         p.subtitle Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig.
       .cards
-        nuxt-link.card(to="/register")
+        nuxt-link.card(to="/create?type=offer")
           h3.card-header Ich möchte helfen
           .card-image
             img(src="../assets/img/002-hilfe-1.png")
-        nuxt-link.card(to="/register")
+        nuxt-link.card(to="/create?type=help")
           h3.card-header Ich benötige Hilfe
           .card-image
             img(src="../assets/img/001-hilfe.png")
       p.subtitle Buffalo ham hock picanha short loin tongue pastrami corned beef sirloin pancetta alcatra tri-tip
         | ham venison flank kevin. Pastrami doner kevin flank, meatball pig pork brisket picanha. Picanha buffalo turkey meatloaf, tenderloin boudin shoulder hamburger brisket.
       .links
-        nuxt-link.button(to="/register") Registriere dich!
+        nuxt-link.button(to="/register" v-if='!$auth.loggedIn') Registriere dich!
 </template>
 
 <script>

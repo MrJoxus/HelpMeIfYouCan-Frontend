@@ -5,7 +5,7 @@ export const state = () => ({
     { id: 1, type: 'Gesuch', lat: 53.6179168, lng: 10.088444 },
     { id: 2, type: 'Angebot', lat: 53.6179168, lng: 10.088745 }
   ],
-  ownLocation: { lat: 53.565965, lng: 9.948829 },
+  ownLocation: { lat: undefined, lng: undefined },
   status: {
     loaded: {
       map: false
@@ -67,7 +67,7 @@ export const actions = {
         `${payload.street}, ${payload.postalCode}, ${payload.area}`
       )
     }
-    console.log("query", addressQuery)
+    console.log('query', addressQuery)
     let url = `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`
     delete this.$axios.defaults.headers.common['Authorization']
 
@@ -77,7 +77,7 @@ export const actions = {
         if (response.data.results.length != 0) {
           let location = response.data.results[0].geometry.location
           commit('UPDATE_CENTER', location)
-          // commit('UPDATE_OWN_LOCATION', location)
+          commit('UPDATE_OWN_LOCATION', location)
         } else {
           console.log(response.data)
         }
@@ -85,5 +85,8 @@ export const actions = {
       .catch(error => {
         console.log(error)
       })
+    this.$axios.defaults.headers.common['Authorization'] = localStorage.getItem(
+      'auth._token.local'
+    )
   }
 }

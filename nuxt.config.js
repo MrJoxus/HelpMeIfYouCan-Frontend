@@ -41,14 +41,18 @@ export default {
     '/api/auth/register': '~/api/auth/register.js',
 
     '/api/user/me/': '~/api/user/me/index.js',
+
+    '/api/help/': '~/api/help/index.js',
+    '/api/offer/': '~/api/offer/index.js'
+
     // '/api/user/me/show': '~/api/user/me/show.js',
     // '/api/user/me/delete': '~/api/user/me/delete.js',
     // '/api/user/me/update': '~/api/user/me/update.js',
 
-    '/api/user/admin/create': '~/api/user/admin/create.js',
-    '/api/user/admin/delete': '~/api/user/admin/delete.js',
-    '/api/user/admin/get': '~/api/user/admin/get.js',
-    '/api/user/admin/update': '~/api/user/admin/update.js'
+    // '/api/user/admin/create': '~/api/user/admin/create.js',
+    // '/api/user/admin/delete': '~/api/user/admin/delete.js',
+    // '/api/user/admin/get': '~/api/user/admin/get.js',
+    // '/api/user/admin/update': '~/api/user/admin/update.js',
   },
 
   router: {
