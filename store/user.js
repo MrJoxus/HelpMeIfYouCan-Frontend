@@ -22,10 +22,7 @@ export const state = () => ({
 export const mutations = {
   SET_USER(state, payload) {
     console.log('payload', payload)
-    state.data.name = payload.name
-    state.data.lastName = payload.lastName
-    state.data.email = payload.email
-    state.data.phoneNr = payload.phoneNr
+    state.data = payload
 
     state.set = true
   },
@@ -61,17 +58,60 @@ export const actions = {
         console.log('error', error)
       })
   },
-  UPDATE_USER({ commit }, payload) {
-    let self = this
-    this.$axios
-      .patch('api/user/me', payload)
-      .then(response => {
-        commit('SET_USER', response.data)
-        commit('TOGGLE_USER_EDIT')
-      })
-      .catch(error => {
-        console.log('error', error)
-        commit('UPDATE_ERROR', { status: true })
-      })
+  UPDATE_USER({ commit, dispatch }, payload) {
+    let emptyUser = true
+    let emptyAddress = true
+
+    for (var key in payload.user) {
+      if (payload.user.hasOwnProperty(key)) emptyUser = false
+    }
+    for (var key in payload.address) {
+      if (payload.address.hasOwnProperty(key)) emptyAddress = false
+    }
+
+    if (!emptyUser) {
+      this.$axios
+        .patch('api/user/me', payload.user)
+        .then(response => {
+          commit('SET_USER', response.data)
+          commit('TOGGLE_USER_EDIT')
+          commit('UPDATE_ERROR', { status: false })
+        })
+        .catch(error => {
+          console.log('error', error)
+          commit('UPDATE_ERROR', { status: true })
+        })
+    }
+
+    if (!emptyAddress) {
+      dispatch('UPDATE_ADDRESS', payload.address)
+    }
+  },
+  UPDATE_ADDRESS({ state, commit }, payload) {
+    if (state.data.userAddress == null) {
+      this.$axios
+        .post('api/user/me/address', payload)
+        .then(response => {
+          commit('SET_USER', response.data)
+          commit('TOGGLE_USER_EDIT')
+          commit('UPDATE_ERROR', { status: false })
+        })
+        .catch(error => {
+          console.log('error', error)
+          commit('UPDATE_ERROR', { status: true })
+        })
+    } else {
+      this.$axios
+        .patch('api/user/me/address', payload)
+        .then(response => {
+          commit('SET_USER', response.data)
+          commit('TOGGLE_USER_EDIT')
+          commit('UPDATE_ERROR', { status: false })
+        })
+        .catch(error => {
+          console.log('error', error)
+          commit('UPDATE_ERROR', { status: true })
+        })
+    }
   }
 }

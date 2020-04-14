@@ -40,6 +40,7 @@ export default {
     '/api/auth/login': '~/api/auth/login.js',
     '/api/auth/register': '~/api/auth/register.js',
 
+    '/api/user/me/address': '~/api/user/me/address/index.js',
     '/api/user/me/': '~/api/user/me/index.js',
 
     '/api/help/': '~/api/help/index.js',

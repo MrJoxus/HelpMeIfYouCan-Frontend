@@ -222,7 +222,6 @@ export default {
       )
     },
     initMarker() {
-      // console.log("initMarker", this.store)
       this.locations.forEach(location => {
         this.addMarker(location)
       })

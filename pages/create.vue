@@ -90,8 +90,6 @@ export default {
         dateDue: this.requestForm.dateDue
       }
 
-      console.log(this.$axios.defaults.headers.common['Authorization'])
-
       this.$axios
         .post('api/offer', data)
         .then(response => {
@@ -192,5 +190,3 @@ export default {
 @media (max-width: 1281px) {
 }
 </style>
-
-

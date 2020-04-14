@@ -1,6 +1,6 @@
 const httpProxy = require('http-proxy')
 const proxy = httpProxy.createProxyServer()
-const API_ENDPOINT = 'offers'
+const API_ENDPOINT = 'user/me/address?lazy=true'
 
 // für CRUD
 

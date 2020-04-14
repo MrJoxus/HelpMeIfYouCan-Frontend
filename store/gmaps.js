@@ -38,7 +38,6 @@ export const state = () => ({
 
 export const mutations = {
   UPDATE_CENTER(state, payload) {
-    console.log('UPDATE_CENTER')
     state.center = payload
   },
   TOGGLE_MARKERS(state) {
@@ -58,7 +57,6 @@ export const mutations = {
 
 export const actions = {
   GET_GEOLOCATION({ commit }, payload) {
-    console.log('GET_GEOLOCATION', payload)
     let addressQuery
     if (Object.keys(payload) == 'string') {
       addressQuery = payload.string
@@ -67,7 +65,6 @@ export const actions = {
         `${payload.street}, ${payload.postalCode}, ${payload.area}`
       )
     }
-    console.log('query', addressQuery)
     let url = `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`
     delete this.$axios.defaults.headers.common['Authorization']
 

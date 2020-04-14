@@ -9,12 +9,12 @@
         div.user-items
           p.user-item.title Name
           p.user-item.content(v-if="!userEdit") {{ userData.name }}
-          input.user-item.input(v-else v-model="userForm.name" type='text' name="name" :placeholder="formPlaceholer.name")
+          input.user-item.input(v-else v-model="userForm.user.name" type='text' name="name" :placeholder="formPlaceholer.name")
         hr
         div.user-items
           p.user-item.title Nachname
           p.user-item.content(v-if="!userEdit") {{ userData.lastName }}
-          input.user-item.input(v-else v-model="userForm.lastName" type='text' name="lastName" :placeholder="formPlaceholer.lastName")
+          input.user-item.input(v-else v-model="userForm.user.lastName" type='text' name="lastName" :placeholder="formPlaceholer.lastName")
         hr
         div.user-items
           p.user-item.title Email
@@ -25,22 +25,29 @@
           p.user-item.title Adresse
           p.user-item.content(v-if="!userEdit") {{ userData.addresse }}
           div.user-item(v-else)
-            input.input(
-              v-model="userForm.address"
+            input.input.input-street(
+              v-model="userForm.address.street"
               @keyup="toggleAddresSearch()"
               type='text'
               name="address"
               :placeholder="formPlaceholer.address"
               )
+            input.input.input-housenumber(
+              v-model="userForm.address.houseNumber"
+              @keyup="toggleAddresSearch()"
+              type='text'
+              name="address"
+              placeholder="Nr"
+              )
             input.input(
-              v-model="userForm.postalCode"
+              v-model="userForm.address.zipCode"
               @keyup="toggleAddresSearch()"
               type='text'
               name="postalCode"
               :placeholder="formPlaceholer.postalCode"
               )
             input.input(
-              v-model="userForm.area"
+              v-model="userForm.address.district"
               @keyup="toggleAddresSearch()"
               type='text'
               name="area"
@@ -51,7 +58,7 @@
         div.user-items
           p.user-item.title Telefon Nummer
           p.user-item.content(v-if="!userEdit") {{ userData.phoneNr }}
-          input.user-item.input(v-else v-model="userForm.phoneNr" type='text' name="phoneNr" :placeholder="formPlaceholer.phoneNr")
+          input.user-item.input(v-else v-model="userForm.user.phoneNr" type='text' name="phoneNr" :placeholder="formPlaceholer.phoneNr")
         template(v-if="userEdit")
           hr
           div.user-items
@@ -89,13 +96,18 @@ export default {
   data: function() {
     return {
       userForm: {
-        name: '',
-        lastName: '',
-        address: '',
-        phoneNr: '',
-        postalCode: '',
-        area: '',
-        email: '',
+        user: {
+          name: '',
+          lastName: '',
+          phoneNr: '',
+          email: ''
+        },
+        address: {
+          street: '',
+          zipCode: '',
+          district: '',
+          houseNumber: ''
+        },
         password: '',
         currentPassword: ''
       },
@@ -115,9 +127,10 @@ export default {
   methods: {
     toggleAddresSearch: function() {
       if (
-        this.userForm.address &&
-        this.userForm.postalCode &&
-        this.userForm.area
+        this.userForm.address.street &&
+        this.userForm.address.zipCode &&
+        this.userForm.address.district &&
+        this.userForm.address.houseNumber
       ) {
         this.$store.commit('user/UPDATE_ADDRES_SEARCH', { button: true })
       } else {
@@ -126,37 +139,54 @@ export default {
     },
     sumbitUserForm: function(e) {
       e.preventDefault()
-      let payload = {}
-      for (let item in this.userForm) {
-        if (
-          this.userForm[item] != this.userData[item] &&
-          this.userForm[item] != undefined &&
-          this.userForm[item] != null
-        ) {
-          payload[item] = this.userForm[item]
+      let payload = { user: {}, address: {} }
+      let form = this.userForm
+      for (let key in form.user) {
+        let value = this.validateUserForm(key, form.user[key])
+        if (value != null) {
+          payload.user[key] = value
+        }
+        delete payload.user.email
+      }
+      for (let key in form.address) {
+        let value = this.validateUserForm(key, form.address[key])
+        if (value != null) {
+          payload.address[key] = value
         }
       }
       if (
-        this.userForm.password == '' ||
-        this.userForm.password == undefined ||
-        this.userForm.password == null
+        form.password != '' ||
+        form.password != undefined ||
+        form.password != null
       ) {
-        delete payload.password
+        payload.password = form.password
       }
+      if (form.currentPassword != '') {
+        payload.currentPassword = form.currentPassword
+      }
+
       this.$store.dispatch('user/UPDATE_USER', payload)
     },
+    validateUserForm: function(key, item) {
+      if (item != this.userData[key] && item != undefined && item != null) {
+        return item
+      } else {
+        return null
+      }
+    },
     setUserForm: function() {
-      this.userForm.name = this.userData.name
-      this.userForm.lastName = this.userData.lastName
-      this.userForm.address = this.userData.address
-      this.userForm.postalCode = this.userData.postalCode
-      this.userForm.area = this.userData.area
-      this.userForm.phoneNr = this.userData.phoneNr
-      this.userForm.email = this.userData.email
+      this.userForm.user.name = this.userData.name
+      this.userForm.user.lastName = this.userData.lastName
+      this.userForm.address.street = this.userData.fullAddress.street
+      this.userForm.address.zipCode = this.userData.fullAddress.zipCode
+      this.userForm.address.district = this.userData.fullAddress.district
+      this.userForm.address.houseNumber = this.userData.fullAddress.houseNumber
+      this.userForm.user.phoneNr = this.userData.phoneNr
+      this.userForm.user.email = this.userData.email
     },
     sumbitAddressForm: function() {
       this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        street: this.userForm.address,
+        street: this.userForm.street,
         postlCode: this.userForm.postalCode,
         area: this.userForm.area
       })
@@ -228,6 +258,17 @@ export default {
         margin-bottom: 8px;
         margin-top: 8px;
       }
+      .input-street {
+        display: inline-block;
+        width: 70%;
+      }
+      .input-housenumber {
+        display: inline-block;
+
+        width: 25%;
+        float: right;
+      }
+
       .search-address {
         float: right;
         cursor: pointer;
