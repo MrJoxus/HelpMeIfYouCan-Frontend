@@ -91,7 +91,7 @@ export default {
       }
 
       this.$axios
-        .post('api/offer', data)
+        .post('api/' + this.type, data)
         .then(response => {
           console.log('response', response)
         })
