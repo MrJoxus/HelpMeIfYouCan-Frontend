@@ -21,7 +21,6 @@ export const state = () => ({
 
 export const mutations = {
   SET_USER(state, payload) {
-    console.log('payload', payload)
     state.data = payload
 
     state.set = true

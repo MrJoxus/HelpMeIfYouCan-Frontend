@@ -43,8 +43,11 @@ export default {
     '/api/user/me/address': '~/api/user/me/address/index.js',
     '/api/user/me/': '~/api/user/me/index.js',
 
-    '/api/help/': '~/api/help/index.js',
-    '/api/offer/': '~/api/offer/index.js'
+    '/api/request/': '~/api/request/index.js',
+    '/api/offer/': '~/api/offer/index.js',
+
+    '/api/coords/help-requests': '~/api/coords/help.js',
+    '/api/coords/help-offers': '~/api/coords/offer.js',
 
     // '/api/user/me/show': '~/api/user/me/show.js',
     // '/api/user/me/delete': '~/api/user/me/delete.js',
