@@ -1,5 +1,5 @@
 <template lang='pug'>
-  .map-wrapper(@click='test()')
+  .map-wrapper
     .map-search(v-show='status.searchbar.active' :class='{ "hide-map-search": !status.searchbar.expand}')
       img.toggle-map-search(
         ref='mapSearch'
@@ -137,12 +137,14 @@ export default {
       this.initInfoWindow()
     },
     locations() {
-      let currentLength = this.gObjects.markers.length
-      let newLength = this.locations.length
-      let diff = newLength - currentLength
-      for (let i = 0; i < diff; i++) {
-        let index = i + currentLength
-        this.addMarker(this.locations[index])
+      if (this.mapLoaded) {
+        let currentLength = this.gObjects.markers.length
+        let newLength = this.locations.length
+        let diff = newLength - currentLength
+        for (let i = 0; i < diff; i++) {
+          let index = i + currentLength
+          this.addMarker(this.locations[index])
+        }
       }
     },
     searchOwnLocation() {
@@ -153,12 +155,13 @@ export default {
           position: this.searchOwnLocation,
           map: this.gObjects.map
         })
-        // this.addMarker(this.searchOwnLocation)
       }
     },
     triggerCluster() {
-      this.gObjects.markerCluster.clearMarkers()
-      this.gObjects.markerCluster.addMarkers(this.gObjects.markers)
+      if (this.mapLoaded) {
+        this.gObjects.markerCluster.clearMarkers()
+        this.gObjects.markerCluster.addMarkers(this.gObjects.markers)
+      }
     }
   },
 
@@ -208,14 +211,26 @@ export default {
     },
 
     initMap() {
-      this.gObjects.map = new google.maps.Map(
-        this.$refs.map,
-        this.mapParameters
-      )
-      this.$store.commit('gmaps/UPDATE_STATUS', { loaded: { map: true } })
+      let self = this
+      var loaded = new Promise(function(resolve, reject) {
+        self.gObjects.map = new self.google.maps.Map(
+          self.$refs.map,
+          self.mapParameters
+        )
+        if (self.gObjects.map) {
+          resolve()
+        }
+      })
+      loaded.then(function(value) {
+        self.gObjects.map = new google.maps.Map(
+          self.$refs.map,
+          self.mapParameters
+        )
+        self.$store.commit('gmaps/UPDATE_STATUS', { loaded: { map: true } })
 
-      this.gObjects.map.addListener('drag', () => {
-        if (this.status.inputFocus) this.$refs.addressInput.blur()
+        self.gObjects.map.addListener('drag', () => {
+          if (self.status.inputFocus) self.$refs.addressInput.blur()
+        })
       })
     },
     initMarkerCluster() {
