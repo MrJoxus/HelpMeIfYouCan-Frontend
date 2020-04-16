@@ -74,7 +74,7 @@ export default {
   methods: {
     toggleType: function(query) {
       this.type = query
-      this.$route.query.type = query
+      this.$router.push({ query: { query } })
     },
     sumbitAddressForm: function() {
       this.$store.dispatch('gmaps/GET_GEOLOCATION', {
@@ -84,6 +84,7 @@ export default {
       })
     },
     submitRequest: function() {
+      let self = this
       let data = {
         description: this.requestForm.description,
         coordinates: this.requestForm.coordinates,
@@ -94,6 +95,7 @@ export default {
         .post('api/' + this.type, data)
         .then(response => {
           console.log('response', response)
+          self.$router.push('map')
         })
         .catch(error => {
           console.log('error', error)
