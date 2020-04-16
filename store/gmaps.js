@@ -9,6 +9,9 @@ export const state = () => ({
     show: {
       markers: true
     }
+  },
+  trigger: {
+    cluster: 0
   }
 
   // locations: [
@@ -45,8 +48,10 @@ export const mutations = {
     state.status.show.markers = !state.status.show.markers
   },
   UPDATE_STATUS(state, payload) {
-    let key = Object.keys(payload)[0]
-    state.status[key] = payload[key]
+    let keys = Object.keys(payload)
+    keys.forEach(key => {
+      state.status[key] = payload[key]
+    })
   },
   ADD_LOCATION(state, payload) {
     let createNewEntry = true
@@ -78,6 +83,11 @@ export const mutations = {
   },
   UPDATE_OWN_LOCATION(state, payload) {
     state.ownLocation = payload
+  },
+  TRIGGER(state, payload) {
+    payload.forEach(key => {
+      state.trigger[key] = state.trigger[key] + 1
+    })
   }
 }
 
@@ -155,6 +165,7 @@ export const actions = {
           lng: payload.lng,
           description: response.data.description
         })
+        commit('TRIGGER', ['cluster'])
       })
       .catch(error => {
         console.log('error', error)

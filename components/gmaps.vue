@@ -1,5 +1,5 @@
 <template lang='pug'>
-  .map-wrapper
+  .map-wrapper(@click='test()')
     .map-search(v-show='status.searchbar.active' :class='{ "hide-map-search": !status.searchbar.expand}')
       img.toggle-map-search(
         ref='mapSearch'
@@ -62,7 +62,7 @@ export default {
         center: { lat: 53.565965, lng: 9.948829 },
         zoom: 13,
         options: {
-          minZoom: 8,
+          minZoom: 10,
           fullscreenControl: false,
           disableDefaultUI: true,
           gestureHandling: 'greedy',
@@ -115,6 +115,9 @@ export default {
     },
     searchOwnLocation() {
       return this.$store.state.gmaps.ownLocation
+    },
+    triggerCluster() {
+      return this.$store.state.gmaps.trigger.cluster
     }
   },
 
@@ -152,6 +155,10 @@ export default {
         })
         // this.addMarker(this.searchOwnLocation)
       }
+    },
+    triggerCluster() {
+      this.gObjects.markerCluster.clearMarkers()
+      this.gObjects.markerCluster.addMarkers(this.gObjects.markers)
     }
   },
 
@@ -212,7 +219,7 @@ export default {
       })
     },
     initMarkerCluster() {
-      this.markerCluster = new MarkerClusterer(
+      this.gObjects.markerCluster = new MarkerClusterer(
         this.gObjects.map,
         this.gObjects.markers,
         {
