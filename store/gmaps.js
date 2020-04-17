@@ -16,30 +16,6 @@ export const state = () => ({
     cluster: 0
   }
 
-  // locations: [
-  //   { id: 0, type: 'Gesuch', lat: 53.565965, lng: 9.948829 },
-  //   { id: 1, type: 'Gesuch', lat: 53.6179168, lng: 10.088444 },
-  //   { id: 2, type: 'Angebot', lat: 53.6179168, lng: 10.088745 }
-  // ],
-  // infoWindow: {
-  //   dummyContent: [
-  //     {
-  //       type: 'Gesuch1',
-  //       description:
-  //         'Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig.'
-  //     },
-  //     {
-  //       type: 'Angebot1',
-  //       description:
-  //         'Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig.'
-  //     },
-  //     {
-  //       type: 'Angebot2',
-  //       description:
-  //         'Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig. Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig.'
-  //     }
-  //   ]
-  // }
 })
 
 export const mutations = {
@@ -56,28 +32,45 @@ export const mutations = {
     })
   },
   ADD_LOCATION(state, payload) {
-    let createNewEntry = true
-    state.locations.forEach(location => {
-      if (location.lat == payload.lat && location.lng == payload.lng) {
-        createNewEntry = false
-        location.data.push({
-          id: payload.id,
-          user: payload.user,
-          type: payload.type,
-          description: payload.description
+    let key
+    if (payload.type == 'locations') {
+      key = 'locations'
+    } else if (payload.type == 'help-offer') {
+      key = 'helpOfferLocations'
+    } else if (payload.type == 'help-request') {
+      key = 'helpRequestLocations'
+    }
+    let addNewLocation = true
+    state[key].forEach(location => {
+      if (
+        location.lat == payload.data.lat &&
+        location.lng == payload.data.lng
+      ) {
+        let addNewData = true
+        addNewLocation = false
+        location.data.forEach(data => {
+          if (data.id == payload.data.id) addNewData = false
         })
+        if (addNewData) {
+          location.data.push({
+            id: payload.data.id,
+            user: payload.data.user,
+            type: payload.data.type,
+            description: payload.data.description
+          })
+        }
       }
     })
-    if (createNewEntry) {
-      state.locations.push({
-        lat: payload.lat,
-        lng: payload.lng,
+    if (addNewLocation) {
+      state[key].push({
+        lat: payload.data.lat,
+        lng: payload.data.lng,
         data: [
           {
-            id: payload.id,
-            user: payload.user,
-            type: payload.type,
-            description: payload.description
+            id: payload.data.id,
+            user: payload.data.user,
+            type: payload.data.type,
+            description: payload.data.description
           }
         ]
       })
@@ -130,14 +123,14 @@ export const actions = {
     let radius = 200
     let requestType = payload
     let key = ''
-    if (payload == 'offer') {
+    if (payload == 'help-offer') {
       key = 'helpOffers'
-    } else if (payload == 'request') {
+    } else if (payload == 'help-request') {
       key = 'helpRequests'
     }
     this.$axios
       .get(
-        `/api/coords/help-${requestType}s/?longitude=${lng}&latitude=${lat}&radius=${radius}`
+        `/api/coords/${requestType}s/?longitude=${lng}&latitude=${lat}&radius=${radius}`
       )
       .then(response => {
         response.data.forEach(coordinate => {
@@ -157,16 +150,18 @@ export const actions = {
   },
   GET_HELP_O_R({ commit }, payload) {
     this.$axios
-      .get(`/api/help-${payload.type}/${payload.id}`)
+      .get(`/api/${payload.type}/${payload.id}`)
       .then(response => {
-        commit('ADD_LOCATION', {
+        let data = {
           id: response.data.id,
           user: response.data.user,
           type: payload.type,
           lat: payload.lat,
           lng: payload.lng,
           description: response.data.description
-        })
+        }
+        commit('ADD_LOCATION', { data: data, type: 'locations' })
+        commit('ADD_LOCATION', { data: data, type: payload.type })
         commit('TRIGGER', ['cluster'])
       })
       .catch(error => {
