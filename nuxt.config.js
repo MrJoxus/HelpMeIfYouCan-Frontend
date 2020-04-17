@@ -43,8 +43,8 @@ export default {
     '/api/user/me/address': '~/api/user/me/address/index.js',
     '/api/user/me/': '~/api/user/me/index.js',
 
-    '/api/request/': '~/api/request/index.js',
-    '/api/offer/': '~/api/offer/index.js',
+    '/api/help-request/': '~/api/help-request/index.js',
+    '/api/help-offer/': '~/api/help-offer/index.js',
 
     '/api/coords/help-requests': '~/api/coords/help.js',
     '/api/coords/help-offers': '~/api/coords/offer.js',

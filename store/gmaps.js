@@ -1,6 +1,8 @@
 export const state = () => ({
   center: { lat: 53.565965, lng: 9.948829 },
   locations: [],
+  helpRequestLocations: [],
+  helpOfferLocations: [],
   ownLocation: { lat: undefined, lng: undefined },
   status: {
     loaded: {
@@ -155,7 +157,7 @@ export const actions = {
   },
   GET_HELP_O_R({ commit }, payload) {
     this.$axios
-      .get(`/api/${payload.type}/${payload.id}`)
+      .get(`/api/help-${payload.type}/${payload.id}`)
       .then(response => {
         commit('ADD_LOCATION', {
           id: response.data.id,
