@@ -10,12 +10,12 @@ export default {
   },
   methods: {
     test: function() {
-      console.log("method test")
+      console.log('method test')
     }
   },
   mounted() {
-    this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', "offer")
-    this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', "request")
+    this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-request')
+    this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-request')
   }
 }
 </script>

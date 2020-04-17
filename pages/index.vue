@@ -5,11 +5,11 @@
         h1.title Help Me If You Can!
         p.subtitle Bacon ipsum dolor amet fatback kevin shoulder tenderloin drumstick filet mignon, chicken buffalo pig.
       .cards
-        nuxt-link.card(to="/create?type=offer")
+        nuxt-link.card(to="/create?type=help-offer")
           h3.card-header Ich möchte helfen
           .card-image
             img(src="../assets/img/002-hilfe-1.png")
-        nuxt-link.card(to="/create?type=help")
+        nuxt-link.card(to="/create?type=help-request")
           h3.card-header Ich benötige Hilfe
           .card-image
             img(src="../assets/img/001-hilfe.png")

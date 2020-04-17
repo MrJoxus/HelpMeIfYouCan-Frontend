@@ -5,12 +5,12 @@
         h1.title Neue Anzeige
       div.request-toggle
         span.offer(
-          :class='{"toggle-active": type == "offer"}'
-          @click='toggleType("offer")'
+          :class='{"toggle-active": type == "help-offer"}'
+          @click='toggleType("help-offer")'
           ) Angebot
         span.help(
-          :class='{"toggle-active": type == "help"}'
-          @click='toggleType("help")'
+          :class='{"toggle-active": type == "help-request"}'
+          @click='toggleType("help-request")'
           ) Anfrage
       br
       p Beschreibung
@@ -74,7 +74,7 @@ export default {
   methods: {
     toggleType: function(query) {
       this.type = query
-      this.$router.push({ query: { query } })
+      this.$router.push({ query: { type: query } })
     },
     sumbitAddressForm: function() {
       this.$store.dispatch('gmaps/GET_GEOLOCATION', {
@@ -102,9 +102,8 @@ export default {
         })
     }
   },
-  mounted() {
+  created() {
     this.type = this.$route.query.type
-    let date = Date.now()
   }
 }
 </script>
