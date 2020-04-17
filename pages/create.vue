@@ -19,18 +19,21 @@
       p.user-item.title Adresse
       div.user-item
         input.input(
+          @keyup="addressInput()"
           v-model="requestForm.address"
           type='text'
           name="address"
           placeholder="Straße"
           )
         input.input(
+          @keyup="addressInput()"
           v-model="requestForm.postalCode"
           type='text'
           name="postalCode"
           placeholder="Postleitzahl"
           )
         input.input(
+          @keyup="addressInput()"
           v-model="requestForm.area"
           type='text'
           name="area"
@@ -72,6 +75,10 @@ export default {
     }
   },
   methods: {
+    addressInput() {
+      this.requestForm.coordinates.latitude = undefined
+      this.requestForm.coordinates.longitude = undefined
+    },
     toggleType: function(query) {
       this.type = query
       this.$router.push({ query: { type: query } })
@@ -137,7 +144,9 @@ export default {
     height: 40px;
     overflow: hidden;
     cursor: pointer;
-
+    .offer {
+      border-right: 1px solid #227bc0;
+    }
     span {
       display: inline-block;
       height: 100%;

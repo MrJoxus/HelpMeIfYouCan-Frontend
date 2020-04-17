@@ -4,6 +4,9 @@
       nuxt-link(to='/')
         h5 Help Me If You Can!
     .navbar-items
+      nuxt-link.navbar-item(to='/create?type=help-offer')
+        img(src="../assets/img/add.png")
+      nuxt-link.navbar-item(to='/map') Zur Karte
       nuxt-link.navbar-item(to='/about-us') Über uns
       nuxt-link.navbar-item(to='/impressum') Impressum
       template(v-if='$auth.loggedIn')
@@ -38,6 +41,8 @@
         @click='navbarItemsMobile = !navbarItemsMobile'
         v-show='navbarItemsMobile'
         )
+        nuxt-link.navbar-item(to='/create') Neue Anzeige
+        nuxt-link.navbar-item(to='/map') Zur Karte
         nuxt-link.navbar-item(to='/about-us') Über uns
         nuxt-link.navbar-item(to='/impressum') Impressum
         template(v-if='!$auth.loggedIn')
@@ -148,6 +153,7 @@ $navbar-height: 56px;
   margin-right: $navbar-height;
 }
 .navbar-item {
+  position: relative;
   display: inline-block;
   line-height: $navbar-height;
   margin-left: 32px;
@@ -157,6 +163,10 @@ $navbar-height: 56px;
   transition: color 0.4s ease;
   &:hover {
     color: rgb(34, 123, 192);
+  }
+  img {
+    margin-top: -2px;
+    vertical-align: middle;
   }
 }
 .user-name {

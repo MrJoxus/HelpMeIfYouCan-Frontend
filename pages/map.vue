@@ -22,11 +22,15 @@ export default {
   mounted() {
     this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-offer')
     this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-request')
+    this.$store.commit('gmaps/UPDATE_STATUS', { show: { filter: true } })
+  },
+  destroyed() {
+    this.$store.commit('gmaps/UPDATE_STATUS', { show: { filter: false } })
   }
 }
 </script>
 
 <style lang="scss">
 .page-map {
- }
+}
 </style>

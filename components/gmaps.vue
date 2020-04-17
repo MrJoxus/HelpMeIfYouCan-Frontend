@@ -1,6 +1,6 @@
 <template lang='pug'>
   .map-wrapper
-    .filter
+    .filter(v-if='store.status.show.filter')
       form(@submit='submitFilter')
         input.input.input-street(
           v-model="model.filter.address"
@@ -41,8 +41,8 @@
             )
             h4(v-if='item.type == "help-offer"') Moritz möchte helfen
             h4(v-if='item.type == "help-request"') Frida braucht Hilfe
-            p.id request id{{ item.id }}
-            p user id{{ item.user }}
+            p.id request id {{ item.id }}
+            p user id {{ item.user }}
             p {{ item.description }}
             textarea(
               v-model='model.parent_id[index]'

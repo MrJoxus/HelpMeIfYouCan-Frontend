@@ -9,7 +9,8 @@ export const state = () => ({
       map: false
     },
     show: {
-      markers: true
+      markers: true,
+      filter: false
     }
   },
   trigger: {
