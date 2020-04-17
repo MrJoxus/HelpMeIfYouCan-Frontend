@@ -1,36 +1,51 @@
 <template lang='pug'>
   .map-wrapper
-    .map-search(v-show='status.searchbar.active' :class='{ "hide-map-search": !status.searchbar.expand}')
-      img.toggle-map-search(
-        ref='mapSearch'
-        @click='status.searchbar.expand = !status.searchbar.expand'
-        src='../assets/img/back.png'
-        )
-      input(
-        @focus="focusHandler()"
-        type='text'
-        ref='addressInput'
-        placeholder='Straße, Plz, Ort'
-        v-model='model.searchAddress'
-      )
-      img.search(
-        @click="searchAddress()"
-        src='../assets/img/search.png'
-        )
-      img.get-location(
-        @click="getDeviceLocation()"
-        src='../assets/img/crosshair.png'
-        )
+    .filter
+      form(@submit='submitFilter')
+        input.input.input-street(
+          v-model="model.filter.address"
+          @keyup=""
+          type='text'
+          placeholder="Straße, Plz, Ort"
+          )
+
+        .search
+          .checkbox(@click="model.filter.helpRequest = !model.filter.helpRequest")
+            span Anfragen
+            input.input(
+              v-model="model.filter.helpRequest"
+              @keyup=""
+              type='checkbox'
+              )
+          .checkbox(@click="model.filter.helpOffer = !model.filter.helpOffer")
+            span Angebote
+            input.input(
+              v-model="model.filter.helpOffer"
+              @keyup=""
+              type='checkbox'
+              )
+          button.button(@click='submitFilter') Suchen
+    //-   img.get-location(
+    //-     @click="getDeviceLocation()"
+    //-     src='../assets/img/crosshair.png'
+    //-     )
     div#map(
       ref='map'
       )
       div.info-window-wrapper
         div.info-window(ref='infoWindow')
-          .info-window-item
-            h4 {{ infoWindowContent.type }}
-            p {{ infoWindowContent.description }}
+          .info-window-item(
+            v-for='(item, index) in infoWindowContent'
+            @click='status.infoWindow.item = item.id'
+            :class='{"info-window-item--active": status.infoWindow.item == item.id}'
+            )
+            h4(v-if='item.type == "help-offer"') Moritz möchte helfen
+            h4(v-if='item.type == "help-request"') Frida braucht Hilfe
+            p.id request id{{ item.id }}
+            p user id{{ item.user }}
+            p {{ item.description }}
             textarea(
-              v-model='model.textarea'
+              v-model='model.parent_id[index]'
               :class='{collapsed: !status.infoWindow.textarea}'
               )
             .options
@@ -76,16 +91,15 @@ export default {
         }
       },
       model: {
-        textarea: undefined,
-        searchAddress: undefined
+        textarea: [],
+        parent_id: [],
+        searchAddress: undefined,
+        filter: { helpOffer: true, helpRequest: true, address: undefined }
       },
-      infoWindowContent: {
-        type: undefined,
-        name: 'Hans',
-        description: undefined
-      },
+      infoWindowContent: undefined,
       status: {
         infoWindow: {
+          item: undefined,
           textarea: false
         },
         searchbar: {
@@ -112,6 +126,12 @@ export default {
     },
     locations() {
       return this.$store.state.gmaps.locations
+    },
+    helpOfferLocations() {
+      return this.$store.state.gmaps.helpOfferLocations
+    },
+    helpRequestLocations() {
+      return this.$store.state.gmaps.helpRequestLocations
     },
     searchOwnLocation() {
       return this.$store.state.gmaps.ownLocation
@@ -166,6 +186,30 @@ export default {
   },
 
   methods: {
+    submitFilter(e) {
+      e.preventDefault()
+
+      this.clearAllMarkers()
+
+      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
+        string: this.model.filter.address
+      })
+
+      if (
+        this.model.filter.helpOffer == true &&
+        this.model.filter.helpRequest == false
+      ) {
+        this.initMarker(this.helpOfferLocations)
+      } else if (
+        this.model.filter.helpRequest == true &&
+        this.model.filter.helpOffer == false
+      ) {
+        this.initMarker(this.helpRequestLocations)
+      } else {
+        this.initMarker(this.locations)
+      }
+      this.$store.commit('gmaps/TRIGGER', ['cluster'])
+    },
     focusHandler() {
       document.addEventListener('click', this.documentClick)
       this.status.inputFocus = true
@@ -197,17 +241,11 @@ export default {
         this.gObjects.infoWindow.open(this.gObjects.map, this.currentMarker)
       }, 100)
     },
-    searchAddress: function() {
-      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        string: this.model.searchAddress
-      })
-    },
     collapseTextArea() {
       this.status.infoWindow.textarea = false
     },
-
-    test() {
-      console.log('test')
+    test(id) {
+      console.log('test', id)
     },
 
     initMap() {
@@ -243,10 +281,16 @@ export default {
         }
       )
     },
-    initMarker() {
-      this.locations.forEach(location => {
-        this.addMarker(location)
-      })
+    initMarker(obj) {
+      if (obj == undefined) {
+        this.locations.forEach(location => {
+          this.addMarker(location)
+        })
+      } else {
+        obj.forEach(location => {
+          this.addMarker(location)
+        })
+      }
     },
 
     initInfoWindow(content) {
@@ -267,9 +311,7 @@ export default {
         this.gObjects.infoWindow.close()
         this.status.infoWindow.textarea = false
         this.model.textarea = undefined
-        let content = this.store.infoWindow.dummyContent[markerIndex]
-        this.infoWindowContent.type = content.type
-        this.infoWindowContent.description = content.description
+        this.infoWindowContent = location.data
 
         this.gObjects.infoWindow.open(this.gObjects.map, marker)
         let listener = this.gObjects.map.addListener('click', () => {
@@ -294,6 +336,13 @@ export default {
       this.gObjects.markers.forEach(marker => {
         marker.setMap(this.gObjects.map)
       })
+    },
+    clearAllMarkers() {
+      this.gObjects.markerCluster.clearMarkers()
+      this.gObjects.markers.forEach(marker => {
+        marker.setMap(null)
+      })
+      this.gObjects.markers = []
     }
   },
 
@@ -322,60 +371,6 @@ export default {
   height: calc(100vh - 56px);
   width: 100vw;
 }
-.map-search {
-  position: absolute;
-  z-index: 200;
-  bottom: 40px;
-  right: 15%;
-  width: 70%;
-  transition: all 0.2s ease;
-  input {
-    padding-right: 40px;
-    opacity: 1;
-    transition: all 0.2s ease;
-    margin-bottom: 0;
-  }
-  .toggle-map-search {
-    z-index: 100;
-    position: absolute;
-    top: 8px;
-    left: -24px;
-    width: 18px;
-    height: 18px;
-    transform: rotate(180deg);
-    transition: all 0.2s ease;
-  }
-
-  img.search {
-    position: absolute;
-    top: 6px;
-    right: 12px;
-    width: 20px;
-    height: 20px;
-    opacity: 1;
-    transition: all 0.2s ease;
-  }
-  .get-location {
-    position: absolute;
-    top: 7px;
-    right: -32px;
-    width: 20px;
-    height: 20px;
-  }
-}
-.hide-map-search {
-  width: 0px;
-  input {
-    padding-right: 0;
-  }
-  input,
-  img.search {
-    opacity: 0;
-  }
-  .toggle-map-search {
-    transform: rotate(0);
-  }
-}
 #map {
   height: 100%;
   width: 100%;
@@ -387,11 +382,20 @@ export default {
 // gMaps
 .info-window {
   margin: 16px;
-  min-width: 300px;
-  max-width: 400px;
+  margin-top: 32px;
+  max-width: 480px;
 }
 .info-window-item {
-  margin-bottom: 16px;
+  height: 56px;
+  overflow: hidden;
+  margin: 16px 0;
+  padding: 14px 24px;
+  background: white;
+  border-radius: 4px;
+  border: solid 1px #cccccc;
+  transition: all 0.2s ease;
+  cursor: pointer;
+
   p {
     font-size: 14px;
     font-weight: 400;
@@ -425,6 +429,14 @@ export default {
       float: right;
     }
   }
+  .id {
+    font-size: 10px;
+    margin-top: -24px;
+  }
+}
+.info-window-item--active {
+  height: auto;
+  border: solid 1px #227bc0;
 }
 .gm-style .gm-style-iw-c {
   border-radius: unset;
@@ -432,18 +444,71 @@ export default {
 .gm-ui-hover-effect {
   margin: 16px !important;
 }
+.gm-style-iw.gm-style-iw-c {
+  width: 500px !important;
+}
+.filter {
+  z-index: 1000;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  width: 420px;
+  transform: translateX(-50%);
+  background: #f7f7f7;
+  padding: 16px;
+  padding-top: 24px;
+  box-shadow: 0 16px 24px 0 rgba(0, 0, 0, 0.3);
+
+  .checkbox {
+    display: inline-block;
+    cursor: pointer;
+    user-select: none;
+    input {
+      margin: 8px 8px 16px 8px;
+      width: unset;
+      display: inline-block;
+      cursor: pointer;
+    }
+  }
+  .search {
+    span {
+      margin-left: 16px;
+      cursor: pointer;
+    }
+  }
+  .button {
+    margin-right: 0;
+    margin-top: 0;
+    float: right;
+  }
+}
 
 @media (min-width: 641px) and (max-width: 1280px) {
 }
 @media (max-width: 640px) {
   .map-wrapper {
     top: unset;
-    height: calc(100vh - 80px);
+    height: calc(100vh - 56px);
   }
   #map {
     position: relative;
     top: unset;
     left: unset;
+  }
+  .gm-style-iw.gm-style-iw-c {
+    width: 95vw !important;
+    max-width: unset !important;
+    // height: 80vh !important;
+    max-height: 80vh !important;
+  }
+  .info-window-item {
+    h4 {
+      font-size: 16px;
+    }
+  }
+  .filter{
+    width: 100%;
+    bottom: 0;
   }
 }
 </style>
