@@ -95,7 +95,8 @@ export default {
       let data = {
         description: this.requestForm.description,
         coordinates: this.requestForm.coordinates,
-        dateDue: this.requestForm.dateDue
+        dateDue: this.requestForm.dateDue,
+        category: 'Errands'
       }
 
       this.$axios
@@ -110,6 +111,7 @@ export default {
     }
   },
   created() {
+    this.$store.commit('gmaps/UPDATE_STATUS', { show: { markers: false } })
     this.type = this.$route.query.type
   }
 }

@@ -32,6 +32,12 @@ export const state = () => ({
 
 export const mutations = {
   SET_USER(state, payload) {
+    if (payload.fullAddress) {
+      payload.fullAddress.coordinates.lat =
+        payload.fullAddress.coordinates.latitude
+      payload.fullAddress.coordinates.lng =
+        payload.fullAddress.coordinates.longitude
+    }
     state.data = payload
 
     state.set = true
@@ -63,7 +69,11 @@ export const actions = {
       })
       .then(response => {
         commit('SET_USER', response.data)
-        if (response.data.fullAddress.coordinates.latitude) {
+
+        if (
+          response.data.fullAddress &&
+          response.data.fullAddress.coordinates.latitude
+        ) {
           commit(
             'gmaps/UPDATE_OWN_LOCATION',
             response.data.fullAddress.coordinates,
@@ -108,6 +118,7 @@ export const actions = {
   },
   UPDATE_ADDRESS({ state, commit }, payload) {
     if (state.data.userAddress == null) {
+      payload.country = 'de'
       this.$axios
         .post('api/user/me/address', payload)
         .then(response => {

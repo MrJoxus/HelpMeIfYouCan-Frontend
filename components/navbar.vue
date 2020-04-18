@@ -95,7 +95,6 @@ export default {
       }
     },
     logout() {
-      console.log('logout')
       localStorage.removeItem('auth._token.local')
       document.cookie = 'auth._token.local= ; expires = Thu, 01 Jan 1970 00:00:00 GMT'
       window.location.reload(true)

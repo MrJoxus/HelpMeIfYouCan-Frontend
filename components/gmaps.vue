@@ -149,7 +149,7 @@ export default {
       }
     },
     showMarkers: function() {
-      this.showMarkers ? this.showAllMarkers() : this.hideAllMarkers()
+      this.showMarkers ? this.showAllMarkers() : this.clearAllMarkers()
     },
     mapLoaded() {
       this.initMarker()
@@ -277,6 +277,18 @@ export default {
         self.gObjects.map.addListener('drag', () => {
           if (self.status.inputFocus) self.$refs.addressInput.blur()
         })
+
+        if (self.ownLocation) {
+          if (self.gObjects.searchMarker != undefined) {
+            self.gObjects.searchMarker.setPosition(self.ownLocation)
+          } else {
+            self.gObjects.searchMarker = new self.google.maps.Marker({
+              position: self.mapParameters.center,
+              map: self.gObjects.map,
+              icon: require('~/assets//img/002-flagge.png')
+            })
+          }
+        }
       })
     },
     initMarkerCluster() {
