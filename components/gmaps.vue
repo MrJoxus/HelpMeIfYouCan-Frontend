@@ -168,14 +168,19 @@ export default {
       }
     },
     ownLocation() {
-      this.mapParameters.center = { lat: this.ownLocation.latitude, lng: this.ownLocation.longitude }
+      this.mapParameters.center = {
+        lat: this.ownLocation.lat,
+        lng: this.ownLocation.lng
+      }
       if (this.mapLoaded) {
+        this.gObjects.map.panTo(this.mapParameters.center)
         if (this.gObjects.searchMarker != undefined) {
           this.gObjects.searchMarker.setPosition(this.ownLocation)
         } else {
           this.gObjects.searchMarker = new this.google.maps.Marker({
-            position: this.ownLocation,
-            map: this.gObjects.map
+            position: this.mapParameters.center,
+            map: this.gObjects.map,
+            icon: require('~/assets//img/002-flagge.png')
           })
         }
       }

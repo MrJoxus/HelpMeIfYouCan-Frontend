@@ -148,6 +148,7 @@ export default {
         }
         delete payload.user.email
       }
+
       for (let key in form.address) {
         let value = this.validateAddressForm(key, form.address[key])
         if (value != null && value != '') {
@@ -174,11 +175,10 @@ export default {
       }
     },
     validateAddressForm: function(key, item) {
-      if (
-        item != this.userData.fullAddress[key] &&
-        item != undefined &&
-        item != null
-      ) {
+      if (this.userData.fullAddress && item == this.userData.fullAddress[key]) {
+        return null
+      }
+      if (item != undefined && item != null) {
         return item
       } else {
         return null

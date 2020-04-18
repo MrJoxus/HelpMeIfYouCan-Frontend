@@ -17,6 +17,7 @@
         | ham venison flank kevin. Pastrami doner kevin flank, meatball pig pork brisket picanha. Picanha buffalo turkey meatloaf, tenderloin boudin shoulder hamburger brisket.
       .links
         nuxt-link.button(to="/register" v-if='!$auth.loggedIn') Registriere dich!
+        nuxt-link.button(to="/map" v-if='$auth.loggedIn') Zur Karte!
 </template>
 
 <script>

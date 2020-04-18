@@ -6,7 +6,7 @@
     .navbar-items
       nuxt-link.navbar-item(to='/create?type=help-offer')
         img(src="../assets/img/add.png")
-      nuxt-link.navbar-item(to='/map') Zur Karte
+      nuxt-link.navbar-item(to='/map') Karte
       nuxt-link.navbar-item(to='/about-us') Über uns
       nuxt-link.navbar-item(to='/impressum') Impressum
       template(v-if='$auth.loggedIn')

@@ -78,7 +78,6 @@ export const mutations = {
     }
   },
   UPDATE_OWN_LOCATION(state, payload) {
-    console.log("UPDATE_OWN_LOCATION")
     state.ownLocation = payload
   },
   TRIGGER(state, payload) {
