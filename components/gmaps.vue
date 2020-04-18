@@ -133,7 +133,7 @@ export default {
     helpRequestLocations() {
       return this.$store.state.gmaps.helpRequestLocations
     },
-    searchOwnLocation() {
+    ownLocation() {
       return this.$store.state.gmaps.ownLocation
     },
     triggerCluster() {
@@ -167,14 +167,17 @@ export default {
         }
       }
     },
-    searchOwnLocation() {
-      if (this.gObjects.searchMarker != undefined) {
-        this.gObjects.searchMarker.setPosition(this.searchOwnLocation)
-      } else {
-        this.gObjects.searchMarker = new this.google.maps.Marker({
-          position: this.searchOwnLocation,
-          map: this.gObjects.map
-        })
+    ownLocation() {
+      this.mapParameters.center = { lat: this.ownLocation.latitude, lng: this.ownLocation.longitude }
+      if (this.mapLoaded) {
+        if (this.gObjects.searchMarker != undefined) {
+          this.gObjects.searchMarker.setPosition(this.ownLocation)
+        } else {
+          this.gObjects.searchMarker = new this.google.maps.Marker({
+            position: this.ownLocation,
+            map: this.gObjects.map
+          })
+        }
       }
     },
     triggerCluster() {
@@ -506,7 +509,7 @@ export default {
       font-size: 16px;
     }
   }
-  .filter{
+  .filter {
     width: 100%;
     bottom: 0;
   }

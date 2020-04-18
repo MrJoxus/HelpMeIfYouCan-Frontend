@@ -78,6 +78,7 @@ export const mutations = {
     }
   },
   UPDATE_OWN_LOCATION(state, payload) {
+    console.log("UPDATE_OWN_LOCATION")
     state.ownLocation = payload
   },
   TRIGGER(state, payload) {
@@ -94,7 +95,7 @@ export const actions = {
       addressQuery = payload.string
     } else {
       addressQuery = encodeURIComponent(
-        `${payload.street}, ${payload.postalCode}, ${payload.area}`
+        `${payload.street} ${payload.houseNumber}, ${payload.postalCode}, ${payload.area}`
       )
     }
     let url = `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`

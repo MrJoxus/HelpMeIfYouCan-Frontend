@@ -52,8 +52,8 @@
               type='text'
               name="area"
               :placeholder="formPlaceholer.area")
-            button.no-button.search-address(v-if="searchAddress.button" @click="sumbitAddressForm()") Adresse suchen
-
+            div.search-address(v-if="searchAddress.button")
+              button.no-button(@click="sumbitAddressForm") Adresse suchen
         hr
         div.user-items
           p.user-item.title Telefon Nummer
@@ -149,22 +149,21 @@ export default {
         delete payload.user.email
       }
       for (let key in form.address) {
-        let value = this.validateUserForm(key, form.address[key])
-        if (value != null) {
+        let value = this.validateAddressForm(key, form.address[key])
+        if (value != null && value != '') {
           payload.address[key] = value
         }
       }
       if (
-        form.password != '' ||
-        form.password != undefined ||
+        form.password != '' &&
+        form.password != undefined &&
         form.password != null
       ) {
-        payload.password = form.password
+        payload.user.password = form.password
       }
       if (form.currentPassword != '') {
         payload.currentPassword = form.currentPassword
       }
-
       this.$store.dispatch('user/UPDATE_USER', payload)
     },
     validateUserForm: function(key, item) {
@@ -174,21 +173,37 @@ export default {
         return null
       }
     },
+    validateAddressForm: function(key, item) {
+      if (
+        item != this.userData.fullAddress[key] &&
+        item != undefined &&
+        item != null
+      ) {
+        return item
+      } else {
+        return null
+      }
+    },
     setUserForm: function() {
       this.userForm.user.name = this.userData.name
       this.userForm.user.lastName = this.userData.lastName
-      this.userForm.address.street = this.userData.fullAddress.street
-      this.userForm.address.zipCode = this.userData.fullAddress.zipCode
-      this.userForm.address.district = this.userData.fullAddress.district
-      this.userForm.address.houseNumber = this.userData.fullAddress.houseNumber
       this.userForm.user.phoneNr = this.userData.phoneNr
       this.userForm.user.email = this.userData.email
+
+      if (this.userData.fullAddress != null) {
+        this.userForm.address.street = this.userData.fullAddress.street
+        this.userForm.address.zipCode = this.userData.fullAddress.zipCode
+        this.userForm.address.district = this.userData.fullAddress.district
+        this.userForm.address.houseNumber = this.userData.fullAddress.houseNumber
+      }
     },
-    sumbitAddressForm: function() {
+    sumbitAddressForm: function(e) {
+      e.preventDefault()
       this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        street: this.userForm.street,
-        postlCode: this.userForm.postalCode,
-        area: this.userForm.area
+        street: this.userForm.address.street,
+        houseNumber: this.userForm.address.houseNumber,
+        postlCode: this.userForm.address.postalCode,
+        area: this.userForm.address.area
       })
     }
   },
@@ -204,11 +219,20 @@ export default {
     },
     error() {
       return this.$store.state.user.error
+    },
+    ownLocation() {
+      return this.$store.state.gmaps.ownLocation
     }
   },
   watch: {
     userEdit() {
       if (this.userEdit) this.setUserForm()
+    },
+    ownLocation() {
+      this.userForm.address.coordinates = {
+        latitude: this.ownLocation.lat,
+        longitude: this.ownLocation.lng
+      }
     }
   }
 }
@@ -270,8 +294,12 @@ export default {
       }
 
       .search-address {
-        float: right;
-        cursor: pointer;
+        display: block;
+        height: 16px;
+        button {
+          float: right;
+          cursor: pointer;
+        }
       }
     }
   }

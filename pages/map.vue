@@ -5,6 +5,7 @@
 <script>
 export default {
   layout: 'with-map',
+  middleware: 'auth',
   data: function() {
     return {
       filter: {

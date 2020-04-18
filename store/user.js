@@ -2,12 +2,23 @@ export const state = () => ({
   set: false,
   edit: false,
   data: {
-    name: null,
-    lastName: null,
-    addresses: null,
-    phoneNr: null,
-    payPal: null,
-    email: null
+    id: undefined,
+    name: undefined,
+    lastName: undefined,
+    userAddress: undefined,
+    fullAddress: {
+      street: undefined,
+      district: undefined,
+      zipCode: undefined,
+      houseNumber: undefined,
+      country: undefined,
+      coordinates: {
+        latitude: undefined,
+        longitude: undefined
+      }
+    },
+    phoneNr: undefined,
+    email: undefined
   },
   addresSearch: {
     button: false
@@ -52,6 +63,13 @@ export const actions = {
       })
       .then(response => {
         commit('SET_USER', response.data)
+        if (response.data.fullAddress.coordinates.latitude) {
+          commit(
+            'gmaps/UPDATE_OWN_LOCATION',
+            response.data.fullAddress.coordinates,
+            { root: true }
+          )
+        }
       })
       .catch(error => {
         console.log('error', error)
@@ -69,6 +87,7 @@ export const actions = {
     }
 
     if (!emptyUser) {
+      payload.user.currentPassword = payload.currentPassword
       this.$axios
         .patch('api/user/me', payload.user)
         .then(response => {
@@ -83,6 +102,7 @@ export const actions = {
     }
 
     if (!emptyAddress) {
+      payload.address.currentPassword = payload.currentPassword
       dispatch('UPDATE_ADDRESS', payload.address)
     }
   },
