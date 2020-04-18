@@ -29,7 +29,7 @@
               to='/user'
               ) Zum Profil
             hr
-            p.dropdown-item.logout.transition(@click='toggleProfileDropdown()') Abmelden
+            p.dropdown-item.logout.transition(@click='toggleProfileDropdown(), logout()') Abmelden
 
     div.navbar-items-trigger(@click="toggleNavbbarItems()")
       .hamburger
@@ -50,7 +50,7 @@
           nuxt-link.navbar-item(to='/register') Registrieren
         template(v-if='$auth.loggedIn' )
           nuxt-link.navbar-item(to='/user') Zum Profil
-          p.navbar-item Abmelden
+          p.navbar-item(@click="logout()") Abmelden
 </template>
 
 <script>
@@ -93,6 +93,12 @@ export default {
       if (el !== target && parent !== target && !el.contains(target)) {
         this.dropdown = false
       }
+    },
+    logout() {
+      console.log('logout')
+      localStorage.removeItem('auth._token.local')
+      document.cookie = 'auth._token.local= ; expires = Thu, 01 Jan 1970 00:00:00 GMT'
+      window.location.reload(true)
     }
   },
   computed: {
