@@ -8,7 +8,12 @@
 import navbar from '~/components/navbar.vue'
 
 export default {
-  components: { navbar }
+  components: { navbar },
+  mounted() {
+    if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
+      this.$store.dispatch('user/REQUEST_USER')
+    }
+  }
 }
 </script>
 <style>
@@ -69,9 +74,5 @@ html {
   left: 0;
   height: 100vh;
   width: 100vw;
-}
-#map {
-  width: 100%;
-  height: 100%;
 }
 </style>

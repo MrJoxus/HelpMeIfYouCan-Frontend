@@ -37,9 +37,9 @@ export default {
         phoneNr: 123456789,
         postalcode: '',
         area: '',
-        email: 'qwertz@mail.com',
-        password: 'asdf',
-        passwordConfirmation: 'asdf'
+        email: 'user@mail.de',
+        password: 'password1',
+        passwordConfirmation: 'password1'
       }
     }
   },
@@ -51,10 +51,9 @@ export default {
       if (!this.error) {
         let self = this
         this.$axios
-          .post('/auth/signup', {
+          .post('/api/auth/register', {
             email: self.register.email,
             password: self.register.password,
-            phoneNr: self.register.phoneNr,
             name: self.register.name,
             lastName: self.register.lastName
           })
@@ -83,7 +82,18 @@ export default {
   }
   hr {
     border-top: solid 1px #919191;
-    // border-top: 1px solid red;
+  }
+}
+@media (max-width: 640px) {
+  .register {
+    .form-wrapper {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 100%;
+      transform: unset;
+      padding-top: 56px;
+    }
   }
 }
 </style>

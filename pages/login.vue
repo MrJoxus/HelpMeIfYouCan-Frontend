@@ -17,8 +17,8 @@ export default {
   data: function() {
     return {
       login: {
-        email: 'qwerstz@mail.com',
-        password: 'asdf'
+        email: 'user@mail.de',
+        password: 'password1'
       }
     }
   },
@@ -28,21 +28,24 @@ export default {
       this.$auth.loginWith('local', {
         data: this.login
       })
-    },
-    // async userLogin() {
-    //   e.preventDefault()
-    //   try {
-    //     let response = await this.$auth.loginWith('local', { data: this.login })
-    //     console.log("response", response)
-    //   } catch (err) {
-    //     console.log(err)
-    //   }
-    // }
+    }
   }
 }
 </script>
 
 <style lang="scss">
 .login {
+}
+@media (max-width: 640px) {
+  .login {
+    .form-wrapper {
+      position: relative;
+      top: 0;
+      left: 0;
+      width: 100%;
+      transform: unset;
+      padding-top: 56px;
+    }
+  }
 }
 </style>
