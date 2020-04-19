@@ -10,6 +10,9 @@
       nuxt-link.navbar-item(to='/about-us') Über uns
       nuxt-link.navbar-item(to='/impressum') Impressum
       template(v-if='$auth.loggedIn')
+        nuxt-link.navbar-item.with-img(to='/user/inbox')
+          img(src="~/assets/img/mail.png")
+          .counter 2
         span.navbar-item.dropdown-trigger(
           @click='toggleProfileDropdown()'
           ref='parentDropdownMenu'
@@ -41,9 +44,20 @@
         @click='navbarItemsMobile = !navbarItemsMobile'
         v-show='navbarItemsMobile'
         )
-        nuxt-link.navbar-item(to='/create') Neue Anzeige
+        nuxt-link.navbar-item.with-img(to='/create')
+          span Neue Anzeige
+          .navbar-item-img
+            img(src="../assets/img/add.png")
         nuxt-link.navbar-item(to='/map') Zur Karte
         nuxt-link.navbar-item(to='/about-us') Über uns
+        nuxt-link.navbar-item.with-img(
+          v-if='$auth.loggedIn'
+          to='/user/inbox'
+          )
+          span Nachrichten
+          .navbar-item-img
+            img(src="~/assets/img/mail.png")
+            .counter 2
         nuxt-link.navbar-item(to='/impressum') Impressum
         template(v-if='!$auth.loggedIn')
           nuxt-link.navbar-item(to='/login') Login
@@ -96,7 +110,8 @@ export default {
     },
     logout() {
       localStorage.removeItem('auth._token.local')
-      document.cookie = 'auth._token.local= ; expires = Thu, 01 Jan 1970 00:00:00 GMT'
+      document.cookie =
+        'auth._token.local= ; expires = Thu, 01 Jan 1970 00:00:00 GMT'
       window.location.reload(true)
     }
   },
@@ -172,6 +187,23 @@ $navbar-height: 56px;
   img {
     margin-top: -2px;
     vertical-align: middle;
+  }
+  &.with-img {
+    position: relative;
+    .counter {
+      position: absolute;
+      top: 8px;
+      right: -8px;
+      height: 16px;
+      min-width: 16px;
+      padding: 0 2px;
+      font-size: 13px;
+      line-height: 16px;
+      text-align: center;
+      background: red;
+      color: white;
+      border-radius: 8px;
+    }
   }
 }
 .user-name {
@@ -253,6 +285,15 @@ $navbar-height: 56px;
   }
   .navbar-title {
     margin-left: 32px;
+  }
+  .with-img {
+    span {
+      margin-right: 16px;
+    }
+    .navbar-item-img{
+      display: inline-block;
+      position: relative;
+    }
   }
 }
 
