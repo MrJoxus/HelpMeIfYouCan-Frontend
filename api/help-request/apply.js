@@ -1,8 +1,6 @@
 const httpProxy = require('http-proxy')
 const proxy = httpProxy.createProxyServer()
-const API_ENDPOINT = 'user/'
-
-// /:id fehlt noch in dem api endpoint
+const API_ENDPOINT = 'requests/:id/apply'
 
 export default function(req, res, next) {
   proxy.web(req, res, {
