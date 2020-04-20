@@ -16,7 +16,6 @@ export const state = () => ({
   trigger: {
     cluster: 0
   }
-
 })
 
 export const mutations = {
@@ -44,8 +43,8 @@ export const mutations = {
     let addNewLocation = true
     state[key].forEach(location => {
       if (
-        location.lat == payload.data.lat &&
-        location.lng == payload.data.lng
+        location.lat ==  payload.data.coordinates.latitude &&
+        location.lng == payload.data.coordinates.longitude
       ) {
         let addNewData = true
         addNewLocation = false
@@ -53,27 +52,21 @@ export const mutations = {
           if (data.id == payload.data.id) addNewData = false
         })
         if (addNewData) {
-          location.data.push({
-            id: payload.data.id,
-            user: payload.data.user,
-            type: payload.data.type,
-            description: payload.data.description
-          })
+          let data = {}
+          data =  payload.data
+          data.type = payload.type
+          location.data.push(data)
         }
       }
     })
     if (addNewLocation) {
+      let data = {}
+      data =  payload.data
+      data.type = payload.type
       state[key].push({
-        lat: payload.data.lat,
-        lng: payload.data.lng,
-        data: [
-          {
-            id: payload.data.id,
-            user: payload.data.user,
-            type: payload.data.type,
-            description: payload.data.description
-          }
-        ]
+        lat: payload.data.coordinates.latitude,
+        lng: payload.data.coordinates.longitude,
+        data: [data]
       })
     }
   },
@@ -138,9 +131,7 @@ export const actions = {
           coordinate[key].forEach(id => {
             dispatch('GET_HELP_O_R', {
               id: id,
-              type: requestType,
-              lat: coordinate.latitude,
-              lng: coordinate.longitude
+              type: requestType
             })
           })
         })
@@ -153,16 +144,8 @@ export const actions = {
     this.$axios
       .get(`/api/${payload.type}/${payload.id}`)
       .then(response => {
-        let data = {
-          id: response.data.id,
-          user: response.data.user,
-          type: payload.type,
-          lat: payload.lat,
-          lng: payload.lng,
-          description: response.data.description
-        }
-        commit('ADD_LOCATION', { data: data, type: 'locations' })
-        commit('ADD_LOCATION', { data: data, type: payload.type })
+        commit('ADD_LOCATION', { data: response.data, type: 'locations' })
+        commit('ADD_LOCATION', { data: response.data, type: payload.type })
         commit('TRIGGER', ['cluster'])
       })
       .catch(error => {
