@@ -43,7 +43,14 @@ export default {
     '/api/user/me/address': '~/api/user/me/address/index.js',
     '/api/user/me/': '~/api/user/me/index.js',
 
+    '/api/help-request/accept': '~/api/help-request/accept.js',
+    '/api/help-request/apply': '~/api/help-request/apply.js',
+    '/api/help-request/unapply': '~/api/help-request/unapply.js',
     '/api/help-request/': '~/api/help-request/index.js',
+
+    '/api/help-offer/accept': '~/api/help-offer/accept.js',
+    '/api/help-offer/apply': '~/api/help-offer/apply.js',
+    '/api/help-offer/unapply': '~/api/help-offer/unapply.js',
     '/api/help-offer/': '~/api/help-offer/index.js',
 
     '/api/coords/help-requests': '~/api/coords/help.js',

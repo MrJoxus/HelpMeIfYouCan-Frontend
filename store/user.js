@@ -32,7 +32,7 @@ export const state = () => ({
 
 export const mutations = {
   SET_USER(state, payload) {
-    if (payload.fullAddress) {
+    if (payload.fullAddress && payload.fullAddress.coordinates) {
       payload.fullAddress.coordinates.lat =
         payload.fullAddress.coordinates.latitude
       payload.fullAddress.coordinates.lng =

@@ -39,10 +39,9 @@
             @click='status.infoWindow.item = item.id'
             :class='{"info-window-item--active": status.infoWindow.item == item.id}'
             )
-            h4(v-if='item.type == "help-offer"') Moritz möchte helfen
-            h4(v-if='item.type == "help-request"') Frida braucht Hilfe
+            h4(v-if='item.type == "help-offer"') {{ item.userName }} möchte helfen
+            h4(v-if='item.type == "help-request"') {{ item.userName }} braucht Hilfe
             p.id request id {{ item.id }}
-            p user id {{ item.user }}
             p {{ item.description }}
             textarea(
               v-model='model.parent_id[index]'
@@ -53,7 +52,7 @@
                 button.button.uncollapse(@click='uncollapseTextArea()') Kontaktier mich!
               span.button-wrapper(v-else)
                 button.no-button.collapse(@click='collapseTextArea()') abbrechen
-                button.button.send(@click='test()') Abschicken
+                button.button.send(@click='apply(item, model.parent_id[index])') Abschicken
 
 </template>
 
@@ -194,6 +193,16 @@ export default {
   },
 
   methods: {
+    apply(item, message) {
+      this.$axios
+        .post(`/api/${item.type}/apply/${item.id}`, { message: message })
+        .then(response => {
+          console.log('response', response.data)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
     submitFilter(e) {
       e.preventDefault()
 

@@ -5,9 +5,9 @@
         h1.title Nachrichten
       div.inbox-window
         div.messages
-          nuxt-link.message(
+          div.message(
             v-for='message in messages'
-            :to='"inbox/" + message.id'
+            :key='message.id'
             :class='{"message--read": message.read}'
             )
             h6.message-header(v-if='message.type == "help-offer"') {{message.user}} möchte dir helfen!
