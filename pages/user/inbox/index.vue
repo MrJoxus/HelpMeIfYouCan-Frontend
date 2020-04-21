@@ -52,26 +52,41 @@
 
         //- messagebody
         div.message-body(v-if='activeApplication.id')
-          .content
-            .accepted(
-              v-if='activeApplication.lastName'
-            )
-              p {{ activeApplication.name }} {{ activeApplication.lastName }} hat deine Anfrage angenommen!
-                | Du kannst ihn nun kontaktieren unter der Nummer:
-              p {{ activeApplication.phoneNr}}
-            p {{ activeApplication.message}}
 
           //- received
-          .message-body_options(v-if='!activeApplication.lastName && show == "received"')
-            button.button.accept(@click='acceptApplication(activeApplication)') Anfrage akzeptieren
-            p.info Mit dem Akzeptieren einer Anfrage, werden zur weiteren Kommunikation die
-              |  Kontaktdaten zwischen dir und {{activeApplication.userName}} ausgetauscht.
+          template(v-if='show == "received"')
+            .content
+              .accepted(
+                v-if='activeApplication.lastName'
+              )
+                p Du hast {{ activeApplication.lastName }}s Anfrage angenommen! Erreichen kannst du
+                  |  {{ activeApplication.lastName }} unter folgender Nummer:
+                p {{ activeApplication.phoneNr}}
+
+              p.userName {{ activeApplication.lastName }}:
+              p {{ activeApplication.message}}
+
+            .message-body_options(v-if='!activeApplication.lastName')
+              button.button.accept(@click='acceptApplication(activeApplication)') Anfrage akzeptieren
+              p.info Mit dem Akzeptieren einer Anfrage, werden zur weiteren Kommunikation die
+                |  Kontaktdaten zwischen dir und {{activeApplication.userName}} ausgetauscht.
 
           //- send
-          .message-body_options(v-if='!activeApplication.lastName && show == "send"')
-            button.button.button--alert(@click='deleteApplication(activeApplication)') Anfrage zurücknehmen
-            p.info Wenn {{ activeApplication.userName}} dein Angebot oder deine Anfrage annimmt, werden deine Kontaktdaten an
-              |  {{activeApplication.userName}} weitergegeben. Zeitgleich erhälst du die Kontaktdaten von {{activeApplication.userName}}
+          template(v-if='show == "send"')
+            .content
+              .accepted(
+                v-if='activeApplication.lastName'
+              )
+                p {{ activeApplication.name }} {{ activeApplication.lastName }} hat deine Anfrage angenommen!
+                  |  Du kannst ihn nun kontaktieren unter der Nummer:
+                p {{ activeApplication.phoneNr}}
+
+              p.userName {{ activeApplication.lastName }}:
+              p {{ activeApplication.message}}
+            .message-body_options(v-if='!activeApplication.lastName')
+              button.button.button--alert(@click='deleteApplication(activeApplication)') Anfrage zurücknehmen
+              p.info Wenn {{ activeApplication.userName}} dein Angebot oder deine Anfrage annimmt, werden deine Kontaktdaten an
+                |  {{activeApplication.userName}} weitergegeben. Zeitgleich erhälst du die Kontaktdaten von {{activeApplication.userName}}
 
 </template>
 
@@ -118,8 +133,7 @@ export default {
     },
     updateactiveApplication(application) {
       if (!application.read) {
-
-        if (!application.lastName && this.show != 'send') {
+        if (!(!application.lastName && this.show == 'send')) {
           this.$store.dispatch('user/MESSAGE_READ', application.id)
         }
       }
@@ -146,6 +160,7 @@ export default {
 
     acceptApplication(application) {
       let type
+      let self = this
       if (application.helpModelType == 'HelpOfferModel') {
         type = 'offer'
       } else if (application.helpModelType == 'HelpRequestModel') {
@@ -156,6 +171,7 @@ export default {
           `api/help-${type}/${application.modelId}/${application.id}/accept`
         )
         .then(response => {
+          self.$store.disptach('user/REQUEST_USER')
           console.log('response', response)
         })
         .catch(error => {
@@ -256,13 +272,16 @@ export default {
       overflow-y: scroll;
       height: calc(100% - 108px);
       & > * {
-        padding: 24px;
+        padding-right: 24px;
+        padding-left: 24px;
+      }
+      p.userName{
+        padding-top: 24px;
       }
     }
     .accepted {
-      padding: 16px;
+      padding-top: 24px;
       background: #77dd77;
-      margin-bottom: 8px;
     }
     .message-body_options {
       padding: 24px;
@@ -279,7 +298,7 @@ export default {
         font-size: 11px;
       }
     }
-    .message-body_options--send{
+    .message-body_options--send {
       height: 49px;
       margin-bottom: 32px;
     }

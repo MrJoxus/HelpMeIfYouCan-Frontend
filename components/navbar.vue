@@ -127,6 +127,9 @@ export default {
       this.user.applications.received.forEach(application => {
         if (!application.read) counter++
       })
+      this.user.acceptedApplications.received.forEach(application => {
+        if (!application.read) counter++
+      })
       this.counter = counter
     }
   },
