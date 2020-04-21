@@ -18,7 +18,55 @@ export const state = () => ({
       }
     },
     phoneNr: undefined,
-    email: undefined
+    email: undefined,
+    applications: {
+      received: [
+        {
+          id: undefined,
+          modelId: undefined,
+          message: undefined,
+          helpModelType: undefined,
+          read: undefined
+        }
+      ],
+      send: [
+        {
+          id: undefined,
+          modelId: undefined,
+          message: undefined,
+          helpModelType: undefined,
+          read: undefined
+        }
+      ]
+    },
+    acceptedApplications: {
+      received: [
+        {
+          id: undefined,
+          modelId: undefined,
+          created: undefined,
+          name: undefined,
+          lastName: undefined,
+          message: undefined,
+          phoneNr: undefined,
+          helpModelType: undefined,
+          read: undefined
+        }
+      ],
+      send: [
+        {
+          id: undefined,
+          modelId: undefined,
+          created: undefined,
+          name: undefined,
+          lastName: undefined,
+          message: undefined,
+          phoneNr: undefined,
+          helpModelType: undefined,
+          read: undefined
+        }
+      ]
+    }
   },
   addresSearch: {
     button: false
@@ -29,6 +77,16 @@ export const state = () => ({
     type: undefined
   }
 })
+
+export const getters = {
+  messages: state => {
+    let send = state.data.applications.send.concat(state.data.acceptedApplications.send)
+    let received = state.data.applications.received.concat(
+      state.data.acceptedApplications.received
+    )
+    return { received, send }
+  }
+}
 
 export const mutations = {
   SET_USER(state, payload) {
@@ -143,5 +201,15 @@ export const actions = {
           commit('UPDATE_ERROR', { status: true })
         })
     }
+  },
+  MESSAGE_READ({ commit }, payload) {
+    this.$axios
+      .patch(`api/user/me/applications/${payload}`)
+      .then(response => {
+        commit('SET_USER', response.data)
+      })
+      .catch(error => {
+        console.log('error', error)
+      })
   }
 }

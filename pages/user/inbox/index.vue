@@ -5,26 +5,74 @@
         h1.title Nachrichten
       div.inbox-window
         div.messages
-          div.message(
-            v-for='message in messages'
-            :key='message.id'
-            :class='{"message--read": message.read}'
-            )
-            h6.message-header(v-if='message.type == "help-offer"') {{message.user}} möchte dir helfen!
-            h6.message-header(v-if='message.type == "help-request"') {{message.user}} würde sich über deine hilfe freuen!
-            div.message-info
-              p.send {{message.send}}
+          .checkbox
+            .img-wrapper(
+              @click='toggleShow("received")'
+              :class='{"img-wrapper--active": show == "received"}'
+              )
               img.accepted(
-                v-if='message.accepted'
+                src='~assets/img/email.png')
+            .img-wrapper(
+              @click='toggleShow("send")'
+              :class='{"img-wrapper--active": show == "send"}'
+              )
+              img.accepted(
+                src='~assets/img/paper-plane.png')
+          //- received
+          div.message(
+            v-if='show == "received"'
+            v-for='application in messages.received'
+            @click='updateactiveApplication(application)'
+            :key='application.id'
+            :class='{"message--read": application.read}'
+            )
+            h6.message-header(v-if='application.helpModelType == "HelpRequestModel"') {{application.name}} möchte dir helfen!
+            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') {{application.name}} würde sich über deine hilfe freuen!
+            div.message-info
+              p.send {{formatTime(application.created, "DM")}} {{formatTime(application.created, "HM")}}
+              img.accepted(
+                v-if='application.lastName'
                 src='~assets/img/agreement.png')
 
-        div.message-body
+          //- send
+          div.message.message--read(
+            v-if='show == "send"'
+            v-for='application in messages.send'
+            @click='updateactiveApplication(application, show)'
+            :key='application.id'
+            )
+            h6.message-header(v-if='application.helpModelType == "HelpRequestModel"') Du hast "application.name" Hilfe angeboten.
+            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') Du hast "application.name" um Hilfe gefragt.
+            div.message-info
+              p.send {{formatTime(application.created, "DM")}} {{formatTime(application.created, "HM")}}
+              img.accepted(
+                v-if='application.lastName'
+                src='~assets/img/agreement.png')
+
+
+        //- messagebody
+        div.message-body(v-if='activeApplication.id')
           .content
-            p {{ messageBody.text}}
-          .message-body_options
-            button.button.accept Anfrage akzeptieren
+            .accepted(
+              v-if='activeApplication.lastName'
+            )
+              p {{ activeApplication.name }} {{ activeApplication.lastName }} hat deine Anfrage angenommen!
+                | Du kannst ihn nun kontaktieren unter der Nummer:
+              p {{ activeApplication.phoneNr}}
+            p {{ activeApplication.message}}
+
+          //- received
+          .message-body_options(v-if='!activeApplication.lastName && show == "received"')
+            button.button.accept(@click='acceptApplication(activeApplication)') Anfrage akzeptieren
             p.info Mit dem Akzeptieren einer Anfrage, werden zur weiteren Kommunikation die
-             |  Kontaktdaten zwischen dir und {{messageBody.user}} ausgetauscht.
+              |  Kontaktdaten zwischen dir und {{activeApplication.userName}} ausgetauscht.
+
+          //- send
+          .message-body_options(v-if='!activeApplication.lastName && show == "send"')
+            button.button.button--alert(@click='deleteApplication(activeApplication)') Anfrage zurücknehmen
+            p.info Wenn {{ activeApplication.userName}} dein Angebot oder deine Anfrage annimmt, werden deine Kontaktdaten an
+              |  {{activeApplication.userName}} weitergegeben. Zeitgleich erhälst du die Kontaktdaten von {{activeApplication.userName}}
+
 </template>
 
 <script>
@@ -33,49 +81,88 @@ export default {
   middleware: 'auth',
   data: function() {
     return {
-      messages: [
-        {
-          id: 1,
-          type: 'help-offer',
-          user: 'Moritz',
-          send: '18.04',
-          read: false,
-          accepted: false
-        },
-        {
-          id: 2,
-          type: 'help-request',
-          user: 'Moritz',
-          send: '18.04',
-          read: true,
-          accepted: true
-        },
-        {
-          id: 3,
-          type: 'help-offer',
-          user: 'Moritz',
-          send: '18.04',
-          read: false,
-          accepted: false
-        },
-        {
-          id: 4,
-          type: 'help-request',
-          user: 'Moritz',
-          send: '18.04',
-          read: true,
-          accepted: false
-        }
-      ],
-      messageBody: {
-        name: 'Moritz',
-        text:
-          'Bacon ipsum dolor amet pig salami tenderloin, t-bone shoulder hamburger frankfurter pastrami jowl pork chop meatball. Flank jowl capicola alcatra strip steak pastrami pork bresaola chicken chuck. Tail tri-tip jowl, landjaeger short ribs pork loin bresaola biltong. Sirloin flank turducken brisket, alcatra landjaeger meatloaf leberkas jowl jerky cow beef chuck rump t-bone.Bacon ipsum dolor amet pig salami tenderloin, t-bone shoulder hamburger frankfurter pastrami jowl pork chop meatball. Flank jowl capicola alcatra strip steak pastrami pork bresaola chicken chuck. Tail tri-tip jowl, landjaeger short ribs pork loin bresaola biltong. Sirloin flank turducken brisket, alcatra landjaeger meatloaf leberkas jowl jerky cow beef chuck rump t-bone.Bacon ipsum dolor amet pig salami tenderloin, t-bone shoulder hamburger frankfurter pastrami jowl pork chop meatball. Flank jowl capicola alcatra strip steak pastrami pork bresaola chicken chuck. Tail tri-tip jowl, landjaeger short ribs pork loin bresaola biltong. Sirloin flank turducken brisket, alcatra landjaeger meatloaf leberkas jowl jerky cow beef chuck rump t-bone.Bacon ipsum dolor amet pig salami tenderloin, t-bone shoulder hamburger frankfurter pastrami jowl pork chop meatball. Flank jowl capicola alcatra strip steak pastrami pork bresaola chicken chuck. Tail tri-tip jowl, landjaeger short ribs pork loin bresaola biltong. Sirloin flank turducken brisket, alcatra landjaeger meatloaf leberkas jowl jerky cow beef chuck rump t-bone.'
-      }
+      activeApplication: {},
+      show: 'received'
     }
   },
+  computed: {
+    user() {
+      return this.$store.state.user.data
+    },
+    messages() {
+      return this.$store.getters['user/messages']
+    }
+  },
+  methods: {
+    toggleShow(show) {
+      if (this.show != show) {
+        this.activeApplication = {}
+        this.show = show
+      }
+    },
+    formatTime(time, type) {
+      let created = new Date(time)
+      let month = created.getMonth()
+      let day = created.getDay()
+      let hours = created.getHours()
+      let minutes = created.getMinutes()
+      month = month < 10 ? '0' + month : month
+      day = day < 10 ? '0' + day : day
+      minutes = minutes < 10 ? '0' + minutes : minutes
+      hours = hours < 10 ? '0' + hours : hours
+      if (type == 'DM') {
+        return `${day}.${month}`
+      } else if (type == 'HM') {
+        return `${hours}:${minutes}`
+      }
+    },
+    updateactiveApplication(application) {
+      if (!application.read) {
 
-  methods: {}
+        if (!application.lastName && this.show != 'send') {
+          this.$store.dispatch('user/MESSAGE_READ', application.id)
+        }
+      }
+      if (application.id != this.activeApplication.id) {
+        this.activeApplication = application
+      }
+    },
+    deleteApplication(application) {
+      let type
+      if (application.helpModelType == 'HelpRequestModel') {
+        type = 'help-request'
+      } else {
+        type = 'help-offer'
+      }
+      this.$axios
+        .delete(`/api/${type}/unapply/${application.modelId}`)
+        .then(response => {
+          console.log('response', response.data)
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
+
+    acceptApplication(application) {
+      let type
+      if (application.helpModelType == 'HelpOfferModel') {
+        type = 'offer'
+      } else if (application.helpModelType == 'HelpRequestModel') {
+        type = 'request'
+      }
+      this.$axios
+        .patch(
+          `api/help-${type}/${application.modelId}/${application.id}/accept`
+        )
+        .then(response => {
+          console.log('response', response)
+        })
+        .catch(error => {
+          console.log('error', error)
+        })
+    }
+  }
 }
 </script>
 
@@ -99,13 +186,30 @@ export default {
   }
   .inbox-window {
     display: flex;
-    height: 600px
+    height: 600px;
   }
   .messages {
     overflow-y: scroll;
     height: 100%;
     width: 40%;
     border-right: 1px solid #bbb;
+    .checkbox {
+      position: sticky;
+      top: 0;
+      text-align: center;
+      border-bottom: 1px solid #bbb;
+      .img-wrapper {
+        display: inline-block;
+        border-radius: 2px;
+        border: solid 1px #bbb;
+        padding: 5px 5px 3px 5px;
+        margin: 8px 16px;
+        cursor: pointer;
+      }
+      .img-wrapper--active {
+        border: solid 1px #227bc0;
+      }
+    }
   }
   .message {
     display: flex;
@@ -149,9 +253,16 @@ export default {
     position: relative;
     width: 60%;
     .content {
-      padding: 24px;
       overflow-y: scroll;
       height: calc(100% - 108px);
+      & > * {
+        padding: 24px;
+      }
+    }
+    .accepted {
+      padding: 16px;
+      background: #77dd77;
+      margin-bottom: 8px;
     }
     .message-body_options {
       padding: 24px;
@@ -159,15 +270,18 @@ export default {
       position: absolute;
       bottom: 0;
       height: 108px;
+      width: 100%;
       padding: 8px 24px;
       text-align: right;
 
-      .button.accept {
-      }
       .info {
         text-align: left;
         font-size: 11px;
       }
+    }
+    .message-body_options--send{
+      height: 49px;
+      margin-bottom: 32px;
     }
   }
 }
