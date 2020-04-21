@@ -23,12 +23,14 @@ export default {
   mounted() {
     this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-offer')
     this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-request')
-    this.$store.commit('gmaps/UPDATE_STATUS', { show: { filter: true } })
-    this.$store.commit('gmaps/UPDATE_STATUS', { show: { markers: true } })
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: true, markers: true }
+    })
   },
   destroyed() {
-    this.$store.commit('gmaps/UPDATE_STATUS', { show: { filter: false } })
-    this.$store.commit('gmaps/UPDATE_STATUS', { show: { markers: false } })
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
   }
 }
 </script>

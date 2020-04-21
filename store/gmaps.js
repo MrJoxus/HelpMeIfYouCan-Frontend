@@ -26,9 +26,8 @@ export const mutations = {
     state.status.show.markers = !state.status.show.markers
   },
   UPDATE_STATUS(state, payload) {
-    let keys = Object.keys(payload)
-    keys.forEach(key => {
-      state.status[key] = payload[key]
+    Object.keys(payload).forEach(key => {
+      Object.assign(state.status[key], payload[key])
     })
   },
   ADD_LOCATION(state, payload) {
@@ -43,7 +42,7 @@ export const mutations = {
     let addNewLocation = true
     state[key].forEach(location => {
       if (
-        location.lat ==  payload.data.coordinates.latitude &&
+        location.lat == payload.data.coordinates.latitude &&
         location.lng == payload.data.coordinates.longitude
       ) {
         let addNewData = true
@@ -53,7 +52,7 @@ export const mutations = {
         })
         if (addNewData) {
           let data = {}
-          data =  payload.data
+          data = payload.data
           data.type = payload.type
           location.data.push(data)
         }
@@ -61,7 +60,7 @@ export const mutations = {
     })
     if (addNewLocation) {
       let data = {}
-      data =  payload.data
+      data = payload.data
       data.type = payload.type
       state[key].push({
         lat: payload.data.coordinates.latitude,
