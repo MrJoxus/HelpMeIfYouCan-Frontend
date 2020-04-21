@@ -12,7 +12,7 @@
       template(v-if='$auth.loggedIn')
         nuxt-link.navbar-item.with-img(to='/user/inbox')
           img(src="~/assets/img/mail.png")
-          .counter 2
+          .counter(v-if='this.counter > 0') {{ this.counter }}
         span.navbar-item.dropdown-trigger(
           @click='toggleProfileDropdown()'
           ref='parentDropdownMenu'
@@ -20,7 +20,7 @@
       template(v-else)
         nuxt-link.navbar-item(to='/login') Login
         nuxt-link.navbar-item(to='/register') Registrieren
-      template(v-if='$auth.loggedIn' )
+      template(v-if='$auth.loggedIn')
         transition(name='fade')
           div.dropdown-menu(v-show='dropdown' ref='dropdownMenu')
             div.dropdown-item.profil-info
@@ -57,7 +57,7 @@
           span Nachrichten
           .navbar-item-img
             img(src="~/assets/img/mail.png")
-            .counter 2
+            .counter(v-if='this.counter > 0') {{ this.counter }}
         nuxt-link.navbar-item(to='/impressum') Impressum
         template(v-if='!$auth.loggedIn')
           nuxt-link.navbar-item(to='/login') Login
@@ -80,7 +80,8 @@ export default {
         isDesktop: false,
         width: 0,
         height: 0
-      }
+      },
+      counter: 0
     }
   },
 
@@ -118,6 +119,15 @@ export default {
   computed: {
     user() {
       return this.$store.state.user.data
+    }
+  },
+  watch: {
+    user() {
+      let counter = 0
+      this.user.applications.received.forEach(application => {
+        if (!application.read) counter++
+      })
+      this.counter = counter
     }
   },
   mounted() {
@@ -290,7 +300,7 @@ $navbar-height: 56px;
     span {
       margin-right: 16px;
     }
-    .navbar-item-img{
+    .navbar-item-img {
       display: inline-block;
       position: relative;
     }
