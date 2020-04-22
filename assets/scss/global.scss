@@ -34,6 +34,9 @@ p {
   font-family: 'Roboto', sans-serif;
   padding-bottom: 16px;
 }
+a {
+  font-family: 'Roboto', sans-serif;
+}
 .container {
   z-index: 100;
   width: 1024px;
@@ -180,7 +183,7 @@ a {
   color: $primary-color;
 }
 
-// Page Transitions
+// Transitions
 
 .page-enter-active,
 .page-leave-active {
@@ -202,6 +205,22 @@ a {
 
 .transition {
   transition: all 0.2s ease;
+}
+
+.object--vibrate {
+  animation-name: vibrate;
+  animation-duration: 0.2s;
+}
+
+@keyframes vibrate {
+  20%,
+  60% {
+    transform: translate(3px, 0);
+  }
+  40%,
+  80% {
+    transform: translate(-3px, 0);
+  }
 }
 
 // Media
