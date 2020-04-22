@@ -119,6 +119,9 @@ export default {
     center() {
       return this.$store.state.gmaps.center
     },
+    centerTrigger() {
+      return this.$store.state.gmaps.centerTrigger
+    },
     showMarkers() {
       return this.$store.state.gmaps.status.show.markers
     },
@@ -153,6 +156,11 @@ export default {
       if (this.gObjects.map) {
         this.gObjects.map.panTo(this.center)
         this.gObjects.map.setZoom(16)
+      }
+    },
+    centerTrigger() {
+      if (this.mapLoaded) {
+        this.gObjects.map.panTo(this.userLocation)
       }
     },
     showMarkers: function() {
@@ -225,7 +233,8 @@ export default {
       this.clearAllMarkers()
 
       this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        string: this.model.filter.address, type: "currentLocation"
+        string: this.model.filter.address,
+        type: 'currentLocation'
       })
 
       if (
@@ -300,7 +309,7 @@ export default {
           if (self.status.inputFocus) self.$refs.addressInput.blur()
         })
 
-        if (self.userLocation) {
+        if (self.userLocation && self.$auth.loggedIn) {
           if (self.gObjects.searchMarker != undefined) {
             self.gObjects.searchMarker.setPosition(self.userLocation)
           } else {

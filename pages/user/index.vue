@@ -277,6 +277,9 @@ export default {
         longitude: this.userLocation.lng
       }
     }
+  },
+  mounted() {
+    this.$store.commit('gmaps/INCREMENT_CENTER_TRIGGER')
   }
 }
 </script>

@@ -54,16 +54,7 @@ export default {
     '/api/help-offer/': '~/api/help-offer/index.js',
 
     '/api/coords/help-requests': '~/api/coords/help.js',
-    '/api/coords/help-offers': '~/api/coords/offer.js',
-
-    // '/api/user/me/show': '~/api/user/me/show.js',
-    // '/api/user/me/delete': '~/api/user/me/delete.js',
-    // '/api/user/me/update': '~/api/user/me/update.js',
-
-    // '/api/user/admin/create': '~/api/user/admin/create.js',
-    // '/api/user/admin/delete': '~/api/user/admin/delete.js',
-    // '/api/user/admin/get': '~/api/user/admin/get.js',
-    // '/api/user/admin/update': '~/api/user/admin/update.js',
+    '/api/coords/help-offers': '~/api/coords/offer.js'
   },
 
   router: {
@@ -82,10 +73,10 @@ export default {
           logout: { url: '/auth/logout', method: 'post' },
           user: { url: 'api/user/me', method: 'get', propertyName: 'name' }
         }
-        // tokenRequired: true,
-        // tokenType: 'bearer'
-        // autoFetchUser: true
       }
+    },
+    redirect: {
+      home: '/map'
     }
   },
 

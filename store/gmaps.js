@@ -1,10 +1,11 @@
 export const state = () => ({
+  centerTrigger: 0,
   center: { lat: 53.565965, lng: 9.948829 },
   locations: [],
   helpRequestLocations: [],
   helpOfferLocations: [],
   currentLocation: { lat: undefined, lng: undefined },
-  userLocation: { lat: 53.565965, lng: 9.948829 },
+  userLocation: { lat: undefined, lng: undefined },
   createRequestLocation: { lat: undefined, lng: undefined },
   status: {
     loaded: {
@@ -21,6 +22,9 @@ export const state = () => ({
 })
 
 export const mutations = {
+  INCREMENT_CENTER_TRIGGER(state) {
+    state.centerTrigger++
+  },
   UPDATE_CENTER(state, payload) {
     state.center = payload
   },
