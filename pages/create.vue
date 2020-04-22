@@ -1,4 +1,4 @@
-<template lang="pug">
+<template lang='pug'>
   .create
     .main-content
       div.headline
@@ -18,27 +18,35 @@
       br
       p.user-item.title Adresse
       div.user-item
-        input.input(
-          @keyup="addressInput()"
-          v-model="requestForm.address"
+        input.input.input-street(
+          @keyup='addressInput()'
+          v-model='requestForm.address.street'
           type='text'
-          name="address"
-          placeholder="Straße"
+          name='address'
+          placeholder='Straße'
+          )
+        input.input.input-housenumber(
+          @keyup='addressInput()'
+          v-model='requestForm.address.houseNumber'
+          type='text'
+          name='house number'
+          placeholder='Nr'
           )
         input.input(
-          @keyup="addressInput()"
-          v-model="requestForm.postalCode"
+          @keyup='addressInput()'
+          v-model='requestForm.address.zipCode'
           type='text'
-          name="postalCode"
-          placeholder="Postleitzahl"
+          name='zipCode'
+          placeholder='Postleitzahl'
           )
         input.input(
-          @keyup="addressInput()"
-          v-model="requestForm.area"
+          @keyup='addressInput()'
+          v-model='requestForm.address.district'
           type='text'
-          name="area"
-          placeholder="Ort")
-        button.no-button.search-address(@click="sumbitAddressForm()") Adresse suchen
+          name='district'
+          placeholder='Ort'
+          )
+        button.no-button.search-address(@click='sumbitAddressForm()') Adresse suchen
       button.button(v-if='requestForm.coordinates.latitude' @click='submitRequest()') Abschicken
 
 </template>
@@ -51,10 +59,13 @@ export default {
     return {
       type: undefined,
       requestForm: {
-        address: 'berner chaussee',
-        postalCode: '',
-        area: '',
-        description: '',
+        address: {
+          street: undefined,
+          houseNumber: undefined,
+          zipCode: undefined,
+          district: undefined
+        },
+        description: undefined,
         coordinates: {
           latitude: undefined,
           longitude: undefined
@@ -66,12 +77,20 @@ export default {
   computed: {
     coords() {
       return this.$store.state.gmaps.ownLocation
+    },
+    address() {
+      return this.$store.state.user.data.fullAddress
     }
   },
   watch: {
     coords: function() {
       this.requestForm.coordinates.longitude = this.coords.lng
       this.requestForm.coordinates.latitude = this.coords.lat
+    },
+    address() {
+      if (this.address.coordinates.latitude) {
+        this.setRequestform()
+      }
     }
   },
   methods: {
@@ -84,11 +103,7 @@ export default {
       this.$router.push({ query: { type: query } })
     },
     sumbitAddressForm: function() {
-      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        street: this.requestForm.address,
-        postlCode: this.requestForm.postalCode,
-        area: this.requestForm.area
-      })
+      this.$store.dispatch('gmaps/GET_GEOLOCATION', this.requestForm.address)
     },
     submitRequest: function() {
       let self = this
@@ -108,6 +123,14 @@ export default {
         .catch(error => {
           console.log('error', error)
         })
+    },
+    setRequestform() {
+      this.requestForm.address = {
+        street: this.address.street,
+        houseNumber: this.address.houseNumber,
+        zipCode: this.address.zipCode,
+        district: this.address.district
+      }
     }
   },
   created() {
@@ -117,7 +140,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style lang='scss'>
 .create {
   position: static;
   background: red;
@@ -136,6 +159,16 @@ export default {
     }
     .headline {
       position: relative;
+    }
+    .input-street {
+      display: inline-block;
+      width: 70%;
+    }
+    .input-housenumber {
+      display: inline-block;
+
+      width: 25%;
+      float: right;
     }
   }
   .request-toggle {
