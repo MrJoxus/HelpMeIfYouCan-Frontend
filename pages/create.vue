@@ -75,17 +75,17 @@ export default {
     }
   },
   computed: {
-    coords() {
-      return this.$store.state.gmaps.ownLocation
+    location() {
+      return this.$store.state.gmaps.createRequestLocation
     },
     address() {
       return this.$store.state.user.data.fullAddress
     }
   },
   watch: {
-    coords: function() {
-      this.requestForm.coordinates.longitude = this.coords.lng
-      this.requestForm.coordinates.latitude = this.coords.lat
+    location: function() {
+      this.requestForm.coordinates.longitude = this.location.lng
+      this.requestForm.coordinates.latitude = this.location.lat
     },
     address() {
       if (this.address.coordinates.latitude) {
@@ -103,7 +103,10 @@ export default {
       this.$router.push({ query: { type: query } })
     },
     sumbitAddressForm: function() {
-      this.$store.dispatch('gmaps/GET_GEOLOCATION', this.requestForm.address)
+      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
+        address: this.requestForm.address,
+        type: 'createRequestLocation'
+      })
     },
     submitRequest: function() {
       let self = this
@@ -135,6 +138,10 @@ export default {
   },
   created() {
     this.$store.commit('gmaps/UPDATE_STATUS', { show: { markers: false } })
+    this.$store.commit('gmaps/UPDATE_CREATE_REQUEST_LOCATION', {
+      address: this.location,
+      type: 'createRequestLocation'
+    })
     this.type = this.$route.query.type
   }
 }

@@ -127,7 +127,7 @@ export const actions = {
           response.data.fullAddress.coordinates.latitude
         ) {
           commit(
-            'gmaps/UPDATE_OWN_LOCATION',
+            'gmaps/UPDATE_USER_LOCATION',
             response.data.fullAddress.coordinates,
             { root: true }
           )

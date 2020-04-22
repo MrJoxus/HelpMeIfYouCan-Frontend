@@ -68,6 +68,8 @@ export default {
         map: undefined,
         markers: [],
         currentMarker: undefined,
+        userMarker: undefined,
+        createRequestmarker: undefined,
         searchMarker: undefined,
         markerCluster: undefined,
         infoWindow: undefined
@@ -132,8 +134,14 @@ export default {
     helpRequestLocations() {
       return this.$store.state.gmaps.helpRequestLocations
     },
-    ownLocation() {
-      return this.$store.state.gmaps.ownLocation
+    currentLocation() {
+      return this.$store.state.gmaps.currentLocation
+    },
+    userLocation() {
+      return this.$store.state.gmaps.userLocation
+    },
+    createRequestLocation() {
+      return this.$store.state.gmaps.createRequestLocation
     },
     triggerCluster() {
       return this.$store.state.gmaps.trigger.cluster
@@ -166,20 +174,29 @@ export default {
         }
       }
     },
-    ownLocation() {
+    currentLocation() {
       this.mapParameters.center = {
-        lat: this.ownLocation.lat,
-        lng: this.ownLocation.lng
+        lat: this.currentLocation.lat,
+        lng: this.currentLocation.lng
       }
       if (this.mapLoaded) {
         this.gObjects.map.panTo(this.mapParameters.center)
-        if (this.gObjects.searchMarker != undefined) {
-          this.gObjects.searchMarker.setPosition(this.ownLocation)
+      }
+    },
+    userLocation() {
+      this.mapParameters.center = {
+        lat: this.userLocation.lat,
+        lng: this.userLocation.lng
+      }
+      if (this.mapLoaded) {
+        this.gObjects.map.panTo(this.mapParameters.center)
+        if (this.gObjects.userMarker != undefined) {
+          this.gObjects.userMarker.setPosition(this.userLocation)
         } else {
-          this.gObjects.searchMarker = new this.google.maps.Marker({
+          this.gObjects.userMarker = new this.google.maps.Marker({
             position: this.mapParameters.center,
             map: this.gObjects.map,
-            icon: require('~/assets//img/002-flagge.png')
+            icon: require('~/assets/img/user.png')
           })
         }
       }
@@ -205,11 +222,10 @@ export default {
     },
     submitFilter(e) {
       e.preventDefault()
-
       this.clearAllMarkers()
 
       this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        string: this.model.filter.address
+        string: this.model.filter.address, type: "currentLocation"
       })
 
       if (
@@ -276,25 +292,22 @@ export default {
           resolve()
         }
       })
+      // script loaded
       loaded.then(function(value) {
-        self.gObjects.map = new google.maps.Map(
-          self.$refs.map,
-          self.mapParameters
-        )
         self.$store.commit('gmaps/UPDATE_STATUS', { loaded: { map: true } })
 
         self.gObjects.map.addListener('drag', () => {
           if (self.status.inputFocus) self.$refs.addressInput.blur()
         })
 
-        if (self.ownLocation) {
+        if (self.userLocation) {
           if (self.gObjects.searchMarker != undefined) {
-            self.gObjects.searchMarker.setPosition(self.ownLocation)
+            self.gObjects.searchMarker.setPosition(self.userLocation)
           } else {
             self.gObjects.searchMarker = new self.google.maps.Marker({
               position: self.mapParameters.center,
               map: self.gObjects.map,
-              icon: require('~/assets//img/002-flagge.png')
+              icon: require('~/assets/img/user.png')
             })
           }
         }
@@ -382,7 +395,6 @@ export default {
       })
       this.loaded = google
     } catch (e) {}
-
     this.google = await this.loaded
     this.initMap()
     if ('geolocation' in navigator) {

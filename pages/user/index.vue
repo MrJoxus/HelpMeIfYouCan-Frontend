@@ -90,7 +90,7 @@
             span.left
               button.button--alert.button.delete Profil löschen
             .right
-              button.no-button.cancel(@click="$store.commit('user/UPDATE_USER_EDIT', false), resetuserForm()") abbrechen
+              button.no-button.cancel(@click="$store.commit('user/UPDATE_USER_EDIT', false), resetUserForm()") abbrechen
               button.button.update(@click="sumbitUserForm") Profil aktualisieren
 
 </template>
@@ -103,23 +103,23 @@ export default {
     return {
       userForm: {
         user: {
-          name: '',
-          lastName: '',
-          phoneNr: '',
-          email: ''
+          name: undefined,
+          lastName: undefined,
+          phoneNr: undefined,
+          email: undefined
         },
         address: {
-          street: '',
-          zipCode: '',
-          district: '',
-          houseNumber: '',
+          street: undefined,
+          zipCode: undefined,
+          district: undefined,
+          houseNumber: undefined,
           coordinates: {
             latitude: undefined,
             longitude: undefined
           }
         },
-        password: '',
-        currentPassword: ''
+        password: undefined,
+        currentPassword: undefined
       },
       formPlaceholer: {
         name: 'Name',
@@ -153,7 +153,7 @@ export default {
 
       // key validation user
       for (let key in this.userForm.user) {
-        let value = this.validateUserForm(key, this.userForm.user[key])
+        let value = this.validate(key, this.userForm.user[key])
         if (value != null) {
           payload.user[key] = value
         }
@@ -162,23 +162,19 @@ export default {
 
       // key validation address
       for (let key in this.userForm.address) {
-        let value = this.validateAddressForm(key, this.userForm.address[key])
+        let value = this.validate(key, this.userForm.address[key])
         if (value != null && value != '') {
           payload.address[key] = value
         }
       }
 
       // error if new address and geolocation missing
-      let testAddress = payload.address
-      delete testAddress.coordinates
-      if (Object.keys(testAddress).length != 0) {
-        if (!this.userForm.address.coordinates.latitude) {
-          this.error.noGeolocation = false
-          setTimeout(() => {
-            this.error.noGeolocation = true
-          }, 0)
-          return
-        }
+      if (!this.userForm.address.coordinates.latitude) {
+        this.error.noGeolocation = false
+        setTimeout(() => {
+          this.error.noGeolocation = true
+        }, 0)
+        return
       }
 
       // key validation password
@@ -208,26 +204,20 @@ export default {
       }
     },
 
-    validateUserForm: function(key, item) {
-      if (item != this.userData[key] && item != undefined && item != null) {
+    validate: function(key, item) {
+      if (item != undefined && item != null && item != '') {
         return item
       } else {
         return null
       }
     },
-    validateAddressForm: function(key, item) {
-      if (this.userData.fullAddress && item == this.userData.fullAddress[key]) {
-        return null
-      }
-      if (item != undefined && item != null) {
-        return item
-      } else {
-        return null
-      }
-    },
+
     sumbitAddressForm: function(e) {
       e.preventDefault()
-      this.$store.dispatch('gmaps/GET_GEOLOCATION', this.userForm.address)
+      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
+        address: this.userForm.address,
+        type: 'userLocation'
+      })
     },
     setUserForm: function() {
       this.userForm.user.name = this.userData.name
@@ -242,7 +232,7 @@ export default {
         this.userForm.address.houseNumber = this.userData.fullAddress.houseNumber
       }
     },
-    resetuserForm() {
+    resetUserForm() {
       this.userForm.user.name = this.userData.name
       this.userForm.user.lastName = this.userData.lastName
       this.userForm.user.phoneNr = this.userData.phoneNr
@@ -270,8 +260,8 @@ export default {
     userEdit() {
       return this.$store.state.user.edit
     },
-    ownLocation() {
-      return this.$store.state.gmaps.ownLocation
+    userLocation() {
+      return this.$store.state.gmaps.userLocation
     }
   },
   watch: {
@@ -281,10 +271,10 @@ export default {
     userEdit() {
       if (this.userEdit) this.setUserForm()
     },
-    ownLocation() {
+    userLocation() {
       this.userForm.address.coordinates = {
-        latitude: this.ownLocation.lat,
-        longitude: this.ownLocation.lng
+        latitude: this.userLocation.lat,
+        longitude: this.userLocation.lng
       }
     }
   }

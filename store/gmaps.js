@@ -3,7 +3,9 @@ export const state = () => ({
   locations: [],
   helpRequestLocations: [],
   helpOfferLocations: [],
-  ownLocation: { lat: undefined, lng: undefined },
+  currentLocation: { lat: undefined, lng: undefined },
+  userLocation: { lat: 53.565965, lng: 9.948829 },
+  createRequestLocation: { lat: undefined, lng: undefined },
   status: {
     loaded: {
       map: false
@@ -21,6 +23,16 @@ export const state = () => ({
 export const mutations = {
   UPDATE_CENTER(state, payload) {
     state.center = payload
+  },
+  UPDATE_USER_LOCATION(state, payload) {
+    console.log('UPDATE_USER_LOCATION')
+    state.userLocation = payload
+  },
+  UPDATE_CURRENT_LOCATION(state, payload) {
+    state.currentLocation = payload
+  },
+  UPDATE_CREATE_REQUEST_LOCATION(state, payload) {
+    state.createRequestLocation = payload
   },
   TOGGLE_MARKERS(state) {
     state.status.show.markers = !state.status.show.markers
@@ -69,9 +81,6 @@ export const mutations = {
       })
     }
   },
-  UPDATE_OWN_LOCATION(state, payload) {
-    state.ownLocation = payload
-  },
   TRIGGER(state, payload) {
     payload.forEach(key => {
       state.trigger[key] = state.trigger[key] + 1
@@ -82,23 +91,30 @@ export const mutations = {
 export const actions = {
   GET_GEOLOCATION({ commit }, payload) {
     let addressQuery
-    if (Object.keys(payload) == 'string') {
+    if (Object.keys(payload).includes('string')) {
       addressQuery = payload.string
     } else {
       addressQuery = encodeURIComponent(
-        `${payload.street} ${payload.houseNumber}, ${payload.postalCode}, ${payload.area}`
+        `${payload.address.street} ${payload.address.houseNumber}, ${payload.address.postalCode}, ${payload.address.area}`
       )
     }
+    console.log('addressQuery', addressQuery)
     let url = `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`
     delete this.$axios.defaults.headers.common['Authorization']
-
     this.$axios
       .get(url)
       .then(response => {
         if (response.data.results.length != 0) {
           let location = response.data.results[0].geometry.location
           commit('UPDATE_CENTER', location)
-          commit('UPDATE_OWN_LOCATION', location)
+          console.log('payload', payload)
+          if (payload.type == 'currentLocation') {
+            commit('UPDATE_CURRENT_LOCATION', location)
+          } else if (payload.type == 'userLocation') {
+            commit('UPDATE_USER_LOCATION', location)
+          } else if (payload.type == 'createRequestLocation') {
+            commit('UPDATE_CREATE_REQUEST_LOCATION', location)
+          }
         } else {
           console.log(response.data)
         }
@@ -111,8 +127,8 @@ export const actions = {
     )
   },
   GET_HELP_O_R_ARRAY({ state, dispatch }, payload) {
-    let lat = state.ownLocation.lat || state.center.lat
-    let lng = state.ownLocation.lng || state.center.lng
+    let lat = state.currentLocation.lat || state.center.lat
+    let lng = state.currentLocation.lng || state.center.lng
     let radius = 200
     let requestType = payload
     let key = ''
