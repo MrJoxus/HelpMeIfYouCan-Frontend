@@ -41,8 +41,8 @@
               v-model="userForm.address.zipCode"
               @keyup="resetAddressSearch()"
               type='text'
-              name="postalCode"
-              :placeholder="formPlaceholer.postalCode"
+              name="zipCode"
+              :placeholder="formPlaceholer.zipCode"
               )
             input.input(
               v-model="userForm.address.district"
@@ -126,7 +126,7 @@ export default {
         lastName: 'Nachname',
         address: 'Straße',
         phoneNr: 'Telefon Nummer',
-        postalCode: 'Postleitzahl',
+        zipCode: 'Postleitzahl',
         area: 'Ort',
         email: 'Email',
         password: 'neues Passwort',
@@ -280,6 +280,7 @@ export default {
   },
   mounted() {
     this.$store.commit('gmaps/INCREMENT_CENTER_TRIGGER')
+    this.setUserForm()
   }
 }
 </script>

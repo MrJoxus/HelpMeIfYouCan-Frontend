@@ -7,6 +7,7 @@ export const state = () => ({
   currentLocation: { lat: undefined, lng: undefined },
   userLocation: { lat: undefined, lng: undefined },
   createRequestLocation: { lat: undefined, lng: undefined },
+  userHelpOR: [],
   status: {
     loaded: {
       map: false
@@ -29,7 +30,6 @@ export const mutations = {
     state.center = payload
   },
   UPDATE_USER_LOCATION(state, payload) {
-    console.log('UPDATE_USER_LOCATION')
     state.userLocation = payload
   },
   UPDATE_CURRENT_LOCATION(state, payload) {
@@ -37,6 +37,12 @@ export const mutations = {
   },
   UPDATE_CREATE_REQUEST_LOCATION(state, payload) {
     state.createRequestLocation = payload
+  },
+  ADD_USER_HELP_O_R(state, payload) {
+    state.userHelpOR.push(payload)
+  },
+  CLEAR_USER_HELP_O_R(state) {
+    state.userHelpOR = []
   },
   TOGGLE_MARKERS(state) {
     state.status.show.markers = !state.status.show.markers
@@ -85,6 +91,11 @@ export const mutations = {
       })
     }
   },
+  CLEAR_LOCATIONS(state) {
+    state.helpRequestLocations = []
+    state.helpOfferLocations = []
+    state.locations = []
+  },
   TRIGGER(state, payload) {
     payload.forEach(key => {
       state.trigger[key] = state.trigger[key] + 1
@@ -99,10 +110,9 @@ export const actions = {
       addressQuery = payload.string
     } else {
       addressQuery = encodeURIComponent(
-        `${payload.address.street} ${payload.address.houseNumber}, ${payload.address.postalCode}, ${payload.address.area}`
+        `${payload.address.street} ${payload.address.houseNumber}, ${payload.address.zipCode}, ${payload.address.area}`
       )
     }
-    console.log('addressQuery', addressQuery)
     let url = `https://maps.googleapis.com/maps/api/geocode/json?&address=${addressQuery}&key=${process.env.GOOGLE_API_KEY}`
     delete this.$axios.defaults.headers.common['Authorization']
     this.$axios
@@ -170,5 +180,18 @@ export const actions = {
       .catch(error => {
         console.log('error', error)
       })
+  },
+  GET_USER_HELP_O_R({ commit }, payload) {
+    payload.forEach(item => {
+      this.$axios
+        .get(`/api/${item.type}/${item.id}`)
+        .then(response => {
+          response.data.type = item.type
+          commit('ADD_USER_HELP_O_R', response.data)
+        })
+        .catch(error => {
+          console.log('error', error)
+        })
+    })
   }
 }

@@ -44,7 +44,7 @@
             p.id request id {{ item.id }}
             p {{ item.description }}
             textarea(
-              v-model='model.parent_id[index]'
+              v-model='model.parent_id[index + item.id]'
               :class='{collapsed: !status.infoWindow.textarea}'
               )
             .options
@@ -286,10 +286,6 @@ export default {
     collapseTextArea() {
       this.status.infoWindow.textarea = false
     },
-    test(id) {
-      console.log('test', id)
-    },
-
     initMap() {
       let self = this
       var loaded = new Promise(function(resolve, reject) {

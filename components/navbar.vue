@@ -20,6 +20,8 @@
       template(v-else)
         nuxt-link.navbar-item(to='/login') Login
         nuxt-link.navbar-item(to='/register') Registrieren
+
+      //- dropdown
       template(v-if='$auth.loggedIn')
         transition(name='fade')
           div.dropdown-menu(v-show='dropdown' ref='dropdownMenu')
@@ -27,12 +29,17 @@
               p {{user.name}} {{user.lastName}}
               p {{user.email}}
             hr
-            nuxt-link.dropdown-item.profile.transition(
+            nuxt-link.dropdown-item.profile(
+              @click.native='toggleProfileDropdown()'
+              to='/user-applications'
+              ) Meine Anzeigen
+            hr
+            nuxt-link.dropdown-item.profile(
               @click.native='toggleProfileDropdown()'
               to='/user'
               ) Zum Profil
             hr
-            p.dropdown-item.logout.transition(@click='toggleProfileDropdown(), logout()') Abmelden
+            p.dropdown-item.logout(@click='toggleProfileDropdown(), logout()') Abmelden
 
     div.navbar-items-trigger(@click="toggleNavbbarItems()")
       .hamburger
@@ -50,19 +57,21 @@
             img(src="../assets/img/add.png")
         nuxt-link.navbar-item(to='/map') Zur Karte
         nuxt-link.navbar-item(to='/about-us') Über uns
-        nuxt-link.navbar-item.with-img(
-          v-if='$auth.loggedIn'
-          to='/user/inbox'
-          )
-          span Nachrichten
-          .navbar-item-img
-            img(src="~/assets/img/mail.png")
-            .counter(v-if='this.counter > 0') {{ this.counter }}
         nuxt-link.navbar-item(to='/impressum') Impressum
         template(v-if='!$auth.loggedIn')
           nuxt-link.navbar-item(to='/login') Login
           nuxt-link.navbar-item(to='/register') Registrieren
         template(v-if='$auth.loggedIn' )
+          hr
+          nuxt-link.navbar-item.with-img(
+            v-if='$auth.loggedIn'
+            to='/user/inbox'
+            )
+            span Nachrichten
+            .navbar-item-img
+              img(src="~/assets/img/mail.png")
+              .counter(v-if='this.counter > 0') {{ this.counter }}
+          nuxt-link.navbar-item(to='/user-applications') Meine Anzeigen
           nuxt-link.navbar-item(to='/user') Zum Profil
           p.navbar-item(@click="logout()") Abmelden
 </template>
@@ -225,7 +234,7 @@ $navbar-height: 56px;
 .dropdown-menu {
   user-select: text;
   position: absolute;
-  bottom: -178px;
+  bottom: -212px;
   right: 16px;
   min-width: 280px;
   padding-top: 16px;

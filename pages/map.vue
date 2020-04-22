@@ -15,11 +15,7 @@ export default {
       }
     }
   },
-  methods: {
-    test: function() {
-      console.log('method test')
-    }
-  },
+  methods: {},
   mounted() {
     this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-offer')
     this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-request')
