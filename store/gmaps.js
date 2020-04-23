@@ -121,7 +121,6 @@ export const actions = {
         if (response.data.results.length != 0) {
           let location = response.data.results[0].geometry.location
           commit('UPDATE_CENTER', location)
-          console.log('payload', payload)
           if (payload.type == 'currentLocation') {
             commit('UPDATE_CURRENT_LOCATION', location)
           } else if (payload.type == 'userLocation') {
