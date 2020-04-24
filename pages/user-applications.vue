@@ -70,6 +70,7 @@ export default {
         .patch(`/api/${type}/${id}`, { description: description })
         .then(response => {
           this.$store.dispatch('user/REQUEST_USER')
+          this.edit = undefined
         })
         .catch(error => {
           console.log('error', error)
@@ -87,6 +88,17 @@ export default {
             console.log('error', error)
           })
       }
+    },
+    loadItems() {
+      let array = []
+      this.userHelpORId.helpRequests.forEach(item => {
+        array.push({ type: 'help-request', id: item })
+      })
+      this.userHelpORId.helpOffers.forEach(item => {
+        array.push({ type: 'help-offer', id: item })
+      })
+      this.$store.commit('gmaps/CLEAR_USER_HELP_O_R')
+      this.$store.dispatch('gmaps/GET_USER_HELP_O_R', array)
     }
   },
   computed: {
@@ -102,17 +114,18 @@ export default {
   },
   watch: {
     userHelpORId() {
-      let array = []
-      this.userHelpORId.helpRequests.forEach(item => {
-        array.push({ type: 'help-request', id: item })
-      })
-      this.userHelpORId.helpOffers.forEach(item => {
-        array.push({ type: 'help-offer', id: item })
-      })
-      this.$store.dispatch('gmaps/GET_USER_HELP_O_R', array)
+      this.loadItems()
     }
   },
   created() {
+    if (
+      !(
+        this.userHelpORId.helpRequests == undefined &&
+        this.userHelpORId.helpOffers == undefined
+      )
+    ) {
+      this.loadItems()
+    }
     this.$store.commit('gmaps/UPDATE_STATUS', {
       show: { filter: false, markers: false }
     })
