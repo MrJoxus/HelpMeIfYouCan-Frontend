@@ -316,7 +316,7 @@ export default {
           if (self.gObjects.searchMarker != undefined) {
             self.gObjects.searchMarker.setPosition(self.userLocation)
           } else {
-            self.gObjects.searchMarker = new self.google.maps.Marker({
+            self.gObjects.userMarker= new self.google.maps.Marker({
               position: self.mapParameters.center,
               map: self.gObjects.map,
               icon: require('~/assets/img/user.png')
