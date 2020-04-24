@@ -140,14 +140,14 @@ export const actions = {
     )
   },
   GET_HELP_O_R_ARRAY({ state, dispatch }, payload) {
-    let lat = state.currentLocation.lat || state.center.lat
-    let lng = state.currentLocation.lng || state.center.lng
-    let radius = 200
-    let requestType = payload
+    let lat = payload.coordinates.lat
+    let lng = payload.coordinates.lng
+    let radius = 250
+    let requestType = payload.type
     let key = ''
-    if (payload == 'help-offer') {
+    if (payload.type == 'help-offer') {
       key = 'helpOffers'
-    } else if (payload == 'help-request') {
+    } else if (payload.type == 'help-request') {
       key = 'helpRequests'
     }
     this.$axios

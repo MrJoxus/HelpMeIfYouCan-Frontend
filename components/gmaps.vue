@@ -64,6 +64,7 @@ export default {
     return {
       loaded: undefined,
       google: undefined,
+      lastFetchedLoacation: undefined,
       gObjects: {
         map: undefined,
         markers: [],
@@ -78,7 +79,7 @@ export default {
         center: { lat: 53.565965, lng: 9.948829 },
         zoom: 13,
         options: {
-          minZoom: 10,
+          minZoom: 11,
           fullscreenControl: false,
           disableDefaultUI: true,
           gestureHandling: 'greedy',
@@ -188,6 +189,8 @@ export default {
         lng: this.currentLocation.lng
       }
       if (this.mapLoaded) {
+        this.getLocations(this.mapParameters.center)
+
         this.gObjects.map.panTo(this.mapParameters.center)
       }
     },
@@ -231,11 +234,12 @@ export default {
     submitFilter(e) {
       e.preventDefault()
       this.clearAllMarkers()
-
-      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        string: this.model.filter.address,
-        type: 'currentLocation'
-      })
+      if (this.model.filter.address != undefined) {
+        this.$store.dispatch('gmaps/GET_GEOLOCATION', {
+          string: this.model.filter.address,
+          type: 'currentLocation'
+        })
+      }
 
       if (
         this.model.filter.helpOffer == true &&
@@ -288,7 +292,7 @@ export default {
     },
     initMap() {
       let self = this
-      var loaded = new Promise(function(resolve, reject) {
+      let loaded = new Promise(function(resolve, reject) {
         self.gObjects.map = new self.google.maps.Map(
           self.$refs.map,
           self.mapParameters
@@ -298,7 +302,10 @@ export default {
         }
       })
       // script loaded
-      loaded.then(function(value) {
+      loaded.then(function() {
+        self.gObjects.map.addListener('dragend', function() {
+          self.fetchNewLocation()
+        })
         self.$store.commit('gmaps/UPDATE_STATUS', { loaded: { map: true } })
 
         self.gObjects.map.addListener('drag', () => {
@@ -380,6 +387,7 @@ export default {
       })
     },
     showAllMarkers() {
+      this.initMarker()
       this.gObjects.markers.forEach(marker => {
         marker.setMap(this.gObjects.map)
       })
@@ -390,13 +398,48 @@ export default {
         marker.setMap(null)
       })
       this.gObjects.markers = []
+    },
+    getLocations(location) {
+      this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', {
+        type: 'help-offer',
+        coordinates: location
+      })
+      this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', {
+        type: 'help-request',
+        coordinates: location
+      })
+    },
+    fetchNewLocation() {
+      let distance
+      let lastLocation = this.lastFetchedLoacation
+      let newLocation = {
+        lat: this.gObjects.map.getCenter().lat(),
+        lng: this.gObjects.map.getCenter().lng()
+      }
+      if (lastLocation == undefined) {
+        return (this.lastFetchedLoacation = newLocation)
+      }
+      let point_a = new this.google.maps.LatLng(lastLocation)
+      let point_b = new this.google.maps.LatLng(newLocation)
+
+      distance =
+        this.google.maps.geometry.spherical.computeDistanceBetween(
+          point_a,
+          point_b
+        ) / 1000
+
+      if (distance >= 150) {
+        this.lastFetchedLoacation = newLocation
+        this.getLocations(newLocation)
+      }
     }
   },
 
   async mounted() {
     try {
       const google = GoogleMapsApiLoader({
-        apiKey: process.env.GOOGLE_API_KEY
+        apiKey: process.env.GOOGLE_API_KEY,
+        libraries: ['geometry']
       })
       this.loaded = google
     } catch (e) {}

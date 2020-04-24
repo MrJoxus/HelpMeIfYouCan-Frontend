@@ -15,10 +15,36 @@ export default {
       }
     }
   },
-  methods: {},
-  mounted() {
-    this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-offer')
-    this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', 'help-request')
+  computed: {
+    userLocation() {
+      return this.$store.state.gmaps.userLocation
+    }
+  },
+  watch: {
+    userLocation() {
+      this.getLocations(this.userLocation)
+    }
+  },
+
+  methods: {
+    getLocations(location) {
+      this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', {
+        type: 'help-offer',
+        coordinates: location
+      })
+      this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', {
+        type: 'help-request',
+        coordinates: location
+      })
+    }
+  },
+  created() {
+    let location = {
+      lat: this.userLocation.lat || this.$store.state.gmaps.center.lat,
+      lng: this.userLocation.lng || this.$store.state.gmaps.center.lng
+    }
+    this.getLocations(location)
+
     this.$store.commit('gmaps/INCREMENT_CENTER_TRIGGER')
     this.$store.commit('gmaps/UPDATE_STATUS', {
       show: { filter: true, markers: true }
