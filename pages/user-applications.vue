@@ -29,7 +29,7 @@
               .delete(
                 v-if='item.id == edit'
                 @click='deleteItem(item.type, item.id)')
-                img(src='~/assets/img/waste.png')
+                img(src='~/assets/img/delete.png')
 </template>
 
 <script>
@@ -118,12 +118,15 @@ export default {
     }
   },
   created() {
+    console.log('created')
+
     if (
       !(
         this.userHelpORId.helpRequests == undefined &&
         this.userHelpORId.helpOffers == undefined
       )
     ) {
+      console.log('loaditems')
       this.loadItems()
     }
     this.$store.commit('gmaps/UPDATE_STATUS', {
@@ -159,9 +162,11 @@ export default {
   }
   .items-wrapper {
     overflow-y: scroll;
+    max-height: calc(80vh - 118px);
   }
   .items {
     height: calc(80vh - 118px);
+    max-height: calc(80vh - 118px);
     padding-left: 40px;
     padding-right: 32px;
     .empty {

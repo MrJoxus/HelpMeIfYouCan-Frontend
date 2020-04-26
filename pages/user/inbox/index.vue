@@ -26,14 +26,13 @@
             :key='application.id'
             :class='{"message--read": application.read}'
             )
-            h6.message-header(v-if='application.helpModelType == "HelpRequestModel"') {{application.name}} möchte dir helfen!
-            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') {{application.name}} würde sich über deine hilfe freuen!
+            h6.message-header(v-if='application.helpModelType == "HelpRequestModel"') {{ application.name }} möchte dir helfen!
+            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') {{ application.name }} würde sich über deine hilfe freuen!
             div.message-info
               p.send {{formatTime(application.created, "DM")}} {{formatTime(application.created, "HM")}}
               img.accepted(
                 v-if='application.lastName'
                 src='~assets/img/agreement.png')
-
           //- send
           div.message.message--read(
             v-if='show == "send"'
@@ -41,8 +40,8 @@
             @click='updateactiveApplication(application, show)'
             :key='application.id'
             )
-            h6.message-header(v-if='application.helpModelType == "HelpRequestModel"') Du hast "application.name" Hilfe angeboten.
-            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') Du hast "application.name" um Hilfe gefragt.
+            h6.message-header(v-if='application.helpModelType == "HelpRequestModel"') Du hast {{ application.name }} Hilfe angeboten.
+            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') Du hast {{ application.name }} um Hilfe gefragt.
             div.message-info
               p.send {{formatTime(application.created, "DM")}} {{formatTime(application.created, "HM")}}
               img.accepted(
@@ -63,8 +62,9 @@
                   |  {{ activeApplication.lastName }} unter folgender Nummer:
                 p {{ activeApplication.phoneNr}}
 
-              p.userName {{ activeApplication.lastName }}:
+              p.userName {{ activeApplication.name }}:
               p {{ activeApplication.message}}
+              p ID: {{ activeApplication.id}}
 
             .message-body_options(v-if='!activeApplication.lastName')
               button.button.accept(@click='acceptApplication(activeApplication)') Anfrage akzeptieren
@@ -81,8 +81,9 @@
                   |  Du kannst ihn nun kontaktieren unter der Nummer:
                 p {{ activeApplication.phoneNr}}
 
-              p.userName {{ activeApplication.lastName }}:
+              p.userName {{ activeApplication.name }}:
               p {{ activeApplication.message}}
+              p ID: {{ activeApplication.id}}
             .message-body_options(v-if='!activeApplication.lastName')
               button.button.button--alert(@click='deleteApplication(activeApplication)') Anfrage zurücknehmen
               p.info Wenn {{ activeApplication.userName}} dein Angebot oder deine Anfrage annimmt, werden deine Kontaktdaten an
@@ -132,6 +133,7 @@ export default {
       }
     },
     updateactiveApplication(application) {
+      console.log(application)
       if (!application.read) {
         if (!(!application.lastName && this.show == 'send')) {
           this.$store.dispatch('user/MESSAGE_READ', application.id)
@@ -142,6 +144,7 @@ export default {
       }
     },
     deleteApplication(application) {
+      let self = this
       let type
       if (application.helpModelType == 'HelpRequestModel') {
         type = 'help-request'
@@ -152,6 +155,8 @@ export default {
         .delete(`/api/${type}/unapply/${application.modelId}`)
         .then(response => {
           console.log('response', response.data)
+          self.$store.dispatch('user/REQUEST_USER')
+          self.activeApplication = {}
         })
         .catch(error => {
           console.log(error)
@@ -178,6 +183,9 @@ export default {
           console.log('error', error)
         })
     }
+  },
+  created() {
+    // this.$store.dispatch('user/REQUEST_USER')
   }
 }
 </script>
@@ -275,7 +283,7 @@ export default {
         padding-right: 24px;
         padding-left: 24px;
       }
-      p.userName{
+      p.userName {
         padding-top: 24px;
       }
     }

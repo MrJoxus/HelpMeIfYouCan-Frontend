@@ -88,7 +88,9 @@ export default {
       this.requestForm.coordinates.latitude = this.location.lat
     },
     address() {
-      this.setRequestform()
+      if (this.address != null) {
+        this.setRequestform()
+      }
     }
   },
   methods: {
@@ -118,6 +120,8 @@ export default {
       this.$axios
         .post('api/' + this.type, data)
         .then(response => {
+          this.$store.dispatch('modal/FLASH_MODAL', 'tick')
+          this.$store.dispatch('user/REQUEST_USER')
           self.$router.push('map')
         })
         .catch(error => {
@@ -134,7 +138,9 @@ export default {
     }
   },
   created() {
-    this.setRequestform()
+    if (this.address != null) {
+      this.setRequestform()
+    }
 
     this.$store.commit('gmaps/UPDATE_STATUS', { show: { markers: false } })
     this.$store.commit('gmaps/UPDATE_CREATE_REQUEST_LOCATION', {

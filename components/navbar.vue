@@ -6,7 +6,7 @@
     .navbar-items
       nuxt-link.navbar-item(to='/create?type=help-offer')
         img(src="../assets/img/add.png")
-      nuxt-link.navbar-item(to='/map') Karte
+      nuxt-link.navbar-item(to='/map' v-if='$auth.loggedIn') Karte
       nuxt-link.navbar-item(to='/about-us') Über uns
       nuxt-link.navbar-item(to='/impressum') Impressum
       template(v-if='$auth.loggedIn')
@@ -55,7 +55,7 @@
           span Neue Anzeige
           .navbar-item-img
             img(src="../assets/img/add.png")
-        nuxt-link.navbar-item(to='/map') Zur Karte
+        nuxt-link.navbar-item(to='/map' v-if='$auth.loggedIn') Zur Karte
         nuxt-link.navbar-item(to='/about-us') Über uns
         nuxt-link.navbar-item(to='/impressum') Impressum
         template(v-if='!$auth.loggedIn')
@@ -121,7 +121,7 @@ export default {
     logout() {
       localStorage.removeItem('auth._token.local')
       document.cookie =
-        'auth._token.local= ; expires = Thu, 01 Jan 1970 00:00:00 GMT'
+        'auth._token.local=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
       window.location.reload(true)
     }
   },

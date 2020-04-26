@@ -88,7 +88,7 @@
         template(v-if="userEdit")
           .options
             span.left
-              button.button--alert.button.delete Profil löschen
+              button.button--alert.button.delete(@click='deleteUser') Profil löschen
             .right
               button.no-button.cancel(@click="$store.commit('user/UPDATE_USER_EDIT', false), resetUserForm()") abbrechen
               button.button.update(@click="sumbitUserForm") Profil aktualisieren
@@ -140,6 +140,46 @@ export default {
     }
   },
   methods: {
+    deleteUser() {
+      e.preventDefault()
+      let firstConfirmation = confirm('Möchtest du dein Profil löschen?')
+      if (firstConfirmation) {
+        let secondConfirmation = confirm(
+          'Dieser Vorgang ist kann nicht rückgängig gemacht werden. Benutzer löschen?'
+        )
+        if (secondConfirmation) {
+          // key validation currendPassword
+          if (
+            this.userForm.currentPassword != '' &&
+            this.userForm.currentPassword != undefined &&
+            this.userForm.currentPassword != null
+          ) {
+            this.$axios
+              .delete('api/user/me', {
+                passwordConfirmation: this.userForm.currentPassword
+              })
+              .then(response => {
+                console.log('response', response)
+                localStorage.removeItem('auth._token.local')
+                document.cookie =
+                  'auth._token.local=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+
+                self.$router.push('/')
+              })
+              .catch(error => {
+                console.log('error', error)
+              })
+          } else {
+            // error passwordConfirmation is missing
+            this.error.passwordConfirmation = false
+            setTimeout(() => {
+              this.error.passwordConfirmation = true
+            }, 0)
+            return
+          }
+        }
+      }
+    },
     resetAddressSearch: function() {
       this.error.noGeolocation = false
       this.userForm.address.coordinates = {

@@ -52,7 +52,7 @@
                 button.button.uncollapse(@click='uncollapseTextArea()') Kontaktier mich!
               span.button-wrapper(v-else)
                 button.no-button.collapse(@click='collapseTextArea()') abbrechen
-                button.button.send(@click='apply(item, model.parent_id[index])') Abschicken
+                button.button.send(@click='apply(item, model.parent_id[index + item.id])') Abschicken
 
 </template>
 
@@ -161,7 +161,9 @@ export default {
     },
     centerTrigger() {
       if (this.mapLoaded) {
-        this.gObjects.map.panTo(this.userLocation)
+        if (this.userLocation.lat != undefined) {
+          this.gObjects.map.panTo(this.userLocation)
+        }
       }
     },
     showMarkers: function() {
@@ -225,7 +227,9 @@ export default {
       this.$axios
         .post(`/api/${item.type}/apply/${item.id}`, { message: message })
         .then(response => {
-          console.log('response', response.data)
+          this.$store.dispatch('modal/FLASH_MODAL', 'tick')
+          this.gObjects.infoWindow.close()
+          this.$store.dispatch('user/REQUEST_USER')
         })
         .catch(error => {
           console.log(error)
@@ -311,12 +315,11 @@ export default {
         self.gObjects.map.addListener('drag', () => {
           if (self.status.inputFocus) self.$refs.addressInput.blur()
         })
-
-        if (self.userLocation && self.$auth.loggedIn) {
-          if (self.gObjects.searchMarker != undefined) {
-            self.gObjects.searchMarker.setPosition(self.userLocation)
+        if (self.userLocation.lat && self.$auth.loggedIn) {
+          if (self.gObjects.userMarker != undefined) {
+            self.gObjects.userMarker.setPosition(self.userLocation)
           } else {
-            self.gObjects.userMarker= new self.google.maps.Marker({
+            self.gObjects.userMarker = new self.google.maps.Marker({
               position: self.mapParameters.center,
               map: self.gObjects.map,
               icon: require('~/assets/img/user.png')
