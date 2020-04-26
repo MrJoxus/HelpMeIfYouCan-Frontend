@@ -118,15 +118,12 @@ export default {
     }
   },
   created() {
-    console.log('created')
-
     if (
       !(
         this.userHelpORId.helpRequests == undefined &&
         this.userHelpORId.helpOffers == undefined
       )
     ) {
-      console.log('loaditems')
       this.loadItems()
     }
     this.$store.commit('gmaps/UPDATE_STATUS', {
