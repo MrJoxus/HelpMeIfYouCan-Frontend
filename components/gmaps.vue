@@ -39,13 +39,12 @@
             @click='status.infoWindow.item = item.id'
             :class='{"info-window-item--active": status.infoWindow.item == item.id}'
             )
-            h4(v-if='item.type == "help-offer"') Moritz möchte helfen
-            h4(v-if='item.type == "help-request"') Frida braucht Hilfe
+            h4(v-if='item.type == "help-offer"') {{ item.userName }} möchte helfen
+            h4(v-if='item.type == "help-request"') {{ item.userName }} braucht Hilfe
             p.id request id {{ item.id }}
-            p user id {{ item.user }}
             p {{ item.description }}
             textarea(
-              v-model='model.parent_id[index]'
+              v-model='model.parent_id[index + item.id]'
               :class='{collapsed: !status.infoWindow.textarea}'
               )
             .options
@@ -53,7 +52,7 @@
                 button.button.uncollapse(@click='uncollapseTextArea()') Kontaktier mich!
               span.button-wrapper(v-else)
                 button.no-button.collapse(@click='collapseTextArea()') abbrechen
-                button.button.send(@click='test()') Abschicken
+                button.button.send(@click='apply(item, model.parent_id[index + item.id])') Abschicken
 
 </template>
 
@@ -65,10 +64,13 @@ export default {
     return {
       loaded: undefined,
       google: undefined,
+      lastFetchedLoacation: undefined,
       gObjects: {
         map: undefined,
         markers: [],
         currentMarker: undefined,
+        userMarker: undefined,
+        createRequestmarker: undefined,
         searchMarker: undefined,
         markerCluster: undefined,
         infoWindow: undefined
@@ -77,7 +79,7 @@ export default {
         center: { lat: 53.565965, lng: 9.948829 },
         zoom: 13,
         options: {
-          minZoom: 10,
+          minZoom: 11,
           fullscreenControl: false,
           disableDefaultUI: true,
           gestureHandling: 'greedy',
@@ -118,6 +120,9 @@ export default {
     center() {
       return this.$store.state.gmaps.center
     },
+    centerTrigger() {
+      return this.$store.state.gmaps.centerTrigger
+    },
     showMarkers() {
       return this.$store.state.gmaps.status.show.markers
     },
@@ -133,8 +138,14 @@ export default {
     helpRequestLocations() {
       return this.$store.state.gmaps.helpRequestLocations
     },
-    ownLocation() {
-      return this.$store.state.gmaps.ownLocation
+    currentLocation() {
+      return this.$store.state.gmaps.currentLocation
+    },
+    userLocation() {
+      return this.$store.state.gmaps.userLocation
+    },
+    createRequestLocation() {
+      return this.$store.state.gmaps.createRequestLocation
     },
     triggerCluster() {
       return this.$store.state.gmaps.trigger.cluster
@@ -146,6 +157,13 @@ export default {
       if (this.gObjects.map) {
         this.gObjects.map.panTo(this.center)
         this.gObjects.map.setZoom(16)
+      }
+    },
+    centerTrigger() {
+      if (this.mapLoaded) {
+        if (this.userLocation.lat != undefined) {
+          this.gObjects.map.panTo(this.userLocation)
+        }
       }
     },
     showMarkers: function() {
@@ -167,20 +185,31 @@ export default {
         }
       }
     },
-    ownLocation() {
+    currentLocation() {
       this.mapParameters.center = {
-        lat: this.ownLocation.lat,
-        lng: this.ownLocation.lng
+        lat: this.currentLocation.lat,
+        lng: this.currentLocation.lng
+      }
+      if (this.mapLoaded) {
+        this.getLocations(this.mapParameters.center)
+
+        this.gObjects.map.panTo(this.mapParameters.center)
+      }
+    },
+    userLocation() {
+      this.mapParameters.center = {
+        lat: this.userLocation.lat,
+        lng: this.userLocation.lng
       }
       if (this.mapLoaded) {
         this.gObjects.map.panTo(this.mapParameters.center)
-        if (this.gObjects.searchMarker != undefined) {
-          this.gObjects.searchMarker.setPosition(this.ownLocation)
+        if (this.gObjects.userMarker != undefined) {
+          this.gObjects.userMarker.setPosition(this.userLocation)
         } else {
-          this.gObjects.searchMarker = new this.google.maps.Marker({
+          this.gObjects.userMarker = new this.google.maps.Marker({
             position: this.mapParameters.center,
             map: this.gObjects.map,
-            icon: require('~/assets//img/002-flagge.png')
+            icon: require('~/assets/img/user.png')
           })
         }
       }
@@ -194,14 +223,27 @@ export default {
   },
 
   methods: {
+    apply(item, message) {
+      this.$axios
+        .post(`/api/${item.type}/apply/${item.id}`, { message: message })
+        .then(response => {
+          this.$store.dispatch('modal/FLASH_MODAL', 'tick')
+          this.gObjects.infoWindow.close()
+          this.$store.dispatch('user/REQUEST_USER')
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
     submitFilter(e) {
       e.preventDefault()
-
       this.clearAllMarkers()
-
-      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        string: this.model.filter.address
-      })
+      if (this.model.filter.address != undefined) {
+        this.$store.dispatch('gmaps/GET_GEOLOCATION', {
+          string: this.model.filter.address,
+          type: 'currentLocation'
+        })
+      }
 
       if (
         this.model.filter.helpOffer == true &&
@@ -252,13 +294,9 @@ export default {
     collapseTextArea() {
       this.status.infoWindow.textarea = false
     },
-    test(id) {
-      console.log('test', id)
-    },
-
     initMap() {
       let self = this
-      var loaded = new Promise(function(resolve, reject) {
+      let loaded = new Promise(function(resolve, reject) {
         self.gObjects.map = new self.google.maps.Map(
           self.$refs.map,
           self.mapParameters
@@ -267,25 +305,24 @@ export default {
           resolve()
         }
       })
-      loaded.then(function(value) {
-        self.gObjects.map = new google.maps.Map(
-          self.$refs.map,
-          self.mapParameters
-        )
+      // script loaded
+      loaded.then(function() {
+        self.gObjects.map.addListener('dragend', function() {
+          self.fetchNewLocation()
+        })
         self.$store.commit('gmaps/UPDATE_STATUS', { loaded: { map: true } })
 
         self.gObjects.map.addListener('drag', () => {
           if (self.status.inputFocus) self.$refs.addressInput.blur()
         })
-
-        if (self.ownLocation) {
-          if (self.gObjects.searchMarker != undefined) {
-            self.gObjects.searchMarker.setPosition(self.ownLocation)
+        if (self.userLocation.lat && self.$auth.loggedIn) {
+          if (self.gObjects.userMarker != undefined) {
+            self.gObjects.userMarker.setPosition(self.userLocation)
           } else {
-            self.gObjects.searchMarker = new self.google.maps.Marker({
+            self.gObjects.userMarker = new self.google.maps.Marker({
               position: self.mapParameters.center,
               map: self.gObjects.map,
-              icon: require('~/assets//img/002-flagge.png')
+              icon: require('~/assets/img/user.png')
             })
           }
         }
@@ -353,6 +390,7 @@ export default {
       })
     },
     showAllMarkers() {
+      this.initMarker()
       this.gObjects.markers.forEach(marker => {
         marker.setMap(this.gObjects.map)
       })
@@ -363,17 +401,51 @@ export default {
         marker.setMap(null)
       })
       this.gObjects.markers = []
+    },
+    getLocations(location) {
+      this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', {
+        type: 'help-offer',
+        coordinates: location
+      })
+      this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', {
+        type: 'help-request',
+        coordinates: location
+      })
+    },
+    fetchNewLocation() {
+      let distance
+      let lastLocation = this.lastFetchedLoacation
+      let newLocation = {
+        lat: this.gObjects.map.getCenter().lat(),
+        lng: this.gObjects.map.getCenter().lng()
+      }
+      if (lastLocation == undefined) {
+        return (this.lastFetchedLoacation = newLocation)
+      }
+      let point_a = new this.google.maps.LatLng(lastLocation)
+      let point_b = new this.google.maps.LatLng(newLocation)
+
+      distance =
+        this.google.maps.geometry.spherical.computeDistanceBetween(
+          point_a,
+          point_b
+        ) / 1000
+
+      if (distance >= 150) {
+        this.lastFetchedLoacation = newLocation
+        this.getLocations(newLocation)
+      }
     }
   },
 
   async mounted() {
     try {
       const google = GoogleMapsApiLoader({
-        apiKey: process.env.GOOGLE_API_KEY
+        apiKey: process.env.GOOGLE_API_KEY,
+        libraries: ['geometry']
       })
       this.loaded = google
     } catch (e) {}
-
     this.google = await this.loaded
     this.initMap()
     if ('geolocation' in navigator) {

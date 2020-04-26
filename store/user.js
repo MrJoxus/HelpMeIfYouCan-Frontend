@@ -18,10 +18,55 @@ export const state = () => ({
       }
     },
     phoneNr: undefined,
-    email: undefined
-  },
-  addresSearch: {
-    button: false
+    email: undefined,
+    applications: {
+      received: [
+        {
+          id: undefined,
+          modelId: undefined,
+          message: undefined,
+          helpModelType: undefined,
+          read: undefined
+        }
+      ],
+      send: [
+        {
+          id: undefined,
+          modelId: undefined,
+          message: undefined,
+          helpModelType: undefined,
+          read: undefined
+        }
+      ]
+    },
+    acceptedApplications: {
+      received: [
+        {
+          id: undefined,
+          modelId: undefined,
+          created: undefined,
+          name: undefined,
+          lastName: undefined,
+          message: undefined,
+          phoneNr: undefined,
+          helpModelType: undefined,
+          read: undefined
+        }
+      ],
+      send: [
+        {
+          id: undefined,
+          modelId: undefined,
+          created: undefined,
+          name: undefined,
+          lastName: undefined,
+          message: undefined,
+          phoneNr: undefined,
+          helpModelType: undefined,
+          read: undefined
+        }
+      ]
+    }
   },
   error: {
     status: false,
@@ -30,9 +75,21 @@ export const state = () => ({
   }
 })
 
+export const getters = {
+  messages: state => {
+    let send = state.data.applications.send.concat(
+      state.data.acceptedApplications.send
+    )
+    let received = state.data.applications.received.concat(
+      state.data.acceptedApplications.received
+    )
+    return { received, send }
+  }
+}
+
 export const mutations = {
   SET_USER(state, payload) {
-    if (payload.fullAddress) {
+    if (payload.fullAddress && payload.fullAddress.coordinates) {
       payload.fullAddress.coordinates.lat =
         payload.fullAddress.coordinates.latitude
       payload.fullAddress.coordinates.lng =
@@ -42,15 +99,10 @@ export const mutations = {
 
     state.set = true
   },
-  TOGGLE_USER_EDIT(state) {
-    state.edit = !state.edit
+  UPDATE_USER_EDIT(state, payload) {
+    state.edit = payload
   },
-  UPDATE_ADDRES_SEARCH(state, payload) {
-    let keys = Object.keys(payload)
-    keys.forEach(key => {
-      state.addresSearch[key] = payload[key]
-    })
-  },
+
   UPDATE_ERROR(state, payload) {
     let keys = Object.keys(payload)
     keys.forEach(key => {
@@ -75,7 +127,7 @@ export const actions = {
           response.data.fullAddress.coordinates.latitude
         ) {
           commit(
-            'gmaps/UPDATE_OWN_LOCATION',
+            'gmaps/UPDATE_USER_LOCATION',
             response.data.fullAddress.coordinates,
             { root: true }
           )
@@ -102,7 +154,7 @@ export const actions = {
         .patch('api/user/me', payload.user)
         .then(response => {
           commit('SET_USER', response.data)
-          commit('TOGGLE_USER_EDIT')
+          commit('UPDATE_USER_EDIT', false)
           commit('UPDATE_ERROR', { status: false })
         })
         .catch(error => {
@@ -123,7 +175,7 @@ export const actions = {
         .post('api/user/me/address', payload)
         .then(response => {
           commit('SET_USER', response.data)
-          commit('TOGGLE_USER_EDIT')
+          commit('UPDATE_USER_EDIT', false)
           commit('UPDATE_ERROR', { status: false })
         })
         .catch(error => {
@@ -135,7 +187,7 @@ export const actions = {
         .patch('api/user/me/address', payload)
         .then(response => {
           commit('SET_USER', response.data)
-          commit('TOGGLE_USER_EDIT')
+          commit('UPDATE_USER_EDIT', false)
           commit('UPDATE_ERROR', { status: false })
         })
         .catch(error => {
@@ -143,5 +195,15 @@ export const actions = {
           commit('UPDATE_ERROR', { status: true })
         })
     }
+  },
+  MESSAGE_READ({ commit }, payload) {
+    this.$axios
+      .patch(`api/user/me/applications/${payload}`)
+      .then(response => {
+        commit('SET_USER', response.data)
+      })
+      .catch(error => {
+        console.log('error', error)
+      })
   }
 }

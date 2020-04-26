@@ -6,10 +6,13 @@
     .navbar-items
       nuxt-link.navbar-item(to='/create?type=help-offer')
         img(src="../assets/img/add.png")
-      nuxt-link.navbar-item(to='/map') Karte
+      nuxt-link.navbar-item(to='/map' v-if='$auth.loggedIn') Karte
       nuxt-link.navbar-item(to='/about-us') Über uns
       nuxt-link.navbar-item(to='/impressum') Impressum
       template(v-if='$auth.loggedIn')
+        nuxt-link.navbar-item.with-img(to='/user/inbox')
+          img(src="~/assets/img/mail.png")
+          .counter(v-if='this.counter > 0') {{ this.counter }}
         span.navbar-item.dropdown-trigger(
           @click='toggleProfileDropdown()'
           ref='parentDropdownMenu'
@@ -17,19 +20,26 @@
       template(v-else)
         nuxt-link.navbar-item(to='/login') Login
         nuxt-link.navbar-item(to='/register') Registrieren
-      template(v-if='$auth.loggedIn' )
+
+      //- dropdown
+      template(v-if='$auth.loggedIn')
         transition(name='fade')
           div.dropdown-menu(v-show='dropdown' ref='dropdownMenu')
             div.dropdown-item.profil-info
               p {{user.name}} {{user.lastName}}
               p {{user.email}}
             hr
-            nuxt-link.dropdown-item.profile.transition(
+            nuxt-link.dropdown-item.profile(
+              @click.native='toggleProfileDropdown()'
+              to='/user-applications'
+              ) Meine Anzeigen
+            hr
+            nuxt-link.dropdown-item.profile(
               @click.native='toggleProfileDropdown()'
               to='/user'
               ) Zum Profil
             hr
-            p.dropdown-item.logout.transition(@click='toggleProfileDropdown(), logout()') Abmelden
+            p.dropdown-item.logout(@click='toggleProfileDropdown(), logout()') Abmelden
 
     div.navbar-items-trigger(@click="toggleNavbbarItems()")
       .hamburger
@@ -41,14 +51,27 @@
         @click='navbarItemsMobile = !navbarItemsMobile'
         v-show='navbarItemsMobile'
         )
-        nuxt-link.navbar-item(to='/create') Neue Anzeige
-        nuxt-link.navbar-item(to='/map') Zur Karte
+        nuxt-link.navbar-item.with-img(to='/create')
+          span Neue Anzeige
+          .navbar-item-img
+            img(src="../assets/img/add.png")
+        nuxt-link.navbar-item(to='/map' v-if='$auth.loggedIn') Zur Karte
         nuxt-link.navbar-item(to='/about-us') Über uns
         nuxt-link.navbar-item(to='/impressum') Impressum
         template(v-if='!$auth.loggedIn')
           nuxt-link.navbar-item(to='/login') Login
           nuxt-link.navbar-item(to='/register') Registrieren
         template(v-if='$auth.loggedIn' )
+          hr
+          nuxt-link.navbar-item.with-img(
+            v-if='$auth.loggedIn'
+            to='/user/inbox'
+            )
+            span Nachrichten
+            .navbar-item-img
+              img(src="~/assets/img/mail.png")
+              .counter(v-if='this.counter > 0') {{ this.counter }}
+          nuxt-link.navbar-item(to='/user-applications') Meine Anzeigen
           nuxt-link.navbar-item(to='/user') Zum Profil
           p.navbar-item(@click="logout()") Abmelden
 </template>
@@ -66,7 +89,8 @@ export default {
         isDesktop: false,
         width: 0,
         height: 0
-      }
+      },
+      counter: 0
     }
   },
 
@@ -96,13 +120,26 @@ export default {
     },
     logout() {
       localStorage.removeItem('auth._token.local')
-      document.cookie = 'auth._token.local= ; expires = Thu, 01 Jan 1970 00:00:00 GMT'
+      document.cookie =
+        'auth._token.local=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
       window.location.reload(true)
     }
   },
   computed: {
     user() {
       return this.$store.state.user.data
+    }
+  },
+  watch: {
+    user() {
+      let counter = 0
+      this.user.applications.received.forEach(application => {
+        if (!application.read) counter++
+      })
+      this.user.acceptedApplications.received.forEach(application => {
+        if (!application.read) counter++
+      })
+      this.counter = counter
     }
   },
   mounted() {
@@ -173,6 +210,23 @@ $navbar-height: 56px;
     margin-top: -2px;
     vertical-align: middle;
   }
+  &.with-img {
+    position: relative;
+    .counter {
+      position: absolute;
+      top: 8px;
+      right: -8px;
+      height: 16px;
+      min-width: 16px;
+      padding: 0 2px;
+      font-size: 13px;
+      line-height: 16px;
+      text-align: center;
+      background: red;
+      color: white;
+      border-radius: 8px;
+    }
+  }
 }
 .user-name {
   position: relative;
@@ -180,7 +234,7 @@ $navbar-height: 56px;
 .dropdown-menu {
   user-select: text;
   position: absolute;
-  bottom: -178px;
+  bottom: -212px;
   right: 16px;
   min-width: 280px;
   padding-top: 16px;
@@ -253,6 +307,15 @@ $navbar-height: 56px;
   }
   .navbar-title {
     margin-left: 32px;
+  }
+  .with-img {
+    span {
+      margin-right: 16px;
+    }
+    .navbar-item-img {
+      display: inline-block;
+      position: relative;
+    }
   }
 }
 

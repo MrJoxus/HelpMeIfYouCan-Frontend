@@ -1,5 +1,6 @@
 <template lang='pug'>
   div
+    modal
     navbar
     .placeholder
     nuxt
@@ -10,9 +11,10 @@
 <script>
 import navbar from '~/components/navbar.vue'
 import gmaps from '~/components/gmaps.vue'
+import modal from '~/components/modal.vue'
 
 export default {
-  components: { navbar, gmaps },
+  components: { navbar, gmaps, modal },
   mounted() {
     if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
       this.$store.dispatch('user/REQUEST_USER')

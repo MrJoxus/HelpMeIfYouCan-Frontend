@@ -4,8 +4,7 @@
       form(@submit="sumbitUserForm")
         div.headline
           h1.title Dein Profil
-          p(v-if="error.status") ERROR: {{ error.status}}
-          button.button.update-user(v-if="!userEdit" @click="$store.commit('user/TOGGLE_USER_EDIT')") Profil bearbeiten
+          button.button.update-user(v-if="!userEdit" @click="$store.commit('user/UPDATE_USER_EDIT', true)") Profil bearbeiten
         div.user-items
           p.user-item.title Name
           p.user-item.content(v-if="!userEdit") {{ userData.name }}
@@ -23,42 +22,47 @@
         hr
         div.user-items
           p.user-item.title Adresse
-          p.user-item.content(v-if="!userEdit") {{ userData.addresse }}
+          p.user-item.content(v-if="!userEdit") {{ userForm.address.street }} {{ userForm.address.houseNumber }}
           div.user-item(v-else)
             input.input.input-street(
               v-model="userForm.address.street"
-              @keyup="toggleAddresSearch()"
+              @keyup="resetAddressSearch()"
               type='text'
               name="address"
               :placeholder="formPlaceholer.address"
               )
             input.input.input-housenumber(
               v-model="userForm.address.houseNumber"
-              @keyup="toggleAddresSearch()"
               type='text'
-              name="address"
+              name="house number"
               placeholder="Nr"
               )
             input.input(
               v-model="userForm.address.zipCode"
-              @keyup="toggleAddresSearch()"
+              @keyup="resetAddressSearch()"
               type='text'
-              name="postalCode"
-              :placeholder="formPlaceholer.postalCode"
+              name="zipCode"
+              :placeholder="formPlaceholer.zipCode"
               )
             input.input(
               v-model="userForm.address.district"
-              @keyup="toggleAddresSearch()"
+              @keyup="resetAddressSearch()"
               type='text'
               name="area"
               :placeholder="formPlaceholer.area")
-            div.search-address(v-if="searchAddress.button")
-              button.no-button(@click="sumbitAddressForm") Adresse suchen
+            div.search-address
+              button.button(
+                @click="sumbitAddressForm"
+                :class='{"object--vibrate": error.noGeolocation}'
+                ) Adresse verifizieren
         hr
         div.user-items
-          p.user-item.title Telefon Nummer
+          p.user-item.title(v-if="!userEdit") Telefon Nummer
+          p.user-item.title(v-if="userEdit") Telefon Nummer *
           p.user-item.content(v-if="!userEdit") {{ userData.phoneNr }}
           input.user-item.input(v-else v-model="userForm.user.phoneNr" type='text' name="phoneNr" :placeholder="formPlaceholer.phoneNr")
+          p.info(v-if="userEdit") * Deine Telefonnummer ist notwendig, damit die andere Benutzer kontaktieren können und
+            |  wird natürlich erst mit deiner Zustimmung weitergegeben!
         template(v-if="userEdit")
           hr
           div.user-items
@@ -71,20 +75,22 @@
               )
         template(v-if="userEdit")
           hr
-          div.user-items
+          div.user-items.password
             p.user-item.title Passwort bestätigen
             input.user-item.input(
               v-model="userForm.currentPassword"
               type='password'
               name="passwordConfirmation"
               :placeholder="formPlaceholer.currentPassword"
+              :class='{"object--vibrate": error.passwordConfirmation}'
+              @keyup="error.passwordConfirmation = false"
               )
         template(v-if="userEdit")
           .options
             span.left
-              button.button--alert.button.delete Profil löschen
+              button.button--alert.button.delete(@click='deleteUser') Profil löschen
             .right
-              button.no-button.cancel(@click="$store.commit('user/TOGGLE_USER_EDIT')") abbrechen
+              button.no-button.cancel(@click="$store.commit('user/UPDATE_USER_EDIT', false), resetUserForm()") abbrechen
               button.button.update(@click="sumbitUserForm") Profil aktualisieren
 
 </template>
@@ -97,92 +103,161 @@ export default {
     return {
       userForm: {
         user: {
-          name: '',
-          lastName: '',
-          phoneNr: '',
-          email: ''
+          name: undefined,
+          lastName: undefined,
+          phoneNr: undefined,
+          email: undefined
         },
         address: {
-          street: '',
-          zipCode: '',
-          district: '',
-          houseNumber: ''
+          street: undefined,
+          zipCode: undefined,
+          district: undefined,
+          houseNumber: undefined,
+          coordinates: {
+            latitude: undefined,
+            longitude: undefined
+          }
         },
-        password: '',
-        currentPassword: ''
+        password: undefined,
+        currentPassword: undefined
       },
       formPlaceholer: {
         name: 'Name',
         lastName: 'Nachname',
         address: 'Straße',
         phoneNr: 'Telefon Nummer',
-        postalCode: 'Postleitzahl',
+        zipCode: 'Postleitzahl',
         area: 'Ort',
         email: 'Email',
         password: 'neues Passwort',
         currentPassword: 'Passwort bestätigen'
+      },
+      error: {
+        noGeolocation: false,
+        phoneNr: false,
+        passwordConfirmation: false
       }
     }
   },
   methods: {
-    toggleAddresSearch: function() {
-      if (
-        this.userForm.address.street &&
-        this.userForm.address.zipCode &&
-        this.userForm.address.district &&
-        this.userForm.address.houseNumber
-      ) {
-        this.$store.commit('user/UPDATE_ADDRES_SEARCH', { button: true })
-      } else {
-        this.$store.commit('user/UPDATE_ADDRES_SEARCH', { button: false })
+    deleteUser() {
+      e.preventDefault()
+      let firstConfirmation = confirm('Möchtest du dein Profil löschen?')
+      if (firstConfirmation) {
+        let secondConfirmation = confirm(
+          'Dieser Vorgang ist kann nicht rückgängig gemacht werden. Benutzer löschen?'
+        )
+        if (secondConfirmation) {
+          // key validation currendPassword
+          if (
+            this.userForm.currentPassword != '' &&
+            this.userForm.currentPassword != undefined &&
+            this.userForm.currentPassword != null
+          ) {
+            this.$axios
+              .delete('api/user/me', {
+                passwordConfirmation: this.userForm.currentPassword
+              })
+              .then(response => {
+                console.log('response', response)
+                localStorage.removeItem('auth._token.local')
+                document.cookie =
+                  'auth._token.local=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+
+                self.$router.push('/')
+              })
+              .catch(error => {
+                console.log('error', error)
+              })
+          } else {
+            // error passwordConfirmation is missing
+            this.error.passwordConfirmation = false
+            setTimeout(() => {
+              this.error.passwordConfirmation = true
+            }, 0)
+            return
+          }
+        }
+      }
+    },
+    resetAddressSearch: function() {
+      this.error.noGeolocation = false
+      this.userForm.address.coordinates = {
+        latitude: undefined,
+        longitude: undefined
       }
     },
     sumbitUserForm: function(e) {
       e.preventDefault()
       let payload = { user: {}, address: {} }
-      let form = this.userForm
-      for (let key in form.user) {
-        let value = this.validateUserForm(key, form.user[key])
+
+      // key validation user
+      for (let key in this.userForm.user) {
+        let value = this.validate(key, this.userForm.user[key])
         if (value != null) {
           payload.user[key] = value
         }
         delete payload.user.email
       }
 
-      for (let key in form.address) {
-        let value = this.validateAddressForm(key, form.address[key])
+      // key validation address
+      for (let key in this.userForm.address) {
+        let value = this.validate(key, this.userForm.address[key])
         if (value != null && value != '') {
           payload.address[key] = value
         }
       }
+
+      // error if new address and geolocation missing
+      if (!this.userForm.address.coordinates.latitude) {
+        this.error.noGeolocation = false
+        setTimeout(() => {
+          this.error.noGeolocation = true
+        }, 0)
+        return
+      }
+
+      // key validation password
       if (
-        form.password != '' &&
-        form.password != undefined &&
-        form.password != null
+        this.userForm.password != '' &&
+        this.userForm.password != undefined &&
+        this.userForm.password != null
       ) {
-        payload.user.password = form.password
+        payload.user.password = this.userForm.password
       }
-      if (form.currentPassword != '') {
-        payload.currentPassword = form.currentPassword
+
+      // key validation currendPassword
+      if (
+        this.userForm.currentPassword != '' &&
+        this.userForm.currentPassword != undefined &&
+        this.userForm.currentPassword != null
+      ) {
+        payload.currentPassword = this.userForm.currentPassword
+        this.$store.dispatch('user/UPDATE_USER', payload)
+      } else {
+        // error passwordConfirmation is missing
+        this.error.passwordConfirmation = false
+        setTimeout(() => {
+          this.error.passwordConfirmation = true
+        }, 0)
+        return
       }
-      this.$store.dispatch('user/UPDATE_USER', payload)
     },
-    validateUserForm: function(key, item) {
-      if (item != this.userData[key] && item != undefined && item != null) {
+
+    validate: function(key, item) {
+      if (item != undefined && item != null && item != '') {
         return item
       } else {
         return null
       }
     },
-    validateAddressForm: function(key, item) {
-      if (this.userData.fullAddress && item == this.userData.fullAddress[key]) {
-        return null
-      }
-      if (item != undefined && item != null) {
-        return item
-      } else {
-        return null
-      }
+
+    sumbitAddressForm: function(e) {
+      e.preventDefault()
+      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
+        address: this.userForm.address,
+        type: 'userLocation'
+      })
     },
     setUserForm: function() {
       this.userForm.user.name = this.userData.name
@@ -197,14 +272,25 @@ export default {
         this.userForm.address.houseNumber = this.userData.fullAddress.houseNumber
       }
     },
-    sumbitAddressForm: function(e) {
-      e.preventDefault()
-      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        street: this.userForm.address.street,
-        houseNumber: this.userForm.address.houseNumber,
-        postlCode: this.userForm.address.postalCode,
-        area: this.userForm.address.area
-      })
+    resetUserForm() {
+      this.userForm.user.name = this.userData.name
+      this.userForm.user.lastName = this.userData.lastName
+      this.userForm.user.phoneNr = this.userData.phoneNr
+      this.userForm.user.email = this.userData.email
+      this.userForm.password = ''
+      this.userForm.currentPassword = ''
+
+      if (this.userData.fullAddress != null) {
+        this.userForm.address.street = this.userData.fullAddress.street
+        this.userForm.address.zipCode = this.userData.fullAddress.zipCode
+        this.userForm.address.district = this.userData.fullAddress.district
+        this.userForm.address.houseNumber = this.userData.fullAddress.houseNumber
+      } else {
+        this.userForm.address.street = ''
+        this.userForm.address.zipCode = ''
+        this.userForm.address.district = ''
+        this.userForm.address.houseNumber = ''
+      }
     }
   },
   computed: {
@@ -214,26 +300,27 @@ export default {
     userEdit() {
       return this.$store.state.user.edit
     },
-    searchAddress() {
-      return this.$store.state.user.addresSearch
-    },
-    error() {
-      return this.$store.state.user.error
-    },
-    ownLocation() {
-      return this.$store.state.gmaps.ownLocation
+    userLocation() {
+      return this.$store.state.gmaps.userLocation
     }
   },
   watch: {
+    userData() {
+      this.setUserForm()
+    },
     userEdit() {
       if (this.userEdit) this.setUserForm()
     },
-    ownLocation() {
+    userLocation() {
       this.userForm.address.coordinates = {
-        latitude: this.ownLocation.lat,
-        longitude: this.ownLocation.lng
+        latitude: this.userLocation.lat,
+        longitude: this.userLocation.lng
       }
     }
+  },
+  mounted() {
+    this.$store.commit('gmaps/INCREMENT_CENTER_TRIGGER')
+    this.setUserForm()
   }
 }
 </script>
@@ -266,6 +353,14 @@ export default {
       display: flex;
       flex-direction: row;
       flex-wrap: wrap;
+      .info {
+        font-size: 10px;
+      }
+      &.password {
+        input.object--vibrate {
+          border-color: red;
+        }
+      }
     }
     .user-item {
       width: 50%;
@@ -297,8 +392,18 @@ export default {
         display: block;
         height: 16px;
         button {
+          margin-right: 0;
+          margin-bottom: 0;
           float: right;
           cursor: pointer;
+          transition: all 0.1s ease;
+        }
+        .object--vibrate {
+          border-color: red;
+          background: red;
+          &:hover {
+            color: white;
+          }
         }
       }
     }
