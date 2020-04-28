@@ -30,7 +30,7 @@
                 v-if='item.id == edit'
                 @click='deleteItem(item.type, item.id)')
                 img(src='~/assets/img/delete.png')
-    gmaps
+    gmaps(v-if='windowWidth > 1280')
 
 </template>
 
@@ -39,10 +39,12 @@ import gmaps from '~/components/gmaps.vue'
 
 export default {
   layout: 'default',
-  components: { gmaps },ayout: 'default',
+  components: { gmaps },
+  ayout: 'default',
   middleware: 'auth',
   data: function() {
     return {
+      windowWidth: undefined,
       edit: undefined,
       model: {
         parent_id: []
@@ -106,6 +108,9 @@ export default {
       })
       this.$store.commit('gmaps/CLEAR_USER_HELP_O_R')
       this.$store.dispatch('gmaps/GET_USER_HELP_O_R', array)
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth
     }
   },
   computed: {
@@ -137,12 +142,19 @@ export default {
       show: { filter: false, markers: false }
     })
   },
+  mounted() {
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
+  }
 }
 </script>
 
 <style lang='scss'>
 .user-applications {
-  background: red;
   .main-content {
     position: absolute;
     top: calc(56px + 56px);
@@ -229,9 +241,9 @@ export default {
     }
   }
 }
-@media (max-width: 640px) {
+@media (max-width: 1280px) {
   .user-applications {
-    .map-wrapper{
+    .map-wrapper {
       display: none;
     }
     .main-content {
@@ -243,6 +255,8 @@ export default {
       padding-bottom: 32px;
       .headline {
         padding-top: 24px;
+        box-shadow: unset;
+        background: #f7f7f7;
       }
     }
     .items-wrapper {
@@ -254,6 +268,13 @@ export default {
       max-height: unset;
       padding-left: 16px;
       padding-right: 16px;
+    }
+  }
+}
+@media (min-width: 641px) and (max-width: 1280px) {
+  .user-applications {
+    .main-content {
+      width: 640px;
     }
   }
 }

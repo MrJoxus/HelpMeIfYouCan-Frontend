@@ -298,7 +298,7 @@ $navbar-height: 56px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1280px) {
   .navbar-items-trigger {
     display: block;
   }
@@ -319,7 +319,7 @@ $navbar-height: 56px;
   }
 }
 
-@media (min-width: 641px) {
+@media (min-width: 1281px) {
   .navbar-items-mobile {
     display: none;
   }

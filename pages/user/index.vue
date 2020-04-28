@@ -55,7 +55,7 @@
                 @click="sumbitAddressForm"
                 :class='{"object--vibrate": error.noGeolocation}'
                 ) Adresse verifizieren
-          gmaps.map-verification(v-if='windowWidth <= 640 && userEdit')
+          gmaps.map-verification(v-if='windowWidth <= 1280 && userEdit')
 
         hr
         div.user-items
@@ -94,7 +94,7 @@
             .right
               button.no-button.cancel(@click="$store.commit('user/UPDATE_USER_EDIT', false), resetUserForm()") abbrechen
               button.button.update(@click="sumbitUserForm") Profil aktualisieren
-    gmaps(v-if='windowWidth > 640')
+    gmaps(v-if='windowWidth > 1280')
 
 </template>
 
@@ -469,7 +469,8 @@ export default {
     margin-bottom: 4px;
   }
 }
-@media (max-width: 640px) {
+
+@media (max-width: 1280px) {
   .user {
     .main-content {
       position: relative;
@@ -529,16 +530,11 @@ export default {
     }
   }
 }
-
 @media (min-width: 641px) and (max-width: 1280px) {
   .user {
     .main-content {
-      left: 50%;
-      transform: translateX(-50%);
+      width: 640px;
     }
   }
-}
-
-@media (max-width: 1281px) {
 }
 </style>

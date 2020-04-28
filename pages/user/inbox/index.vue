@@ -91,7 +91,7 @@
               button.button.button--alert(@click='deleteApplication(activeApplication)') Anfrage zurücknehmen
               p.info Wenn {{ activeApplication.userName}} dein Angebot oder deine Anfrage annimmt, werden deine Kontaktdaten an
                 |  {{activeApplication.userName}} weitergegeben. Zeitgleich erhälst du die Kontaktdaten von {{activeApplication.userName}}
-    gmaps
+    gmaps(v-if='windowWidth > 1280')
 
 </template>
 
@@ -104,6 +104,7 @@ export default {
   middleware: 'auth',
   data: function() {
     return {
+      windowWidth: undefined,
       activeApplication: {},
       show: 'received'
     }
@@ -189,7 +190,18 @@ export default {
         .catch(error => {
           console.log('error', error)
         })
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth
     }
+  },
+  mounted() {
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>
@@ -355,6 +367,21 @@ export default {
       .message-body_options {
         bottom: 56px;
       }
+    }
+  }
+}
+@media (min-width: 641px) and (max-width: 1280px) {
+  .inbox {
+    .main-content {
+      position: static;
+      transform: unset;
+      width: 100%;
+      height: 100%;
+      box-shadow: unset;
+    }
+    .inbox-window {
+      display: flex;
+      height: calc(100vh - 175px);
     }
   }
 }

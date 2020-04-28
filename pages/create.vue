@@ -48,10 +48,10 @@
           )
         .button-wrapper(v-if='!requestForm.coordinates.latitude')
           button.button.search-address(@click='sumbitAddressForm()') Adresse verifizieren
-      gmaps(v-if='windowWidth <= 640')
+      gmaps(v-if='windowWidth <= 1280')
       .button-wrapper( v-if='requestForm.coordinates.latitude')
         button.button(@click='submitRequest()') Abschicken
-    gmaps(v-if='windowWidth > 640')
+    gmaps(v-if='windowWidth > 1280')
 
 </template>
 
@@ -251,7 +251,7 @@ export default {
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1280px) {
   .create {
     .main-content {
       position: relative;
@@ -279,8 +279,7 @@ export default {
 @media (min-width: 641px) and (max-width: 1280px) {
   .create {
     .main-content {
-      left: 50%;
-      transform: translateX(-50%);
+      width: 640px;
     }
   }
 }
