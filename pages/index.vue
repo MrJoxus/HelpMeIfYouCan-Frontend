@@ -18,11 +18,15 @@
       .links
         nuxt-link.button(to="/register" v-if='!$auth.loggedIn') Registriere dich!
         nuxt-link.button(to="/map" v-if='$auth.loggedIn') Zur Karte!
+    gmaps
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
-  layout: 'default'
+  layout: 'default',
+  components: { gmaps }
 }
 </script>
 
@@ -78,7 +82,14 @@ export default {
 @media (max-width: 640px) {
   .index {
     height: 100%;
-
+    .map-wrapper {
+      box-sizing: border-box;
+      height: 300px;
+      background: #f7f7f7;
+      padding: 32px;
+      padding-top: 0;
+      border-radius: 4px;
+    }
     .main-content {
       position: static;
       width: 100%;

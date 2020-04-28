@@ -91,12 +91,16 @@
               button.button.button--alert(@click='deleteApplication(activeApplication)') Anfrage zurücknehmen
               p.info Wenn {{ activeApplication.userName}} dein Angebot oder deine Anfrage annimmt, werden deine Kontaktdaten an
                 |  {{activeApplication.userName}} weitergegeben. Zeitgleich erhälst du die Kontaktdaten von {{activeApplication.userName}}
+    gmaps
 
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
   layout: 'default',
+  components: { gmaps },
   middleware: 'auth',
   data: function() {
     return {

@@ -3,10 +3,10 @@
     transition
       .filter-expand(
         :class='{"filter-expand--hide": status.filter.active}'
-        v-if='store.status.show.filter')
+        v-if='store.status.show.filter'
+        @click='toggleFilter()')
         img(
-          src='~/assets/img/search_2.png'
-          @click='toggleFilter()')
+          src='~/assets/img/search_2.png')
     .filter(
       :class='{"filter--hide": !status.filter.active}'
       v-if='store.status.show.filter')

@@ -30,11 +30,16 @@
                 v-if='item.id == edit'
                 @click='deleteItem(item.type, item.id)')
                 img(src='~/assets/img/delete.png')
+    gmaps
+
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
   layout: 'default',
+  components: { gmaps },ayout: 'default',
   middleware: 'auth',
   data: function() {
     return {
@@ -226,6 +231,9 @@ export default {
 }
 @media (max-width: 640px) {
   .user-applications {
+    .map-wrapper{
+      display: none;
+    }
     .main-content {
       position: static;
       transform: unset;
