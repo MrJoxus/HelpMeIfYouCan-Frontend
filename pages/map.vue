@@ -1,11 +1,14 @@
 <template lang="pug">
-  .page-map
+  gmaps
 
 </template>
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
-  layout: 'with-map',
+  layout: 'default',
   middleware: 'auth',
+  components: { gmaps },
   data: function() {
     return {
       filter: {

@@ -1,6 +1,19 @@
 <template lang='pug'>
   .map-wrapper
-    .filter(v-if='store.status.show.filter')
+    transition
+      .filter-expand(
+        :class='{"filter-expand--hide": status.filter.active}'
+        v-if='store.status.show.filter'
+        @click='toggleFilter()')
+        img(
+          src='~/assets/img/search_2.png')
+    .filter(
+      :class='{"filter--hide": !status.filter.active}'
+      v-if='store.status.show.filter')
+      .toggle
+        img(
+          @click='toggleFilter()'
+          src='~/assets/img/down-arrow.png')
       form(@submit='submitFilter')
         input.input.input-street(
           v-model="model.filter.address"
@@ -104,9 +117,8 @@ export default {
           item: undefined,
           textarea: false
         },
-        searchbar: {
-          active: false,
-          expand: true
+        filter: {
+          active: true
         },
         geoLocation: false,
         inputFocus: false
@@ -223,6 +235,9 @@ export default {
   },
 
   methods: {
+    toggleFilter() {
+      this.status.filter.active = !this.status.filter.active
+    },
     apply(item, message) {
       this.$axios
         .post(`/api/${item.type}/apply/${item.id}`, { message: message })
@@ -548,9 +563,10 @@ export default {
   transform: translateX(-50%);
   background: #f7f7f7;
   padding: 16px;
-  padding-top: 24px;
+  padding-top: 0;
+  opacity: 1;
   box-shadow: 0 16px 24px 0 rgba(0, 0, 0, 0.3);
-
+  transition: all 0.3s ease;
   .checkbox {
     display: inline-block;
     cursor: pointer;
@@ -573,6 +589,44 @@ export default {
     margin-top: 0;
     float: right;
   }
+  .toggle {
+    text-align: center;
+    padding: 16px 0 8px 0;
+    -webkit-tap-highlight-color: transparent;
+
+    cursor: pointer;
+    img {
+      cursor: pointer;
+    }
+  }
+}
+.filter--hide {
+  bottom: -250px;
+  opacity: 0;
+  z-index: 0;
+}
+.filter-expand {
+  z-index: 1000;
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  background: white;
+  transform: translateX(-50%);
+  opacity: 1;
+
+  display: inline-block;
+  padding: 8px 8px 6px 8px;
+  text-align: center;
+  user-select: none;
+  border: solid 1px #227bc0;
+  border-radius: 4px;
+
+  img {
+    width: 20px;
+  }
+}
+.filter-expand--hide {
+  opacity: 0;
 }
 
 @media (min-width: 641px) and (max-width: 1280px) {
@@ -592,8 +646,10 @@ export default {
     max-width: unset !important;
     // height: 80vh !important;
     max-height: 80vh !important;
+    padding-left: 0;
   }
   .info-window-item {
+    padding: 14px;
     h4 {
       font-size: 16px;
     }

@@ -1,14 +1,17 @@
-<template lang="pug">
+<template lang='pug'>
   div
+    modal
     navbar
     .placeholder
     nuxt
+
 </template>
 <script>
 import navbar from '~/components/navbar.vue'
+import modal from '~/components/modal.vue'
 
 export default {
-  components: { navbar },
+  components: { navbar, modal },
   mounted() {
     if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
       this.$store.dispatch('user/REQUEST_USER')
@@ -16,7 +19,7 @@ export default {
   }
 }
 </script>
-<style>
+<style lang='scss'>
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -66,13 +69,5 @@ html {
 }
 .placeholder {
   height: 56px;
-}
-.wrap-map {
-  z-index: -1;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
 }
 </style>

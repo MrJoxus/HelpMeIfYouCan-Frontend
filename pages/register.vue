@@ -26,7 +26,7 @@
 
 <script>
 export default {
-  layout: 'with-map',
+  layout: 'default',
   data: function() {
     return {
       error: false,

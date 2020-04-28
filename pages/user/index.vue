@@ -55,6 +55,8 @@
                 @click="sumbitAddressForm"
                 :class='{"object--vibrate": error.noGeolocation}'
                 ) Adresse verifizieren
+          gmaps.map-verification(v-if='windowWidth <= 640 && userEdit')
+
         hr
         div.user-items
           p.user-item.title(v-if="!userEdit") Telefon Nummer
@@ -92,15 +94,21 @@
             .right
               button.no-button.cancel(@click="$store.commit('user/UPDATE_USER_EDIT', false), resetUserForm()") abbrechen
               button.button.update(@click="sumbitUserForm") Profil aktualisieren
+    gmaps(v-if='windowWidth > 640')
 
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
-  layout: 'with-map',
+  layout: 'default',
+  components: { gmaps },
+  ayout: 'default',
   middleware: 'auth',
   data: function() {
     return {
+      windowWidth: undefined,
       userForm: {
         user: {
           name: undefined,
@@ -140,7 +148,7 @@ export default {
     }
   },
   methods: {
-    deleteUser() {
+    deleteUser(e) {
       e.preventDefault()
       let firstConfirmation = confirm('Möchtest du dein Profil löschen?')
       if (firstConfirmation) {
@@ -291,6 +299,9 @@ export default {
         this.userForm.address.district = ''
         this.userForm.address.houseNumber = ''
       }
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth
     }
   },
   computed: {
@@ -321,6 +332,12 @@ export default {
   mounted() {
     this.$store.commit('gmaps/INCREMENT_CENTER_TRIGGER')
     this.setUserForm()
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>
@@ -459,11 +476,18 @@ export default {
       top: 0;
       left: 0;
       width: 100%;
+      padding: 24px;
       transform: unset;
       padding-top: 56px;
       box-shadow: unset;
       .user-items {
         display: block;
+      }
+      .map-verification {
+        position: static;
+        width: 100%;
+        height: 240px;
+        margin-bottom: 32px;
       }
       .user-item {
         width: 100%;
