@@ -405,6 +405,14 @@ export default {
             color: white;
           }
         }
+        .button-wrapper {
+          height: 48px;
+          text-align: right;
+          a {
+            font-size: 13.33px;
+            margin-right: 0;
+          }
+        }
       }
     }
   }
@@ -453,6 +461,7 @@ export default {
       width: 100%;
       transform: unset;
       padding-top: 56px;
+      box-shadow: unset;
       .user-items {
         display: block;
       }
@@ -467,6 +476,9 @@ export default {
         }
         &.input {
           margin-bottom: 16px;
+        }
+        .search-address {
+          height: 48px;
         }
       }
       .update-user {

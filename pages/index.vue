@@ -77,11 +77,15 @@ export default {
 }
 @media (max-width: 640px) {
   .index {
+    height: 100%;
+
     .main-content {
       position: static;
       width: 100%;
+      height: 100%;
       transform: unset;
       padding-top: 56px;
+      box-shadow: unset;
     }
     .card {
       width: 100%;

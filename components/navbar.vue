@@ -51,7 +51,7 @@
         @click='navbarItemsMobile = !navbarItemsMobile'
         v-show='navbarItemsMobile'
         )
-        nuxt-link.navbar-item.with-img(to='/create')
+        nuxt-link.navbar-item.with-img(to='/create' v-if='$auth.loggedIn')
           span Neue Anzeige
           .navbar-item-img
             img(src="../assets/img/add.png")

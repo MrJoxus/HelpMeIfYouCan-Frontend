@@ -85,6 +85,9 @@ export default {
   }
 }
 @media (max-width: 640px) {
+  body {
+    background: #f7f7f7;
+  }
   .register {
     .form-wrapper {
       position: relative;
@@ -93,6 +96,7 @@ export default {
       width: 100%;
       transform: unset;
       padding-top: 56px;
+      box-shadow: unset;
     }
   }
 }

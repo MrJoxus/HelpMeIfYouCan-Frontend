@@ -12,7 +12,7 @@
           .item(v-for='item in userHelpOR') {{ setModel(item.id, item.description) }}
             p.mesage-title Nachricht:
             p.date {{formatTime(item.datePublished, "DM")}} {{formatTime(item.datePublished, "HM")}}
-            p(v-if='!(item.id == edit)') {{item.description}}
+            p.message-body(v-if='!(item.id == edit)') {{item.description}}
             textarea.input-textarea(
               v-if='item.id == edit'
               v-model='model.parent_id[item.id]')
@@ -70,6 +70,8 @@ export default {
         .patch(`/api/${type}/${id}`, { description: description })
         .then(response => {
           this.$store.dispatch('user/REQUEST_USER')
+          this.$store.dispatch('modal/FLASH_MODAL', 'tick')
+
           this.edit = undefined
         })
         .catch(error => {
@@ -130,7 +132,6 @@ export default {
       show: { filter: false, markers: false }
     })
   },
-  destroyed() {}
 }
 </script>
 
@@ -188,6 +189,9 @@ export default {
       .mesage-title {
         display: inline-block;
       }
+      .message-body {
+        word-break: break-all;
+      }
       .date {
         display: inline-block;
         float: right;
@@ -217,6 +221,31 @@ export default {
           }
         }
       }
+    }
+  }
+}
+@media (max-width: 640px) {
+  .user-applications {
+    .main-content {
+      position: static;
+      transform: unset;
+      width: 100%;
+      height: 100%;
+      box-shadow: unset;
+      padding-bottom: 32px;
+      .headline {
+        padding-top: 24px;
+      }
+    }
+    .items-wrapper {
+      overflow: unset;
+      max-height: unset;
+    }
+    .items {
+      height: auto;
+      max-height: unset;
+      padding-left: 16px;
+      padding-right: 16px;
     }
   }
 }

@@ -51,6 +51,9 @@
 
         //- messagebody
         div.message-body(v-if='activeApplication.id')
+          img.cancel(
+            src='~assets/img/cancel_2.png'
+            @click='activeApplication = {}')
 
           //- received
           template(v-if='show == "received"')
@@ -183,9 +186,6 @@ export default {
           console.log('error', error)
         })
     }
-  },
-  created() {
-    // this.$store.dispatch('user/REQUEST_USER')
   }
 }
 </script>
@@ -241,6 +241,7 @@ export default {
     color: black;
     border-bottom: 1px solid #bbb;
     border-left: 4px solid green;
+    -webkit-tap-highlight-color: transparent;
 
     cursor: pointer;
     .message-header {
@@ -276,6 +277,9 @@ export default {
   .message-body {
     position: relative;
     width: 60%;
+    .cancel {
+      display: none;
+    }
     .content {
       overflow-y: scroll;
       height: calc(100% - 108px);
@@ -309,6 +313,44 @@ export default {
     .message-body_options--send {
       height: 49px;
       margin-bottom: 32px;
+    }
+  }
+}
+@media (max-width: 640px) {
+  .inbox {
+    .main-content {
+      position: static;
+      transform: unset;
+      width: 100%;
+      height: calc(100vh - 56px);
+    }
+    .inbox-window {
+      height: unset;
+      display: block;
+    }
+    .messages {
+      width: 100%;
+      border-right: unset;
+    }
+    .message-body {
+      backdrop-filter: blur(4px);
+      z-index: 1001;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background: white;
+      .cancel {
+        display: block;
+        position: absolute;
+        top: 32px;
+        right: 32px;
+        width: 16px;
+      }
+      .message-body_options {
+        bottom: 56px;
+      }
     }
   }
 }
