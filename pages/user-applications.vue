@@ -34,7 +34,7 @@
 
 <script>
 export default {
-  layout: 'with-map',
+  layout: 'default',
   middleware: 'auth',
   data: function() {
     return {

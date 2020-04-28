@@ -4,17 +4,14 @@
     navbar
     .placeholder
     nuxt
-    gmaps
-
 
 </template>
 <script>
 import navbar from '~/components/navbar.vue'
-import gmaps from '~/components/gmaps.vue'
 import modal from '~/components/modal.vue'
 
 export default {
-  components: { navbar, gmaps, modal },
+  components: { navbar, modal },
   mounted() {
     if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
       this.$store.dispatch('user/REQUEST_USER')
