@@ -30,7 +30,6 @@
                 v-if='item.id == edit'
                 @click='deleteItem(item.type, item.id)')
                 img(src='~/assets/img/delete.png')
-    gmaps(v-if='windowWidth > 1280')
 
 </template>
 
@@ -143,6 +142,9 @@ export default {
     })
   },
   mounted() {
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
     window.addEventListener('resize', this.onResize)
     this.onResize()
   },
@@ -185,7 +187,6 @@ export default {
     padding-left: 40px;
     padding-right: 32px;
     .empty {
-      opacity: 0;
       padding-top: 24px;
     }
     .item {

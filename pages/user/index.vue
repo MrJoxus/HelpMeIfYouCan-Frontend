@@ -94,7 +94,6 @@
             .right
               button.no-button.cancel(@click="$store.commit('user/UPDATE_USER_EDIT', false), resetUserForm()") abbrechen
               button.button.update(@click="sumbitUserForm") Profil aktualisieren
-    gmaps(v-if='windowWidth > 1280')
 
 </template>
 
@@ -330,6 +329,9 @@ export default {
     }
   },
   mounted() {
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
     this.$store.commit('gmaps/INCREMENT_CENTER_TRIGGER')
     this.setUserForm()
     window.addEventListener('resize', this.onResize)

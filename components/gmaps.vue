@@ -3,13 +3,13 @@
     transition
       .filter-expand(
         :class='{"filter-expand--hide": status.filter.active}'
-        v-if='store.status.show.filter'
+        v-if='gmaps.status.show.filter'
         @click='toggleFilter()')
         img(
           src='~/assets/img/search_2.png')
     .filter(
       :class='{"filter--hide": !status.filter.active}'
-      v-if='store.status.show.filter')
+      v-if='gmaps.status.show.filter')
       .toggle
         img(
           @click='toggleFilter()'
@@ -49,7 +49,7 @@
         div.info-window(ref='infoWindow')
           .info-window-item(
             v-for='(item, index) in infoWindowContent'
-            @click='status.infoWindow.item = item.id'
+            @click.stop='openApplication(item.id)'
             :class='{"info-window-item--active": status.infoWindow.item == item.id}'
             )
             h4(v-if='item.type == "help-offer"') {{ item.userName }} möchte helfen
@@ -62,9 +62,9 @@
               )
             .options
               span.button-wrapper(v-if='!status.infoWindow.textarea')
-                button.button.uncollapse(@click='uncollapseTextArea()') Kontaktier mich!
+                button.button.uncollapse(@click.stop='uncollapseTextArea()') Kontaktier mich!
               span.button-wrapper(v-else)
-                button.no-button.collapse(@click='collapseTextArea()') abbrechen
+                button.no-button.collapse(@click.stop='collapseTextArea()') abbrechen
                 button.button.send(@click='apply(item, model.parent_id[index + item.id])') Abschicken
 
 </template>
@@ -73,10 +73,11 @@
 let GoogleMapsApiLoader = require('google-maps-api-loader')
 
 export default {
+  props: ['type'],
+
   data: function() {
     return {
       loaded: undefined,
-      google: undefined,
       lastFetchedLoacation: undefined,
       gObjects: {
         map: undefined,
@@ -118,7 +119,7 @@ export default {
           textarea: false
         },
         filter: {
-          active: true
+          active: false
         },
         geoLocation: false,
         inputFocus: false
@@ -126,7 +127,7 @@ export default {
     }
   },
   computed: {
-    store() {
+    gmaps() {
       return this.$store.state.gmaps
     },
     center() {
@@ -137,9 +138,6 @@ export default {
     },
     showMarkers() {
       return this.$store.state.gmaps.status.show.markers
-    },
-    mapLoaded() {
-      return this.$store.state.gmaps.status.loaded.map
     },
     locations() {
       return this.$store.state.gmaps.locations
@@ -161,10 +159,18 @@ export default {
     },
     triggerCluster() {
       return this.$store.state.gmaps.trigger.cluster
+    },
+    google() {
+      return this.$store.state.gmaps.google
     }
   },
 
   watch: {
+    google() {
+      if (this.google && !this.gObjects.map) {
+        this.initMap()
+      }
+    },
     center: function() {
       if (this.gObjects.map) {
         this.gObjects.map.panTo(this.center)
@@ -172,7 +178,7 @@ export default {
       }
     },
     centerTrigger() {
-      if (this.mapLoaded) {
+      if (this.gObjects.map) {
         if (this.userLocation.lat != undefined) {
           this.gObjects.map.panTo(this.userLocation)
         }
@@ -181,13 +187,9 @@ export default {
     showMarkers: function() {
       this.showMarkers ? this.showAllMarkers() : this.clearAllMarkers()
     },
-    mapLoaded() {
-      this.initMarker()
-      this.initMarkerCluster()
-      this.initInfoWindow()
-    },
+
     locations() {
-      if (this.mapLoaded) {
+      if (this.gObjects.map) {
         let currentLength = this.gObjects.markers.length
         let newLength = this.locations.length
         let diff = newLength - currentLength
@@ -202,32 +204,17 @@ export default {
         lat: this.currentLocation.lat,
         lng: this.currentLocation.lng
       }
-      if (this.mapLoaded) {
+      if (this.gObjects.map) {
         this.getLocations(this.mapParameters.center)
 
         this.gObjects.map.panTo(this.mapParameters.center)
       }
     },
     userLocation() {
-      this.mapParameters.center = {
-        lat: this.userLocation.lat,
-        lng: this.userLocation.lng
-      }
-      if (this.mapLoaded) {
-        this.gObjects.map.panTo(this.mapParameters.center)
-        if (this.gObjects.userMarker != undefined) {
-          this.gObjects.userMarker.setPosition(this.userLocation)
-        } else {
-          this.gObjects.userMarker = new this.google.maps.Marker({
-            position: this.mapParameters.center,
-            map: this.gObjects.map,
-            icon: require('~/assets/img/user.png')
-          })
-        }
-      }
+      this.setUser()
     },
     triggerCluster() {
-      if (this.mapLoaded) {
+      if (this.gObjects.map && this.gObjects.markerCluster) {
         this.gObjects.markerCluster.clearMarkers()
         this.gObjects.markerCluster.addMarkers(this.gObjects.markers)
       }
@@ -235,20 +222,23 @@ export default {
   },
 
   methods: {
+    setUser() {
+      if (this.userLocation.lat && this.gObjects.map) {
+        this.gObjects.map.panTo(this.userLocation)
+        if (this.gObjects.userMarker != undefined) {
+          this.gObjects.userMarker.setPosition(this.userLocation)
+        } else {
+          this.gObjects.userMarker = new this.google.maps.Marker({
+            position: this.userLocation,
+            map: this.gObjects.map,
+            icon: require('~/assets/img/user.png')
+          })
+        }
+      }
+    },
+    // filter
     toggleFilter() {
       this.status.filter.active = !this.status.filter.active
-    },
-    apply(item, message) {
-      this.$axios
-        .post(`/api/${item.type}/apply/${item.id}`, { message: message })
-        .then(response => {
-          this.$store.dispatch('modal/FLASH_MODAL', 'tick')
-          this.gObjects.infoWindow.close()
-          this.$store.dispatch('user/REQUEST_USER')
-        })
-        .catch(error => {
-          console.log(error)
-        })
     },
     submitFilter(e) {
       e.preventDefault()
@@ -300,6 +290,28 @@ export default {
       }
       navigator.geolocation.getCurrentPosition(success, error)
     },
+    // infowindow
+    initInfoWindow(content) {
+      this.gObjects.infoWindow = new google.maps.InfoWindow({
+        content: this.$refs.infoWindow
+      })
+    },
+    apply(item, message) {
+      this.$axios
+        .post(`/api/${item.type}/apply/${item.id}`, { message: message })
+        .then(response => {
+          this.$store.dispatch('modal/FLASH_MODAL', 'tick')
+          this.gObjects.infoWindow.close()
+          this.$store.dispatch('user/REQUEST_USER')
+        })
+        .catch(error => {
+          console.log('error', error)
+        })
+    },
+    openApplication(id) {
+      this.status.infoWindow.item = id
+      this.status.infoWindow.textarea = false
+    },
     uncollapseTextArea() {
       this.status.infoWindow.textarea = true
       setTimeout(() => {
@@ -309,50 +321,7 @@ export default {
     collapseTextArea() {
       this.status.infoWindow.textarea = false
     },
-    initMap() {
-      let self = this
-      let loaded = new Promise(function(resolve, reject) {
-        self.gObjects.map = new self.google.maps.Map(
-          self.$refs.map,
-          self.mapParameters
-        )
-        if (self.gObjects.map) {
-          resolve()
-        }
-      })
-      // script loaded
-      loaded.then(function() {
-        self.gObjects.map.addListener('dragend', function() {
-          self.fetchNewLocation()
-        })
-        self.$store.commit('gmaps/UPDATE_STATUS', { loaded: { map: true } })
-
-        self.gObjects.map.addListener('drag', () => {
-          if (self.status.inputFocus) self.$refs.addressInput.blur()
-        })
-        if (self.userLocation.lat && self.$auth.loggedIn) {
-          if (self.gObjects.userMarker != undefined) {
-            self.gObjects.userMarker.setPosition(self.userLocation)
-          } else {
-            self.gObjects.userMarker = new self.google.maps.Marker({
-              position: self.mapParameters.center,
-              map: self.gObjects.map,
-              icon: require('~/assets/img/user.png')
-            })
-          }
-        }
-      })
-    },
-    initMarkerCluster() {
-      this.gObjects.markerCluster = new MarkerClusterer(
-        this.gObjects.map,
-        this.gObjects.markers,
-        {
-          imagePath:
-            'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
-        }
-      )
-    },
+    // marker
     initMarker(obj) {
       if (obj == undefined) {
         this.locations.forEach(location => {
@@ -364,13 +333,16 @@ export default {
         })
       }
     },
-
-    initInfoWindow(content) {
-      this.gObjects.infoWindow = new google.maps.InfoWindow({
-        content: this.$refs.infoWindow
-      })
+    initMarkerCluster() {
+      this.gObjects.markerCluster = new MarkerClusterer(
+        this.gObjects.map,
+        this.gObjects.markers,
+        {
+          imagePath:
+            'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+        }
+      )
     },
-
     addMarker(location) {
       let markerIndex = this.gObjects.markers.length
       let marker = new this.google.maps.Marker({
@@ -378,6 +350,7 @@ export default {
         map: this.gObjects.map
       })
 
+      // infowindow setup
       marker.addListener('click', () => {
         this.currentMarker = marker
         this.gObjects.infoWindow.close()
@@ -410,13 +383,17 @@ export default {
         marker.setMap(this.gObjects.map)
       })
     },
+
     clearAllMarkers() {
-      this.gObjects.markerCluster.clearMarkers()
+      if (this.gObjects.markerCluster) {
+        this.gObjects.markerCluster.clearMarkers()
+      }
       this.gObjects.markers.forEach(marker => {
         marker.setMap(null)
       })
       this.gObjects.markers = []
     },
+    // fetch data
     getLocations(location) {
       this.$store.dispatch('gmaps/GET_HELP_O_R_ARRAY', {
         type: 'help-offer',
@@ -450,22 +427,50 @@ export default {
         this.lastFetchedLoacation = newLocation
         this.getLocations(newLocation)
       }
+    },
+    // map
+    initMap() {
+      let loaded = new Promise((resolve, reject) => {
+        this.gObjects.map = new this.google.maps.Map(
+          this.$refs.map,
+          this.mapParameters
+        )
+        if (this.gObjects.map) {
+          resolve()
+        }
+      })
+      loaded.then(() => {
+        this.$store.commit('gmaps/UPDATE_STATUS', { loaded: { map: true } })
+        if (this.showMarkers) {
+          this.initMarker()
+          this.initMarkerCluster()
+        } else {
+          this.clearAllMarkers()
+        }
+        this.initInfoWindow()
+        if (this.userLocation.lat) {
+          this.setUser()
+        }
+
+        this.gObjects.map.addListener('dragend', () => {
+          this.fetchNewLocation()
+        })
+        this.gObjects.map.addListener('drag', () => {
+          if (this.status.inputFocus) {
+            this.$refs.addressInput.blur()
+          }
+        })
+      })
     }
   },
 
-  async mounted() {
-    try {
-      const google = GoogleMapsApiLoader({
-        apiKey: process.env.GOOGLE_API_KEY,
-        libraries: ['geometry']
-      })
-      this.loaded = google
-    } catch (e) {}
-    this.google = await this.loaded
-    this.initMap()
-    if ('geolocation' in navigator) {
-      this.status.geoLocation = true
+  mounted() {
+    if (this.google && !this.gObjects.map) {
+      this.initMap()
     }
+    // if ('geolocation' in navigator) {
+    //   this.status.geoLocation = true
+    // }
   }
 }
 </script>
@@ -518,9 +523,10 @@ export default {
     border-radius: 4px;
     border: 1px solid #919191;
     resize: none;
-    transition: all 0.2s ease;
+    transition: all 0.05s ease;
   }
   .collapsed {
+    display: none;
     height: 0px;
     opacity: 0;
     padding: 0;

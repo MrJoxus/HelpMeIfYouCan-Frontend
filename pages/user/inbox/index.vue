@@ -91,7 +91,6 @@
               button.button.button--alert(@click='deleteApplication(activeApplication)') Anfrage zurücknehmen
               p.info Wenn {{ activeApplication.userName}} dein Angebot oder deine Anfrage annimmt, werden deine Kontaktdaten an
                 |  {{activeApplication.userName}} weitergegeben. Zeitgleich erhälst du die Kontaktdaten von {{activeApplication.userName}}
-    gmaps(v-if='windowWidth > 1280')
 
 </template>
 
@@ -196,6 +195,9 @@ export default {
     }
   },
   mounted() {
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
     window.addEventListener('resize', this.onResize)
     this.onResize()
   },

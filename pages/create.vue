@@ -51,7 +51,6 @@
       gmaps(v-if='windowWidth <= 1280')
       .button-wrapper( v-if='requestForm.coordinates.latitude')
         button.button(@click='submitRequest()') Abschicken
-    gmaps(v-if='windowWidth > 1280')
 
 </template>
 
@@ -161,6 +160,9 @@ export default {
     this.type = this.$route.query.type
   },
   mounted() {
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
     window.addEventListener('resize', this.onResize)
     this.onResize()
   },
