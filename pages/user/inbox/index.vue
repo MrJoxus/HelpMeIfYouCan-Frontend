@@ -140,7 +140,6 @@ export default {
       }
     },
     updateactiveApplication(application) {
-      console.log(application)
       if (!application.read) {
         if (!(!application.lastName && this.show == 'send')) {
           this.$store.dispatch('user/MESSAGE_READ', application.id)

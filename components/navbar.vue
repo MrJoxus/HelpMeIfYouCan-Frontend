@@ -111,10 +111,14 @@ export default {
       this.navbarItemsMobile = false
     },
     closeProfileDropdown(e) {
-      let el = this.$refs.dropdownMenu
-      let target = e.target
+      let dropdownMenu = this.$refs.dropdownMenu
+      let clickedElement = e.target
       let parent = this.$refs.parentDropdownMenu
-      if (el !== target && parent !== target && !el.contains(target)) {
+      if (
+        dropdownMenu !== clickedElement &&
+        parent !== clickedElement &&
+        !dropdownMenu.contains(clickedElement)
+      ) {
         this.dropdown = false
       }
     },
