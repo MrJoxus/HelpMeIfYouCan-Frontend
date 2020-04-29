@@ -13,7 +13,7 @@
 </template>
 <script>
 export default {
-  layout: 'with-map',
+  layout: 'default',
   data: function() {
     return {
       login: {
@@ -37,6 +37,9 @@ export default {
 .login {
 }
 @media (max-width: 640px) {
+  body {
+    background: #f7f7f7;
+  }
   .login {
     .form-wrapper {
       position: relative;
@@ -45,6 +48,7 @@ export default {
       width: 100%;
       transform: unset;
       padding-top: 56px;
+      box-shadow: unset;
     }
   }
 }

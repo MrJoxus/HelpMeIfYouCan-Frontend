@@ -51,7 +51,7 @@
         @click='navbarItemsMobile = !navbarItemsMobile'
         v-show='navbarItemsMobile'
         )
-        nuxt-link.navbar-item.with-img(to='/create')
+        nuxt-link.navbar-item.with-img(to='/create' v-if='$auth.loggedIn')
           span Neue Anzeige
           .navbar-item-img
             img(src="../assets/img/add.png")
@@ -111,10 +111,14 @@ export default {
       this.navbarItemsMobile = false
     },
     closeProfileDropdown(e) {
-      let el = this.$refs.dropdownMenu
-      let target = e.target
+      let dropdownMenu = this.$refs.dropdownMenu
+      let clickedElement = e.target
       let parent = this.$refs.parentDropdownMenu
-      if (el !== target && parent !== target && !el.contains(target)) {
+      if (
+        dropdownMenu !== clickedElement &&
+        parent !== clickedElement &&
+        !dropdownMenu.contains(clickedElement)
+      ) {
         this.dropdown = false
       }
     },
@@ -298,7 +302,7 @@ $navbar-height: 56px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1280px) {
   .navbar-items-trigger {
     display: block;
   }
@@ -319,7 +323,7 @@ $navbar-height: 56px;
   }
 }
 
-@media (min-width: 641px) {
+@media (min-width: 1281px) {
   .navbar-items-mobile {
     display: none;
   }

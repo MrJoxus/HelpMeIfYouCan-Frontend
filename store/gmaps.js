@@ -8,6 +8,7 @@ export const state = () => ({
   userLocation: { lat: undefined, lng: undefined },
   createRequestLocation: { lat: undefined, lng: undefined },
   userHelpOR: [],
+  google: undefined,
   status: {
     loaded: {
       map: false
@@ -23,6 +24,9 @@ export const state = () => ({
 })
 
 export const mutations = {
+  SET_GOOGLE(state, payload){
+    state.google = payload
+  },
   INCREMENT_CENTER_TRIGGER(state) {
     state.centerTrigger++
   },

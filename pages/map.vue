@@ -1,13 +1,13 @@
 <template lang="pug">
-  .page-map
-
+  .map
 </template>
 <script>
 export default {
-  layout: 'with-map',
+  layout: 'default',
   middleware: 'auth',
   data: function() {
     return {
+      windowWidth: undefined,
       filter: {
         helpOffer: true,
         helpRequest: true,
@@ -36,9 +36,12 @@ export default {
         type: 'help-request',
         coordinates: location
       })
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth
     }
   },
-  created() {
+  mounted() {
     let location = {
       lat: this.userLocation.lat || this.$store.state.gmaps.center.lat,
       lng: this.userLocation.lng || this.$store.state.gmaps.center.lng
@@ -47,13 +50,16 @@ export default {
 
     this.$store.commit('gmaps/INCREMENT_CENTER_TRIGGER')
     this.$store.commit('gmaps/UPDATE_STATUS', {
-      show: { filter: true, markers: true }
-    })
-  },
-  destroyed() {
-    this.$store.commit('gmaps/UPDATE_STATUS', {
       show: { filter: false, markers: false }
     })
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: true, markers: true }
+    })
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+  destroyed() {
+    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>

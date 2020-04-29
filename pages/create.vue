@@ -46,17 +46,24 @@
           name='district'
           placeholder='Ort'
           )
-        button.no-button.search-address(@click='sumbitAddressForm()') Adresse suchen
-      button.button(v-if='requestForm.coordinates.latitude' @click='submitRequest()') Abschicken
+        .button-wrapper(v-if='!requestForm.coordinates.latitude')
+          button.button.search-address(@click='sumbitAddressForm()') Adresse verifizieren
+      gmaps(v-if='windowWidth <= 1280')
+      .button-wrapper( v-if='requestForm.coordinates.latitude')
+        button.button(@click='submitRequest()') Abschicken
 
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
-  layout: 'with-map',
+  layout: 'default',
+  components: { gmaps },
   middleware: 'auth',
   data: function() {
     return {
+      windowWidth: undefined,
       type: undefined,
       requestForm: {
         address: {
@@ -135,6 +142,9 @@ export default {
         zipCode: this.address.zipCode || '',
         district: this.address.district || ''
       }
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth
     }
   },
   created() {
@@ -148,6 +158,17 @@ export default {
       type: 'createRequestLocation'
     })
     this.type = this.$route.query.type
+  },
+  mounted() {
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>
@@ -155,7 +176,6 @@ export default {
 <style lang='scss'>
 .create {
   position: static;
-  background: red;
   .main-content {
     position: absolute;
     top: calc(56px + 56px);
@@ -217,20 +237,43 @@ export default {
     transition: all 0.2s ease;
   }
   .search-address {
-    float: right;
     cursor: pointer;
+    margin-right: 0;
+  }
+  .button-wrapper {
+    height: 48px;
+    text-align: right;
+    button {
+      margin-right: 0;
+    }
+    a {
+      font-size: 13.33px;
+      margin-right: 0;
+    }
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 1280px) {
   .create {
     .main-content {
       position: relative;
       top: 0;
       left: 0;
       width: 100%;
+      padding: 24px;
       transform: unset;
       padding-top: 56px;
+      box-shadow: unset;
+    }
+    .map-wrapper {
+      position: static;
+      box-sizing: border-box;
+      height: 300px;
+      width: 100%;
+      background: #f7f7f7;
+      margin: 32px 0;
+      padding: 0 16px;
+      border-radius: 4px;
     }
   }
 }
@@ -238,8 +281,7 @@ export default {
 @media (min-width: 641px) and (max-width: 1280px) {
   .create {
     .main-content {
-      left: 50%;
-      transform: translateX(-50%);
+      width: 640px;
     }
   }
 }

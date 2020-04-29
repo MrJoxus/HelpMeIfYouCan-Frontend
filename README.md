@@ -3,6 +3,11 @@
 Frontend for Project HelpMeIfYouCan 
 > Version 0.0.2
 
+## Dependencies
+
+node: 12.16
+npm: 6.13
+
 ## Build Setup
 
 Fill out .env-example and rename it to .env

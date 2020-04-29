@@ -32,8 +32,7 @@ export default {
       return this.$store.state.modal.flash
     }
   },
-  methods: {
-  }
+  methods: {}
 }
 </script>
 
@@ -56,7 +55,7 @@ export default {
     transform: translate(-50%, -50%);
     user-select: none;
     transition: all 1.5s ease;
-    img.cancel{
+    img.cancel {
       margin-top: 64px;
       margin-left: 64px;
       width: 50%;
@@ -65,6 +64,20 @@ export default {
   .slide {
     top: 48%;
     left: 52%;
+  }
+}
+@media (max-width: 640px) {
+  .modal {
+    .img-wrapper {
+      // width: 128px;
+      // height: 128px;
+      img {
+        margin-left: 64px;
+        margin-top: 64px;
+        width: 128px;
+        height: 128px;
+      }
+    }
   }
 }
 </style>

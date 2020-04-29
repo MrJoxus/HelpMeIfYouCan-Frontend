@@ -55,6 +55,8 @@
                 @click="sumbitAddressForm"
                 :class='{"object--vibrate": error.noGeolocation}'
                 ) Adresse verifizieren
+          gmaps.map-verification(v-if='windowWidth <= 1280 && userEdit')
+
         hr
         div.user-items
           p.user-item.title(v-if="!userEdit") Telefon Nummer
@@ -96,11 +98,16 @@
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
-  layout: 'with-map',
+  layout: 'default',
+  components: { gmaps },
+  ayout: 'default',
   middleware: 'auth',
   data: function() {
     return {
+      windowWidth: undefined,
       userForm: {
         user: {
           name: undefined,
@@ -140,7 +147,7 @@ export default {
     }
   },
   methods: {
-    deleteUser() {
+    deleteUser(e) {
       e.preventDefault()
       let firstConfirmation = confirm('Möchtest du dein Profil löschen?')
       if (firstConfirmation) {
@@ -291,6 +298,9 @@ export default {
         this.userForm.address.district = ''
         this.userForm.address.houseNumber = ''
       }
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth
     }
   },
   computed: {
@@ -319,8 +329,17 @@ export default {
     }
   },
   mounted() {
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
     this.$store.commit('gmaps/INCREMENT_CENTER_TRIGGER')
     this.setUserForm()
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>
@@ -405,6 +424,14 @@ export default {
             color: white;
           }
         }
+        .button-wrapper {
+          height: 48px;
+          text-align: right;
+          a {
+            font-size: 13.33px;
+            margin-right: 0;
+          }
+        }
       }
     }
   }
@@ -444,17 +471,26 @@ export default {
     margin-bottom: 4px;
   }
 }
-@media (max-width: 640px) {
+
+@media (max-width: 1280px) {
   .user {
     .main-content {
       position: relative;
       top: 0;
       left: 0;
       width: 100%;
+      padding: 24px;
       transform: unset;
       padding-top: 56px;
+      box-shadow: unset;
       .user-items {
         display: block;
+      }
+      .map-verification {
+        position: static;
+        width: 100%;
+        height: 240px;
+        margin-bottom: 32px;
       }
       .user-item {
         width: 100%;
@@ -467,6 +503,9 @@ export default {
         }
         &.input {
           margin-bottom: 16px;
+        }
+        .search-address {
+          height: 48px;
         }
       }
       .update-user {
@@ -493,16 +532,11 @@ export default {
     }
   }
 }
-
 @media (min-width: 641px) and (max-width: 1280px) {
   .user {
     .main-content {
-      left: 50%;
-      transform: translateX(-50%);
+      width: 640px;
     }
   }
-}
-
-@media (max-width: 1281px) {
 }
 </style>
