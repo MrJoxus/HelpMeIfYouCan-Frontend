@@ -123,7 +123,8 @@ export default {
           coordinates: {
             latitude: undefined,
             longitude: undefined
-          }
+          },
+          country: 'de'
         },
         password: undefined,
         currentPassword: undefined
@@ -215,13 +216,24 @@ export default {
         }
       }
 
-      // error if new address and geolocation missing
-      if (!this.userForm.address.coordinates.latitude) {
-        this.error.noGeolocation = false
-        setTimeout(() => {
-          this.error.noGeolocation = true
-        }, 0)
-        return
+      // no input
+      if (Object.keys(payload.address).length == 2) {
+        if (
+          this.userData.fullAddress == null &&
+          !this.userForm.address.coordinates.latitude
+        ) {
+          payload.address = {}
+        }
+      }
+      // input
+      else if (Object.keys(payload.address).length >= 3) {
+        if (!this.userForm.address.coordinates.latitude) {
+          this.error.noGeolocation = false
+          setTimeout(() => {
+            this.error.noGeolocation = true
+          }, 0)
+          return
+        }
       }
 
       // key validation password
@@ -261,10 +273,33 @@ export default {
 
     sumbitAddressForm: function(e) {
       e.preventDefault()
-      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        address: this.userForm.address,
-        type: 'userLocation'
-      })
+
+      let payload = {}
+
+      for (let key in this.userForm.address) {
+        let value = this.validate(key, this.userForm.address[key])
+        if (value != null && value != '') {
+          payload[key] = value
+        }
+      }
+
+      console.log(Object.keys(payload).length)
+      if (Object.keys(payload).length < 6) {
+        console.log('nicht vollständig')
+
+        // if (
+        //   this.userData.fullAddress == null &&
+        //   !this.userForm.address.coordinates.latitude
+        // ) {
+        //   payload.address = {}
+        // }
+      }
+
+      // e.preventDefault()
+      // this.$store.dispatch('gmaps/GET_GEOLOCATION', {
+      //   address: this.userForm.address,
+      //   type: 'userLocation'
+      // })
     },
     setUserForm: function() {
       this.userForm.user.name = this.userData.name
