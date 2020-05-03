@@ -12,7 +12,7 @@
           .item(v-for='item in userHelpOR') {{ setModel(item.id, item.description) }}
             p.mesage-title Nachricht:
             p.date {{formatTime(item.datePublished, "DM")}} {{formatTime(item.datePublished, "HM")}}
-            p(v-if='!(item.id == edit)') {{item.description}}
+            p.message-body(v-if='!(item.id == edit)') {{item.description}}
             textarea.input-textarea(
               v-if='item.id == edit'
               v-model='model.parent_id[item.id]')
@@ -30,14 +30,20 @@
                 v-if='item.id == edit'
                 @click='deleteItem(item.type, item.id)')
                 img(src='~/assets/img/delete.png')
+
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
-  layout: 'with-map',
+  layout: 'default',
+  components: { gmaps },
+  ayout: 'default',
   middleware: 'auth',
   data: function() {
     return {
+      windowWidth: undefined,
       edit: undefined,
       model: {
         parent_id: []
@@ -70,6 +76,8 @@ export default {
         .patch(`/api/${type}/${id}`, { description: description })
         .then(response => {
           this.$store.dispatch('user/REQUEST_USER')
+          this.$store.dispatch('modal/FLASH_MODAL', 'tick')
+
           this.edit = undefined
         })
         .catch(error => {
@@ -99,6 +107,9 @@ export default {
       })
       this.$store.commit('gmaps/CLEAR_USER_HELP_O_R')
       this.$store.dispatch('gmaps/GET_USER_HELP_O_R', array)
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth
     }
   },
   computed: {
@@ -130,13 +141,22 @@ export default {
       show: { filter: false, markers: false }
     })
   },
-  destroyed() {}
+  mounted() {
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
+  }
 }
 </script>
 
 <style lang='scss'>
 .user-applications {
-  background: red;
   .main-content {
     position: absolute;
     top: calc(56px + 56px);
@@ -167,7 +187,6 @@ export default {
     padding-left: 40px;
     padding-right: 32px;
     .empty {
-      opacity: 0;
       padding-top: 24px;
     }
     .item {
@@ -187,6 +206,9 @@ export default {
       }
       .mesage-title {
         display: inline-block;
+      }
+      .message-body {
+        word-break: break-all;
       }
       .date {
         display: inline-block;
@@ -217,6 +239,43 @@ export default {
           }
         }
       }
+    }
+  }
+}
+@media (max-width: 1367px) {
+  .user-applications {
+    .map-wrapper {
+      display: none;
+    }
+    .main-content {
+      position: static;
+      transform: unset;
+      width: 100%;
+      height: 100%;
+      box-shadow: unset;
+      padding-bottom: 32px;
+      .headline {
+        padding-top: 40px;
+        box-shadow: unset;
+        background: #f7f7f7;
+      }
+    }
+    .items-wrapper {
+      overflow: unset;
+      max-height: unset;
+    }
+    .items {
+      height: auto;
+      max-height: unset;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+  }
+}
+@media (min-width: 641px) and (max-width: 1367px) {
+  .user-applications {
+    .main-content {
+      width: 640px;
     }
   }
 }

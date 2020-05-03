@@ -1,22 +1,56 @@
-<template lang="pug">
+<template lang='pug'>
   div
+    modal
     navbar
     .placeholder
     nuxt
+    gmaps(v-if='windowWidth > 1367 || $route.fullPath == "/map"')
+
 </template>
 <script>
+import gmaps from '~/components/gmaps.vue'
 import navbar from '~/components/navbar.vue'
+import modal from '~/components/modal.vue'
+let GoogleMapsApiLoader = require('google-maps-api-loader')
 
 export default {
-  components: { navbar },
-  mounted() {
+  components: { navbar, modal, gmaps },
+  data: function() {
+    return {
+      windowWidth: undefined
+    }
+  },
+  methods: {
+    onResize() {
+      this.windowWidth = window.innerWidth
+    }
+  },
+  async mounted() {
+    // load google maps
+    try {
+      const google = GoogleMapsApiLoader({
+        apiKey: process.env.GOOGLE_API_KEY,
+        libraries: ['geometry']
+      })
+      this.loaded = google
+    } catch (e) {}
+    let google = await this.loaded
+    this.$store.commit('gmaps/SET_GOOGLE', google)
+
+    // get User
     if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
       this.$store.dispatch('user/REQUEST_USER')
     }
+
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>
-<style>
+<style lang='scss'>
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -66,13 +100,5 @@ html {
 }
 .placeholder {
   height: 56px;
-}
-.wrap-map {
-  z-index: -1;
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 100vw;
 }
 </style>

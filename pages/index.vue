@@ -18,11 +18,39 @@
       .links
         nuxt-link.button(to="/register" v-if='!$auth.loggedIn') Registriere dich!
         nuxt-link.button(to="/map" v-if='$auth.loggedIn') Zur Karte!
+      gmaps.example-map(v-if='windowWidth <= 1367')
+
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
-  layout: 'with-map'
+  layout: 'default',
+  components: { gmaps },
+  data: function() {
+    return {
+      windowWidth: undefined
+    }
+  },
+  methods: {
+    onResize() {
+      this.windowWidth = window.innerWidth
+    }
+  },
+  mounted() {
+    if (!this.$store.state.user.set && this.$store.state.auth.loggedIn) {
+      this.$store.dispatch('user/REQUEST_USER')
+    }
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
+  }
 }
 </script>
 
@@ -46,7 +74,7 @@ export default {
   }
   .headline {
     .title {
-      text-shadow: 1px 0 6px rgba(0, 0, 0, 0.2);
+      // text-shadow: 1px 0 6px rgba(0, 0, 0, 0.2);
     }
   }
   .links {
@@ -66,26 +94,41 @@ export default {
     color: black;
   }
 }
-@media (min-width: 641px) and (max-width: 1280px) {
+
+@media (max-width: 1367px) {
   .index {
-    .main-content {
-      position: absolute;
-      top: 50%;
-      left: 50%;
+    height: 100%;
+    .example-map {
+      box-sizing: border-box;
+      height: 300px;
+      background: #f7f7f7;
+      padding: 32px;
+      padding-top: 0;
+      border-radius: 4px;
     }
-  }
-}
-@media (max-width: 640px) {
-  .index {
     .main-content {
       position: static;
       width: 100%;
+      height: 100%;
       transform: unset;
-      padding-top: 56px;
+      padding-top: 40px;
+      box-shadow: unset;
     }
     .card {
       width: 100%;
       flex: 1 0 200px;
+    }
+  }
+}
+@media (min-width: 641px) and (max-width: 1367px) {
+  .index {
+    .main-content {
+      width: 640px;
+    }
+    .example-map {
+      position: static;
+      width: 100%;
+      padding-top: 16px;
     }
   }
 }

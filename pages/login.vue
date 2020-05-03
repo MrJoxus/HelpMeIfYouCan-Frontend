@@ -3,8 +3,20 @@
     .form-wrapper
       h1.title Login
       form(@submit="userLogin")
-        input#email(v-model="login.email" type="text" name="email" placeholder="Email")
-        input#password(v-model="login.password" type="password" name="password" placeholder="Passwort")
+        input#email(
+          v-model="login.email"
+          type="text"
+          name="email"
+          placeholder="Email"
+          @keyup="resetError('email')"
+          :class='{"object--vibrate": error.email}')
+        input#password(
+          v-model="login.password"
+          type="password"
+          name="password"
+          placeholder="Passwort"
+          @keyup="resetError('password')"
+          :class='{"object--vibrate": error.password}')
         button.button(type="submit") Login
       div.link--small
         span Brauchst du einen Account?
@@ -13,21 +25,33 @@
 </template>
 <script>
 export default {
-  layout: 'with-map',
+  layout: 'default',
   data: function() {
     return {
       login: {
-        email: 'user@mail.de',
-        password: 'password1'
-      }
+        email: '',
+        password: ''
+      },
+      error: { email: false, password: false }
     }
   },
   methods: {
+    resetError(key) {
+      this.error[key] = false
+    },
     userLogin: function(e) {
       e.preventDefault()
-      this.$auth.loginWith('local', {
-        data: this.login
-      })
+      if (this.login.email == '') {
+        this.error.email = true
+      }
+      if (this.login.password == '') {
+        this.error.password = true
+      }
+      if (!this.error.email && !this.error.password) {
+        this.$auth.loginWith('local', {
+          data: this.login
+        })
+      }
     }
   }
 }
@@ -36,15 +60,23 @@ export default {
 <style lang="scss">
 .login {
 }
-@media (max-width: 640px) {
+input.object--vibrate {
+  border-color: red;
+}
+@media (max-width: 1367px) {
+  body {
+    background: #f7f7f7;
+  }
   .login {
     .form-wrapper {
       position: relative;
       top: 0;
       left: 0;
-      width: 100%;
+      width: 640px;
+      margin: 0 auto;
       transform: unset;
       padding-top: 56px;
+      box-shadow: unset;
     }
   }
 }

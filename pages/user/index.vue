@@ -26,27 +26,32 @@
           div.user-item(v-else)
             input.input.input-street(
               v-model="userForm.address.street"
-              @keyup="resetAddressSearch()"
+              @keyup="resetAddressSearch(), resetError('street')"
               type='text'
-              name="address"
+              name="street"
+              :class='{"object--vibrate": error.street}'
               :placeholder="formPlaceholer.address"
               )
             input.input.input-housenumber(
               v-model="userForm.address.houseNumber"
+              @keyup="resetAddressSearch(), resetError('houseNumber')"
+              :class='{"object--vibrate": error.houseNumber}'
               type='text'
               name="house number"
               placeholder="Nr"
               )
             input.input(
               v-model="userForm.address.zipCode"
-              @keyup="resetAddressSearch()"
+              @keyup="resetAddressSearch(), resetError('zipCode')"
+              :class='{"object--vibrate": error.zipCode}'
               type='text'
               name="zipCode"
               :placeholder="formPlaceholer.zipCode"
               )
             input.input(
               v-model="userForm.address.district"
-              @keyup="resetAddressSearch()"
+              @keyup="resetAddressSearch(), resetError('district')"
+              :class='{"object--vibrate": error.district}'
               type='text'
               name="area"
               :placeholder="formPlaceholer.area")
@@ -55,10 +60,13 @@
                 @click="sumbitAddressForm"
                 :class='{"object--vibrate": error.noGeolocation}'
                 ) Adresse verifizieren
+          p.info(v-if="userEdit") * Die Adresse wird nur für die Verortung auf der Karte und für
+            |  das Erstellen von neuen Anzeigen verwendet und ist eine freiwillige Angabe.
+          gmaps.map-verification(v-if='windowWidth <= 1367 && userEdit')
+
         hr
         div.user-items
-          p.user-item.title(v-if="!userEdit") Telefon Nummer
-          p.user-item.title(v-if="userEdit") Telefon Nummer *
+          p.user-item.title Telefon Nummer
           p.user-item.content(v-if="!userEdit") {{ userData.phoneNr }}
           input.user-item.input(v-else v-model="userForm.user.phoneNr" type='text' name="phoneNr" :placeholder="formPlaceholer.phoneNr")
           p.info(v-if="userEdit") * Deine Telefonnummer ist notwendig, damit die andere Benutzer kontaktieren können und
@@ -96,11 +104,16 @@
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
-  layout: 'with-map',
+  layout: 'default',
+  components: { gmaps },
+  ayout: 'default',
   middleware: 'auth',
   data: function() {
     return {
+      windowWidth: undefined,
       userForm: {
         user: {
           name: undefined,
@@ -116,7 +129,8 @@ export default {
           coordinates: {
             latitude: undefined,
             longitude: undefined
-          }
+          },
+          country: 'de'
         },
         password: undefined,
         currentPassword: undefined
@@ -135,12 +149,16 @@ export default {
       error: {
         noGeolocation: false,
         phoneNr: false,
-        passwordConfirmation: false
+        passwordConfirmation: false,
+        street: false,
+        zipCode: false,
+        district: false,
+        houseNumber: false
       }
     }
   },
   methods: {
-    deleteUser() {
+    deleteUser(e) {
       e.preventDefault()
       let firstConfirmation = confirm('Möchtest du dein Profil löschen?')
       if (firstConfirmation) {
@@ -181,11 +199,14 @@ export default {
       }
     },
     resetAddressSearch: function() {
-      this.error.noGeolocation = false
+      this.resetError('noGeolocation')
       this.userForm.address.coordinates = {
         latitude: undefined,
         longitude: undefined
       }
+    },
+    resetError(key) {
+      this.error[key] = false
     },
     sumbitUserForm: function(e) {
       e.preventDefault()
@@ -208,13 +229,24 @@ export default {
         }
       }
 
-      // error if new address and geolocation missing
-      if (!this.userForm.address.coordinates.latitude) {
-        this.error.noGeolocation = false
-        setTimeout(() => {
-          this.error.noGeolocation = true
-        }, 0)
-        return
+      // no input
+      if (Object.keys(payload.address).length == 2) {
+        if (
+          this.userData.fullAddress == null &&
+          !this.userForm.address.coordinates.latitude
+        ) {
+          payload.address = {}
+        }
+      }
+      // input
+      else if (Object.keys(payload.address).length >= 3) {
+        if (!this.userForm.address.coordinates.latitude) {
+          this.error.noGeolocation = false
+          setTimeout(() => {
+            this.error.noGeolocation = true
+          }, 0)
+          return
+        }
       }
 
       // key validation password
@@ -254,10 +286,36 @@ export default {
 
     sumbitAddressForm: function(e) {
       e.preventDefault()
-      this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-        address: this.userForm.address,
-        type: 'userLocation'
-      })
+
+      let payload = {}
+
+      for (let key in this.userForm.address) {
+        let value = this.validate(key, this.userForm.address[key])
+        if (value != null && value != '') {
+          payload[key] = value
+        }
+      }
+      let keys = Object.keys(payload)
+      if (keys.length < 6) {
+        if (!keys.includes('street')) {
+          this.error.street = true
+        }
+        if (!keys.includes('zipCode')) {
+          this.error.zipCode = true
+        }
+        if (!keys.includes('district')) {
+          this.error.district = true
+        }
+        if (!keys.includes('houseNumber')) {
+          this.error.houseNumber = true
+        }
+      } else {
+        e.preventDefault()
+        this.$store.dispatch('gmaps/GET_GEOLOCATION', {
+          address: this.userForm.address,
+          type: 'userLocation'
+        })
+      }
     },
     setUserForm: function() {
       this.userForm.user.name = this.userData.name
@@ -291,6 +349,9 @@ export default {
         this.userForm.address.district = ''
         this.userForm.address.houseNumber = ''
       }
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth
     }
   },
   computed: {
@@ -319,8 +380,17 @@ export default {
     }
   },
   mounted() {
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
     this.$store.commit('gmaps/INCREMENT_CENTER_TRIGGER')
     this.setUserForm()
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>
@@ -383,9 +453,11 @@ export default {
       }
       .input-housenumber {
         display: inline-block;
-
         width: 25%;
         float: right;
+      }
+      input.object--vibrate {
+        border-color: red;
       }
 
       .search-address {
@@ -403,6 +475,14 @@ export default {
           background: red;
           &:hover {
             color: white;
+          }
+        }
+        .button-wrapper {
+          height: 48px;
+          text-align: right;
+          a {
+            font-size: 13.33px;
+            margin-right: 0;
           }
         }
       }
@@ -444,17 +524,26 @@ export default {
     margin-bottom: 4px;
   }
 }
-@media (max-width: 640px) {
+
+@media (max-width: 1367px) {
   .user {
     .main-content {
       position: relative;
       top: 0;
       left: 0;
       width: 100%;
+      padding: 24px;
       transform: unset;
-      padding-top: 56px;
+      padding-top: 40px;
+      box-shadow: unset;
       .user-items {
         display: block;
+      }
+      .map-verification {
+        position: static;
+        width: 100%;
+        height: 240px;
+        margin-bottom: 32px;
       }
       .user-item {
         width: 100%;
@@ -467,6 +556,9 @@ export default {
         }
         &.input {
           margin-bottom: 16px;
+        }
+        .search-address {
+          height: 48px;
         }
       }
       .update-user {
@@ -493,16 +585,11 @@ export default {
     }
   }
 }
-
-@media (min-width: 641px) and (max-width: 1280px) {
+@media (min-width: 641px) and (max-width: 1367px) {
   .user {
     .main-content {
-      left: 50%;
-      transform: translateX(-50%);
+      width: 640px;
     }
   }
-}
-
-@media (max-width: 1281px) {
 }
 </style>

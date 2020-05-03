@@ -51,6 +51,9 @@
 
         //- messagebody
         div.message-body(v-if='activeApplication.id')
+          img.cancel(
+            src='~assets/img/cancel_2.png'
+            @click='activeApplication = {}')
 
           //- received
           template(v-if='show == "received"')
@@ -92,11 +95,15 @@
 </template>
 
 <script>
+import gmaps from '~/components/gmaps.vue'
+
 export default {
-  layout: 'with-map',
+  layout: 'default',
+  components: { gmaps },
   middleware: 'auth',
   data: function() {
     return {
+      windowWidth: undefined,
       activeApplication: {},
       show: 'received'
     }
@@ -133,7 +140,6 @@ export default {
       }
     },
     updateactiveApplication(application) {
-      console.log(application)
       if (!application.read) {
         if (!(!application.lastName && this.show == 'send')) {
           this.$store.dispatch('user/MESSAGE_READ', application.id)
@@ -182,10 +188,21 @@ export default {
         .catch(error => {
           console.log('error', error)
         })
+    },
+    onResize() {
+      this.windowWidth = window.innerWidth
     }
   },
-  created() {
-    // this.$store.dispatch('user/REQUEST_USER')
+  mounted() {
+    this.$store.commit('gmaps/UPDATE_STATUS', {
+      show: { filter: false, markers: false }
+    })
+    window.addEventListener('resize', this.onResize)
+    this.onResize()
+  },
+
+  beforeDestroy() {
+    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>
@@ -241,6 +258,7 @@ export default {
     color: black;
     border-bottom: 1px solid #bbb;
     border-left: 4px solid green;
+    -webkit-tap-highlight-color: transparent;
 
     cursor: pointer;
     .message-header {
@@ -276,6 +294,9 @@ export default {
   .message-body {
     position: relative;
     width: 60%;
+    .cancel {
+      display: none;
+    }
     .content {
       overflow-y: scroll;
       height: calc(100% - 108px);
@@ -309,6 +330,59 @@ export default {
     .message-body_options--send {
       height: 49px;
       margin-bottom: 32px;
+    }
+  }
+}
+@media (max-width: 640px) {
+  .inbox {
+    .main-content {
+      position: static;
+      transform: unset;
+      width: 100%;
+      height: calc(100vh - 56px);
+    }
+    .inbox-window {
+      height: unset;
+      display: block;
+    }
+    .messages {
+      width: 100%;
+      border-right: unset;
+    }
+    .message-body {
+      backdrop-filter: blur(4px);
+      z-index: 1001;
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      background: white;
+      .cancel {
+        display: block;
+        position: absolute;
+        top: 32px;
+        right: 32px;
+        width: 16px;
+      }
+      .message-body_options {
+        bottom: 56px;
+      }
+    }
+  }
+}
+@media (min-width: 641px) and (max-width: 1367px) {
+  .inbox {
+    .main-content {
+      position: static;
+      transform: unset;
+      width: 100%;
+      height: 100%;
+      box-shadow: unset;
+    }
+    .inbox-window {
+      display: flex;
+      height: calc(100vh - 175px);
     }
   }
 }

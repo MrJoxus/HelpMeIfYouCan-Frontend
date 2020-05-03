@@ -15,7 +15,7 @@
 
 <script>
 export default {
-  layout: "with-map",
+  layout: "default",
 }
 </script>
 
