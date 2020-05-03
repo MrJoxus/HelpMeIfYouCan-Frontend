@@ -242,7 +242,7 @@ export default {
     }
   }
 }
-@media (max-width: 1280px) {
+@media (max-width: 1367px) {
   .user-applications {
     .map-wrapper {
       display: none;
@@ -255,7 +255,7 @@ export default {
       box-shadow: unset;
       padding-bottom: 32px;
       .headline {
-        padding-top: 24px;
+        padding-top: 40px;
         box-shadow: unset;
         background: #f7f7f7;
       }
@@ -272,7 +272,7 @@ export default {
     }
   }
 }
-@media (min-width: 641px) and (max-width: 1280px) {
+@media (min-width: 641px) and (max-width: 1367px) {
   .user-applications {
     .main-content {
       width: 640px;

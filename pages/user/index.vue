@@ -26,27 +26,32 @@
           div.user-item(v-else)
             input.input.input-street(
               v-model="userForm.address.street"
-              @keyup="resetAddressSearch()"
+              @keyup="resetAddressSearch(), resetError('street')"
               type='text'
-              name="address"
+              name="street"
+              :class='{"object--vibrate": error.street}'
               :placeholder="formPlaceholer.address"
               )
             input.input.input-housenumber(
               v-model="userForm.address.houseNumber"
+              @keyup="resetAddressSearch(), resetError('houseNumber')"
+              :class='{"object--vibrate": error.houseNumber}'
               type='text'
               name="house number"
               placeholder="Nr"
               )
             input.input(
               v-model="userForm.address.zipCode"
-              @keyup="resetAddressSearch()"
+              @keyup="resetAddressSearch(), resetError('zipCode')"
+              :class='{"object--vibrate": error.zipCode}'
               type='text'
               name="zipCode"
               :placeholder="formPlaceholer.zipCode"
               )
             input.input(
               v-model="userForm.address.district"
-              @keyup="resetAddressSearch()"
+              @keyup="resetAddressSearch(), resetError('district')"
+              :class='{"object--vibrate": error.district}'
               type='text'
               name="area"
               :placeholder="formPlaceholer.area")
@@ -55,12 +60,13 @@
                 @click="sumbitAddressForm"
                 :class='{"object--vibrate": error.noGeolocation}'
                 ) Adresse verifizieren
-          gmaps.map-verification(v-if='windowWidth <= 1280 && userEdit')
+          p.info(v-if="userEdit") * Die Adresse wird nur für die Verortung auf der Karte und für
+            |  das Erstellen von neuen Anzeigen verwendet und ist eine freiwillige Angabe.
+          gmaps.map-verification(v-if='windowWidth <= 1367 && userEdit')
 
         hr
         div.user-items
-          p.user-item.title(v-if="!userEdit") Telefon Nummer
-          p.user-item.title(v-if="userEdit") Telefon Nummer *
+          p.user-item.title Telefon Nummer
           p.user-item.content(v-if="!userEdit") {{ userData.phoneNr }}
           input.user-item.input(v-else v-model="userForm.user.phoneNr" type='text' name="phoneNr" :placeholder="formPlaceholer.phoneNr")
           p.info(v-if="userEdit") * Deine Telefonnummer ist notwendig, damit die andere Benutzer kontaktieren können und
@@ -143,7 +149,11 @@ export default {
       error: {
         noGeolocation: false,
         phoneNr: false,
-        passwordConfirmation: false
+        passwordConfirmation: false,
+        street: false,
+        zipCode: false,
+        district: false,
+        houseNumber: false
       }
     }
   },
@@ -189,11 +199,14 @@ export default {
       }
     },
     resetAddressSearch: function() {
-      this.error.noGeolocation = false
+      this.resetError('noGeolocation')
       this.userForm.address.coordinates = {
         latitude: undefined,
         longitude: undefined
       }
+    },
+    resetError(key) {
+      this.error[key] = false
     },
     sumbitUserForm: function(e) {
       e.preventDefault()
@@ -282,24 +295,27 @@ export default {
           payload[key] = value
         }
       }
-
-      console.log(Object.keys(payload).length)
-      if (Object.keys(payload).length < 6) {
-        console.log('nicht vollständig')
-
-        // if (
-        //   this.userData.fullAddress == null &&
-        //   !this.userForm.address.coordinates.latitude
-        // ) {
-        //   payload.address = {}
-        // }
+      let keys = Object.keys(payload)
+      if (keys.length < 6) {
+        if (!keys.includes('street')) {
+          this.error.street = true
+        }
+        if (!keys.includes('zipCode')) {
+          this.error.zipCode = true
+        }
+        if (!keys.includes('district')) {
+          this.error.district = true
+        }
+        if (!keys.includes('houseNumber')) {
+          this.error.houseNumber = true
+        }
+      } else {
+        e.preventDefault()
+        this.$store.dispatch('gmaps/GET_GEOLOCATION', {
+          address: this.userForm.address,
+          type: 'userLocation'
+        })
       }
-
-      // e.preventDefault()
-      // this.$store.dispatch('gmaps/GET_GEOLOCATION', {
-      //   address: this.userForm.address,
-      //   type: 'userLocation'
-      // })
     },
     setUserForm: function() {
       this.userForm.user.name = this.userData.name
@@ -437,9 +453,11 @@ export default {
       }
       .input-housenumber {
         display: inline-block;
-
         width: 25%;
         float: right;
+      }
+      input.object--vibrate {
+        border-color: red;
       }
 
       .search-address {
@@ -507,7 +525,7 @@ export default {
   }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1367px) {
   .user {
     .main-content {
       position: relative;
@@ -516,7 +534,7 @@ export default {
       width: 100%;
       padding: 24px;
       transform: unset;
-      padding-top: 56px;
+      padding-top: 40px;
       box-shadow: unset;
       .user-items {
         display: block;
@@ -567,7 +585,7 @@ export default {
     }
   }
 }
-@media (min-width: 641px) and (max-width: 1280px) {
+@media (min-width: 641px) and (max-width: 1367px) {
   .user {
     .main-content {
       width: 640px;

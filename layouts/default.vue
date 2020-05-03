@@ -4,7 +4,7 @@
     navbar
     .placeholder
     nuxt
-    gmaps(v-if='windowWidth > 1280 || $route.fullPath == "/map"')
+    gmaps(v-if='windowWidth > 1367 || $route.fullPath == "/map"')
 
 </template>
 <script>

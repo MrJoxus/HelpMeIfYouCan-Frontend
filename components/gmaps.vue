@@ -635,7 +635,7 @@ export default {
   bottom: -250px;
 }
 
-@media (min-width: 641px) and (max-width: 1280px) {
+@media (min-width: 641px) and (max-width: 1367px) {
 }
 @media (max-width: 640px) {
   .map-wrapper {

@@ -371,7 +371,7 @@ export default {
     }
   }
 }
-@media (min-width: 641px) and (max-width: 1280px) {
+@media (min-width: 641px) and (max-width: 1367px) {
   .inbox {
     .main-content {
       position: static;
