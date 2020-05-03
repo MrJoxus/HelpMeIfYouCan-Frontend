@@ -20,7 +20,7 @@
                 src='~assets/img/paper-plane.png')
           //- received
           div.message(
-            v-if='show == "received"'
+            v-if='show == "received" && application.id'
             v-for='application in messages.received'
             @click='updateactiveApplication(application)'
             :key='application.id'
@@ -31,21 +31,21 @@
             div.message-info
               p.send {{formatTime(application.created, "DM")}} {{formatTime(application.created, "HM")}}
               img.accepted(
-                v-if='application.lastName'
+                v-if='application.phoneNr'
                 src='~assets/img/agreement.png')
           //- send
           div.message.message--read(
-            v-if='show == "send"'
+            v-if='show == "send" && application.id'
             v-for='application in messages.send'
             @click='updateactiveApplication(application, show)'
             :key='application.id'
             )
             h6.message-header(v-if='application.helpModelType == "HelpRequestModel"') Du hast {{ application.name }} Hilfe angeboten.
-            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') Du hast {{ application.name }} um Hilfe gefragt.
+            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') Du hast {{ application.name }} um Hilfe gebeten.
             div.message-info
               p.send {{formatTime(application.created, "DM")}} {{formatTime(application.created, "HM")}}
               img.accepted(
-                v-if='application.lastName'
+                v-if='application.phoneNr'
                 src='~assets/img/agreement.png')
 
 
@@ -59,17 +59,17 @@
           template(v-if='show == "received"')
             .content
               .accepted(
-                v-if='activeApplication.lastName'
+                v-if='activeApplication.phoneNr'
               )
-                p Du hast {{ activeApplication.lastName }}s Anfrage angenommen! Erreichen kannst du
-                  |  {{ activeApplication.lastName }} unter folgender Nummer:
+                p {{ activeApplication.name }} hat deine Anfrage angenommen! Du kannst
+                  |  {{ activeApplication.name }} unter folgender Nummer erreichen:
                 p {{ activeApplication.phoneNr}}
 
               p.userName {{ activeApplication.name }}:
               p {{ activeApplication.message}}
               p ID: {{ activeApplication.id}}
 
-            .message-body_options(v-if='!activeApplication.lastName')
+            .message-body_options(v-if='!activeApplication.phoneNr')
               button.button.accept(@click='acceptApplication(activeApplication)') Anfrage akzeptieren
               p.info Mit dem Akzeptieren einer Anfrage, werden zur weiteren Kommunikation die
                 |  Kontaktdaten zwischen dir und {{activeApplication.userName}} ausgetauscht.
@@ -78,16 +78,16 @@
           template(v-if='show == "send"')
             .content
               .accepted(
-                v-if='activeApplication.lastName'
+                v-if='activeApplication.phoneNr'
               )
                 p {{ activeApplication.name }} {{ activeApplication.lastName }} hat deine Anfrage angenommen!
                   |  Du kannst ihn nun kontaktieren unter der Nummer:
                 p {{ activeApplication.phoneNr}}
 
-              p.userName {{ activeApplication.name }}:
+              p.userName {{ user.name }}:
               p {{ activeApplication.message}}
               p ID: {{ activeApplication.id}}
-            .message-body_options(v-if='!activeApplication.lastName')
+            .message-body_options(v-if='!activeApplication.phoneNr')
               button.button.button--alert(@click='deleteApplication(activeApplication)') Anfrage zurücknehmen
               p.info Wenn {{ activeApplication.userName}} dein Angebot oder deine Anfrage annimmt, werden deine Kontaktdaten an
                 |  {{activeApplication.userName}} weitergegeben. Zeitgleich erhälst du die Kontaktdaten von {{activeApplication.userName}}
@@ -103,7 +103,6 @@ export default {
   middleware: 'auth',
   data: function() {
     return {
-      windowWidth: undefined,
       activeApplication: {},
       show: 'received'
     }
@@ -125,8 +124,8 @@ export default {
     },
     formatTime(time, type) {
       let created = new Date(time)
-      let month = created.getMonth()
-      let day = created.getDay()
+      let month = created.getMonth() + 1
+      let day = created.getDate()
       let hours = created.getHours()
       let minutes = created.getMinutes()
       month = month < 10 ? '0' + month : month
@@ -165,7 +164,8 @@ export default {
           self.activeApplication = {}
         })
         .catch(error => {
-          console.log(error)
+          console.log('error', error)
+          this.$store.dispatch('modal/FLASH_MODAL', 'cancel')
         })
     },
 
@@ -187,22 +187,15 @@ export default {
         })
         .catch(error => {
           console.log('error', error)
+          this.$store.dispatch('modal/FLASH_MODAL', 'cancel')
         })
-    },
-    onResize() {
-      this.windowWidth = window.innerWidth
     }
   },
   mounted() {
+    this.$store.dispatch('user/REQUEST_USER')
     this.$store.commit('gmaps/UPDATE_STATUS', {
       show: { filter: false, markers: false }
     })
-    window.addEventListener('resize', this.onResize)
-    this.onResize()
-  },
-
-  beforeDestroy() {
-    window.removeEventListener('resize', this.onResize)
   }
 }
 </script>
