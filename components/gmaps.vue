@@ -619,20 +619,20 @@ export default {
   background: white;
   transform: translateX(-50%);
   opacity: 1;
-
   display: inline-block;
   padding: 8px 8px 6px 8px;
   text-align: center;
   user-select: none;
   border: solid 1px #227bc0;
   border-radius: 4px;
-
+  transition: all 0.3s ease;
   img {
     width: 20px;
   }
 }
 .filter-expand--hide {
   opacity: 0;
+  bottom: -250px;
 }
 
 @media (min-width: 641px) and (max-width: 1280px) {

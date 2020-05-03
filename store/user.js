@@ -170,7 +170,6 @@ export const actions = {
   },
   UPDATE_ADDRESS({ state, commit }, payload) {
     if (state.data.userAddress == null) {
-      payload.country = 'de'
       this.$axios
         .post('api/user/me/address', payload)
         .then(response => {
