@@ -323,7 +323,7 @@ $navbar-height: 56px;
   }
 }
 
-@media (min-width: 1281px) {
+@media (min-width: 1367px) {
   .navbar-items-mobile {
     display: none;
   }

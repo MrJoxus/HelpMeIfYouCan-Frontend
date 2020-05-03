@@ -186,6 +186,7 @@ export default {
               })
               .catch(error => {
                 console.log('error', error)
+                this.$store.dispatch('modal/FLASH_MODAL', 'cancel')
               })
           } else {
             // error passwordConfirmation is missing
@@ -380,6 +381,7 @@ export default {
     }
   },
   mounted() {
+    this.$store.dispatch('user/REQUEST_USER')
     this.$store.commit('gmaps/UPDATE_STATUS', {
       show: { filter: false, markers: false }
     })

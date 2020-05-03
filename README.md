@@ -1,11 +1,12 @@
 # HelpMeIfYouCan Frontend
 
 Frontend for Project HelpMeIfYouCan 
-> Version 0.0.2
+> Version 0.1.2
 
 ## Dependencies
 
 node: 12.16
+
 npm: 6.13
 
 ## Build Setup

@@ -156,10 +156,12 @@ export const actions = {
           commit('SET_USER', response.data)
           commit('UPDATE_USER_EDIT', false)
           commit('UPDATE_ERROR', { status: false })
+          dispatch('modal/FLASH_MODAL', 'tick', { root: true })
         })
         .catch(error => {
           console.log('error', error)
           commit('UPDATE_ERROR', { status: true })
+          dispatch('modal/FLASH_MODAL', 'cancel', { root: true })
         })
     }
 

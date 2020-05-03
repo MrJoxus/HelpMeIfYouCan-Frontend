@@ -113,6 +113,7 @@ export default {
           })
           .catch(error => {
             console.log('error', error)
+            this.$store.dispatch('modal/FLASH_MODAL', 'cancel')
           })
       }
     }
@@ -141,8 +142,15 @@ export default {
       width: 640px;
       margin: 0 auto;
       transform: unset;
-      padding-top: 56px;
+      padding-top: 40px;
       box-shadow: unset;
+    }
+  }
+}
+@media (max-width: 640px) {
+  .register {
+    .form-wrapper {
+      width: 100%;
     }
   }
 }
