@@ -18,7 +18,7 @@
       .links
         nuxt-link.button(to="/register" v-if='!$auth.loggedIn') Registriere dich!
         nuxt-link.button(to="/map" v-if='$auth.loggedIn') Zur Karte!
-      gmaps.example-map(v-if='windowWidth <= 1280')
+      gmaps.example-map(v-if='windowWidth <= 1367')
 
 </template>
 
@@ -95,7 +95,7 @@ export default {
   }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1367px) {
   .index {
     height: 100%;
     .example-map {
@@ -111,7 +111,7 @@ export default {
       width: 100%;
       height: 100%;
       transform: unset;
-      padding-top: 56px;
+      padding-top: 40px;
       box-shadow: unset;
     }
     .card {
@@ -120,7 +120,7 @@ export default {
     }
   }
 }
-@media (min-width: 641px) and (max-width: 1280px) {
+@media (min-width: 641px) and (max-width: 1367px) {
   .index {
     .main-content {
       width: 640px;

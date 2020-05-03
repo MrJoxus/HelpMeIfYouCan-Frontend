@@ -62,7 +62,7 @@
                 ) Adresse verifizieren
           p.info(v-if="userEdit") * Die Adresse wird nur für die Verortung auf der Karte und für
             |  das Erstellen von neuen Anzeigen verwendet und ist eine freiwillige Angabe.
-          gmaps.map-verification(v-if='windowWidth <= 1280 && userEdit')
+          gmaps.map-verification(v-if='windowWidth <= 1367 && userEdit')
 
         hr
         div.user-items
@@ -525,7 +525,7 @@ export default {
   }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1367px) {
   .user {
     .main-content {
       position: relative;
@@ -534,7 +534,7 @@ export default {
       width: 100%;
       padding: 24px;
       transform: unset;
-      padding-top: 56px;
+      padding-top: 40px;
       box-shadow: unset;
       .user-items {
         display: block;
@@ -585,7 +585,7 @@ export default {
     }
   }
 }
-@media (min-width: 641px) and (max-width: 1280px) {
+@media (min-width: 641px) and (max-width: 1367px) {
   .user {
     .main-content {
       width: 640px;

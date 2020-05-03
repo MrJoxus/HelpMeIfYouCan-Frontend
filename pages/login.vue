@@ -63,7 +63,7 @@ export default {
 input.object--vibrate {
   border-color: red;
 }
-@media (max-width: 640px) {
+@media (max-width: 1367px) {
   body {
     background: #f7f7f7;
   }
@@ -72,7 +72,8 @@ input.object--vibrate {
       position: relative;
       top: 0;
       left: 0;
-      width: 100%;
+      width: 640px;
+      margin: 0 auto;
       transform: unset;
       padding-top: 56px;
       box-shadow: unset;

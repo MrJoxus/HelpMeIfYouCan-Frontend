@@ -302,7 +302,7 @@ $navbar-height: 56px;
   }
 }
 
-@media (max-width: 1280px) {
+@media (max-width: 1367px) {
   .navbar-items-trigger {
     display: block;
   }
