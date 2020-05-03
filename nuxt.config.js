@@ -35,9 +35,14 @@ export default {
     ]
   },
 
+
   server: {
-    port: process.env.BASE_PORT,
-    host: process.env.BASE_URL
+    port: 3030,
+    host: '0.0.0.0'
+  },
+
+  env: {
+    GOOGLE_API_KEY: process.env.GOOGLE_API_KEY
   },
 
   serverMiddleware: {
@@ -101,6 +106,6 @@ export default {
   proxy: {},
 
   build: {
-    extend(config, ctx) {}
+    extend(config, ctx) { }
   }
 }
