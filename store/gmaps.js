@@ -137,7 +137,7 @@ export const actions = {
         }
       })
       .catch(error => {
-        console.log(error)
+        console.log("error", error)
       })
     this.$axios.defaults.headers.common['Authorization'] = localStorage.getItem(
       'auth._token.local'
@@ -169,7 +169,7 @@ export const actions = {
         })
       })
       .catch(error => {
-        console.log(error)
+        console.log("error", error)
       })
   },
   GET_HELP_O_R({ commit }, payload) {

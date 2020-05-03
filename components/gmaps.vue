@@ -49,14 +49,15 @@
         div.info-window(ref='infoWindow')
           .info-window-item(
             v-for='(item, index) in infoWindowContent'
-            @click.stop='openApplication(item.id)'
+            @click='openApplication(item.id)'
             :class='{"info-window-item--active": status.infoWindow.item == item.id}'
             )
             h4(v-if='item.type == "help-offer"') {{ item.userName }} möchte helfen
             h4(v-if='item.type == "help-request"') {{ item.userName }} braucht Hilfe
             p.id request id {{ item.id }}
-            p {{ item.description }}
+            p.description {{ item.description }}
             textarea(
+              @click.stop
               v-model='model.parent_id[index + item.id]'
               :class='{collapsed: !status.infoWindow.textarea}'
               )
@@ -217,6 +218,8 @@ export default {
       if (this.gObjects.map && this.gObjects.markerCluster) {
         this.gObjects.markerCluster.clearMarkers()
         this.gObjects.markerCluster.addMarkers(this.gObjects.markers)
+      } else {
+        this.initMarkerCluster()
       }
     }
   },
@@ -306,11 +309,14 @@ export default {
         })
         .catch(error => {
           console.log('error', error)
+          this.$store.dispatch('modal/FLASH_MODAL', 'cancel')
         })
     },
     openApplication(id) {
-      this.status.infoWindow.item = id
-      this.status.infoWindow.textarea = false
+      if (this.status.infoWindow.item != id) {
+        this.status.infoWindow.item = id
+        this.status.infoWindow.textarea = false
+      }
     },
     uncollapseTextArea() {
       this.status.infoWindow.textarea = true
@@ -511,6 +517,9 @@ export default {
   p {
     font-size: 14px;
     font-weight: 400;
+  }
+  p.description{
+    word-break: break-all;
   }
   hr {
     margin-top: 16px;

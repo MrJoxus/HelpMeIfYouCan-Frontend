@@ -72,11 +72,18 @@ input.object--vibrate {
       position: relative;
       top: 0;
       left: 0;
-      width: 640px;
+      max-width: 640px;
       margin: 0 auto;
       transform: unset;
-      padding-top: 56px;
+      padding-top: 40px;
       box-shadow: unset;
+    }
+  }
+}
+@media (max-width: 640px) {
+    .login {
+    .form-wrapper {
+      width: 100%;
     }
   }
 }

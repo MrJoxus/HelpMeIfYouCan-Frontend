@@ -10,7 +10,8 @@
             nuxt-link(to='/create')  Anzeige erstellen.
 
           .item(v-for='item in userHelpOR') {{ setModel(item.id, item.description) }}
-            p.mesage-title Nachricht:
+            p.mesage-title(v-if='item.type == "help-offer"') Angebot:
+            p.mesage-title(v-if='item.type == "help-request"') Anfrage:
             p.date {{formatTime(item.datePublished, "DM")}} {{formatTime(item.datePublished, "HM")}}
             p.message-body(v-if='!(item.id == edit)') {{item.description}}
             textarea.input-textarea(
@@ -82,6 +83,7 @@ export default {
         })
         .catch(error => {
           console.log('error', error)
+          this.$store.dispatch('modal/FLASH_MODAL', 'cancel')
         })
     },
     deleteItem(type, id) {
@@ -94,6 +96,7 @@ export default {
           })
           .catch(error => {
             console.log('error', error)
+            this.$store.dispatch('modal/FLASH_MODAL', 'cancel')
           })
       }
     },
@@ -142,6 +145,7 @@ export default {
     })
   },
   mounted() {
+    this.$store.dispatch('user/REQUEST_USER')
     this.$store.commit('gmaps/UPDATE_STATUS', {
       show: { filter: false, markers: false }
     })
