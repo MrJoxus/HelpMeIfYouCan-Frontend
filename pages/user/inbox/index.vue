@@ -27,7 +27,7 @@
             :class='{"message--read": application.read}'
             )
             h6.message-header(v-if='application.helpModelType == "HelpRequestModel"') {{ application.name }} möchte dir helfen!
-            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') {{ application.name }} würde sich über deine hilfe freuen!
+            h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') {{ application.name }} würde sich über deine Hilfe freuen!
             div.message-info
               p.send {{formatTime(application.created, "DM")}} {{formatTime(application.created, "HM")}}
               img.accepted(
@@ -80,7 +80,7 @@
               .accepted(
                 v-if='activeApplication.phoneNr'
               )
-                p {{ activeApplication.name }} {{ activeApplication.lastName }} hat deine Anfrage angenommen!
+                p {{ activeApplication.name }} hat deine Anfrage angenommen!
                   |  Du kannst ihn nun kontaktieren unter der Nummer:
                 p {{ activeApplication.phoneNr}}
 

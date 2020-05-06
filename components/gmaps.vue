@@ -345,7 +345,7 @@ export default {
         this.gObjects.markers,
         {
           imagePath:
-            'https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m'
+            '/cluster/m'
         }
       )
     },
