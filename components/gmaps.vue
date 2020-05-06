@@ -16,6 +16,8 @@
           src='~/assets/img/down-arrow.png')
       form(@submit='submitFilter')
         input.input.input-street(
+          ref='addressInput'
+          @focus="focusHandler()"
           v-model="model.filter.address"
           @keyup=""
           type='text'
@@ -242,6 +244,7 @@ export default {
     // filter
     toggleFilter() {
       this.status.filter.active = !this.status.filter.active
+      !this.status.filter.active || this.focus()
     },
     submitFilter(e) {
       e.preventDefault()
@@ -269,16 +272,19 @@ export default {
       this.$store.commit('gmaps/TRIGGER', ['cluster'])
     },
     focusHandler() {
-      document.addEventListener('click', this.documentClick)
+      document.addEventListener('click', this.unfocus)
       this.status.inputFocus = true
     },
-    documentClick(e) {
-      let el = this.$refs.addressInput
-      let target = e.target
-      if (el !== target) {
-        el.blur()
+    focus() {
+      setTimeout(() => {
+        this.$refs.addressInput.focus()
+      }, 0)
+    },
+    unfocus(e) {
+      if (this.$refs.addressInput !== e.target) {
+        this.$refs.addressInput.blur()
         this.status.inputFocus = false
-        document.removeEventListener('click', this.documentClick)
+        document.removeEventListener('click', this.unfocus)
       }
     },
     getDeviceLocation() {
@@ -344,8 +350,7 @@ export default {
         this.gObjects.map,
         this.gObjects.markers,
         {
-          imagePath:
-            '/cluster/m'
+          imagePath: '/cluster/m'
         }
       )
     },
@@ -518,7 +523,7 @@ export default {
     font-size: 14px;
     font-weight: 400;
   }
-  p.description{
+  p.description {
     word-break: break-all;
   }
   hr {
