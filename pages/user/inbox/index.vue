@@ -40,6 +40,7 @@
             @click='updateactiveApplication(application, show)'
             :key='application.id'
             )
+            p {{test(application)}}
             h6.message-header(v-if='application.helpModelType == "HelpRequestModel"') Du hast {{ application.name }} Hilfe angeboten.
             h6.message-header(v-if='application.helpModelType == "HelpOfferModel"') Du hast {{ application.name }} um Hilfe gebeten.
             div.message-info
@@ -115,7 +116,27 @@ export default {
       return this.$store.getters['user/messages']
     }
   },
+  watch: {
+    messages() {
+      console.log('trigger', this.messages)
+      //     if (application.helpModelType == 'HelpRequestModel') {
+      //   type = 'help-request'
+      // } else {
+      //   type = 'help-offer'
+      // }
+      // this.$axios
+      //   .get(`/api/${payload.type}/${payload.id}`)
+      //   .then(response => {
+      //   })
+      //   .catch(error => {
+      //     console.log('error', error)
+      //   })
+    }
+  },
   methods: {
+    test(application) {
+      console.log(application)
+    },
     toggleShow(show) {
       if (this.show != show) {
         this.activeApplication = {}
@@ -149,7 +170,6 @@ export default {
       }
     },
     deleteApplication(application) {
-      let self = this
       let type
       if (application.helpModelType == 'HelpRequestModel') {
         type = 'help-request'
@@ -160,8 +180,8 @@ export default {
         .delete(`/api/${type}/unapply/${application.modelId}`)
         .then(response => {
           console.log('response', response.data)
-          self.$store.dispatch('user/REQUEST_USER')
-          self.activeApplication = {}
+          this.$store.dispatch('user/REQUEST_USER')
+          this.activeApplication = {}
         })
         .catch(error => {
           console.log('error', error)
@@ -171,7 +191,6 @@ export default {
 
     acceptApplication(application) {
       let type
-      let self = this
       if (application.helpModelType == 'HelpOfferModel') {
         type = 'offer'
       } else if (application.helpModelType == 'HelpRequestModel') {
@@ -182,7 +201,7 @@ export default {
           `api/help-${type}/${application.modelId}/${application.id}/accept`
         )
         .then(response => {
-          self.$store.disptach('user/REQUEST_USER')
+          this.$store.disptach('user/REQUEST_USER')
           console.log('response', response)
         })
         .catch(error => {
